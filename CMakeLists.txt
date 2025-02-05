@@ -4,7 +4,7 @@ cmake_minimum_required(VERSION 3.25)
 
 project(beman.scope DESCRIPTION "Generic Scope Guard" LANGUAGES CXX)
 
-enable_testing()
+# enable_testing()
 
 # [CMAKE.SKIP_TESTS]
 option(
@@ -23,24 +23,11 @@ option(
 include(FetchContent)
 include(GNUInstallDirs)
 
-if(BEMAN_SCOPE_BUILD_TESTS)
-    # Fetch GoogleTest
-    FetchContent_Declare(
-        googletest
-        GIT_REPOSITORY https://github.com/google/googletest.git
-        GIT_TAG
-            f8d7d77c06936315286eb55f8de22cd23c188571 # release-1.14.0
-        EXCLUDE_FROM_ALL
-    )
-    set(INSTALL_GTEST OFF) # Disable GoogleTest installation
-    FetchContent_MakeAvailable(googletest)
-endif()
+# add_subdirectory(src/beman/scope)
 
-add_subdirectory(src/beman/scope)
-
-if(BEMAN_SCOPE_BUILD_TESTS)
-    add_subdirectory(tests/beman/scope)
-endif()
+#if(BEMAN_SCOPE_BUILD_TESTS)
+#    add_subdirectory(tests/beman/scope)
+#endif()
 
 if(BEMAN_SCOPE_BUILD_EXAMPLES)
     add_subdirectory(examples)

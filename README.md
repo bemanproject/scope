@@ -8,19 +8,49 @@ SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
 ![Continuous Integration Tests](https://github.com/bemanproject/scope/actions/workflows/ci_tests.yml/badge.svg)
 ![Lint Check (pre-commit)](https://github.com/bemanproject/scope/actions/workflows/pre-commit.yml/badge.svg)
 
-`beman.scope` is a minimal C++ library conforming to [The Beman Standard](https://github.com/bemanproject/beman/blob/main/docs/BEMAN_STANDARD.md).
-This can be used as a template for those intending to write Beman libraries.
-It may also find use as a minimal and modern  C++ project structure.
+# Overview
 
-**Implements**: `std::identity` proposed in [Standard Library Concepts (P0898R3)](https://wg21.link/P0898R3).
+During the C++20 cycle [P0052 Generic Scope Guard and RAII Wrapper for the Standard Library](https://wg21.link/P0052) added 4 types: `scope_exit`, `scope_fail`, `scope_success` and `unique_resource` to [LTFSv3](https://www.open-std.org/jtc1/sc22/wg21/docs/papers/2022/n4908#scopeguard).  In the intervening time, two standard libraries have implemented support as well as Boost. With the imperative for safety and security in C++ developers need every tool in the toolbox. The authors believe it is time to move this facility into the standard.  The paper will re-examine the five year old design and any learning from deployment of the LTFSv3.
+
+For discussions of this library see:
+
+- [Discourse for discussion of scope](https://discourse.bemanproject.org/t/scope-library/315)
+
+# Prior And Other Work
+
+## Papers
+
+- TS design and wording paper [p0052 - Generic Scope Guard and RAII Wrapper for the Standard Library](https://wg21.link/p0052)
+- TS adoption paper [p1411 - Please reconsider <scope> for C++20](https://wg21.link/p1411)
+- [N3677 A Proposal to Add additional RAII Wrappers to the Standard Library](https://www.open-std.org/jtc1/sc22/wg21/docs/papers/2013/n3677.html)
+- [N4152 uncaught_exceptions - Sutter](https://www.open-std.org/jtc1/sc22/wg21/docs/papers/2014/n4152.pdf)
+
+## Implementations
+
+- [GSL final_action](https://github.com/microsoft/GSL/blob/main/include/gsl/util) - part of core guidelines
+- [Boost.scope](https://www.boost.org/doc/libs/1_87_0/libs/scope/doc/html/index.html)
+- [scope_guard based on Andrei Alexandrescu and Petru Marginean article](https://ricab.github.io/scope_guard)
+
+## Videos
+
+- [Peter Sommerlad - Woes of Scope Guards and Unique_Resource - 5+ years in the making](https://www.youtube.com/watch?v=O1sK__G5Nrg)
+- [Andrei Alexandrescu - Declarative Control Flow](https://www.youtube.com/watch?v=WjTrfoiB0MQ)
+
+# Examples
+
+- [TS example of scope_exit](https://godbolt.org/z/T5KhTYjP7)
+
+---
+
+`beman.scope` is a C++ library conforming to [The Beman Standard](https://github.com/bemanproject/beman/blob/main/docs/BEMAN_STANDARD.md).
+
+**Implements**: TODO
 
 **Status**: [Under development and not yet ready for production use.](https://github.com/bemanproject/beman/blob/main/docs/BEMAN_LIBRARY_MATURITY_MODEL.md#under-development-and-not-yet-ready-for-production-use)
 
 ## Usage
 
-`std::identity` is a function object type whose `operator()` returns its argument unchanged.
-`std::identity` serves as the default projection in constrained algorithms.
-Its direct usage is usually not needed.
+TODO
 
 ### Example Usage
 
@@ -31,7 +61,6 @@ Full runnable examples can be found in `examples/`.
 ## Building beman.scope
 
 ### Dependencies
-<!-- TODO Darius: rewrite section!-->
 
 This project has no C or C++ dependencies.
 
@@ -84,9 +113,7 @@ apt-get install                           \
 
 ### How to build beman.scope
 
-This project strives to be as normal and simple a CMake project as possible.
-This build workflow in particular will work,
-producing a static `libbeman.scope.a` library, ready to package with its headers:
+Beman scope is header only.
 
 ```shell
 cmake --workflow --preset gcc-debug
@@ -109,126 +136,10 @@ Preset CMake variables:
   CMAKE_CXX_FLAGS="-fsanitize=address -fsanitize=pointer-compare -fsanitize=pointer-subtract -fsanitize=leak -fsanitize=undefined"
   CMAKE_CXX_STANDARD="20"
 
--- The CXX compiler identification is GNU 11.4.0
--- Detecting CXX compiler ABI info
--- Detecting CXX compiler ABI info - done
--- Check for working CXX compiler: /usr/bin/g++ - skipped
--- Detecting CXX compile features
--- Detecting CXX compile features - done
--- The C compiler identification is GNU 11.4.0
--- Detecting C compiler ABI info
--- Detecting C compiler ABI info - done
--- Check for working C compiler: /usr/bin/cc - skipped
--- Detecting C compile features
--- Detecting C compile features - done
--- Found Python3: /usr/bin/python3.10 (found version "3.10.12") found components: Interpreter
--- Performing Test CMAKE_HAVE_LIBC_PTHREAD
--- Performing Test CMAKE_HAVE_LIBC_PTHREAD - Success
--- Found Threads: TRUE
--- Configuring done
--- Generating done
--- Build files have been written to: /home/runner/work/scope/exemplar/build/gcc-debug
-
-Executing workflow step 2 of 3: build preset "gcc-debug"
-
-[1/14] Building CXX object src/beman/scope/CMakeFiles/beman.exemplar.dir/identity.cpp.o
-[2/14] Linking CXX static library src/beman/scope/libbeman.exemplar.a
-[3/14] Building CXX object examples/CMakeFiles/beman.scope.examples.identity_direct_usage.dir/identity_direct_usage.cpp.o
-[4/14] Linking CXX executable examples/beman.scope.examples.identity_direct_usage
-[5/14] Building CXX object _deps/googletest-build/googletest/CMakeFiles/gtest_main.dir/src/gtest_main.cc.o
-[6/14] Building CXX object src/beman/scope/CMakeFiles/beman.exemplar.tests.dir/identity.t.cpp.o
-[7/14] Building CXX object _deps/googletest-build/googlemock/CMakeFiles/gmock_main.dir/src/gmock_main.cc.o
-[8/14] Building CXX object _deps/googletest-build/googlemock/CMakeFiles/gmock.dir/src/gmock-all.cc.o
-[9/14] Building CXX object _deps/googletest-build/googletest/CMakeFiles/gtest.dir/src/gtest-all.cc.o
-[10/14] Linking CXX static library lib/libgtest.a
-[11/14] Linking CXX static library lib/libgtest_main.a
-[12/14] Linking CXX static library lib/libgmock.a
-[13/14] Linking CXX static library lib/libgmock_main.a
-[14/14] Linking CXX executable src/beman/scope/beman.exemplar.tests
-
-Executing workflow step 3 of 3: test preset "gcc-debug"
-
-Test project /home/runner/work/scope/exemplar/build/gcc-debug
-    Start 1: IdentityTest.call_identity_with_int
-1/4 Test #1: IdentityTest.call_identity_with_int ...........   Passed    0.13 sec
-    Start 2: IdentityTest.call_identity_with_custom_type
-2/4 Test #2: IdentityTest.call_identity_with_custom_type ...   Passed    0.01 sec
-    Start 3: IdentityTest.compare_std_vs_beman
-3/4 Test #3: IdentityTest.compare_std_vs_beman .............   Passed    0.01 sec
-    Start 4: IdentityTest.check_is_transparent
-4/4 Test #4: IdentityTest.check_is_transparent .............   Passed    0.01 sec
-
-100% tests passed, 0 tests failed out of 4
-
-Total Test time (real) =   0.18 sec
-
-# Configure beman.scope via gcc-release workflow for direct usage.
-$ cmake --workflow --preset gcc-release
-Executing workflow step 1 of 3: configure preset "gcc-release"
-
-Preset CMake variables:
-
-  CMAKE_BUILD_TYPE="RelWithDebInfo"
-  CMAKE_CXX_COMPILER="g++"
-  CMAKE_CXX_FLAGS="-O3"
-  CMAKE_CXX_STANDARD="20"
-
--- The CXX compiler identification is GNU 11.4.0
--- Detecting CXX compiler ABI info
--- Detecting CXX compiler ABI info - done
--- Check for working CXX compiler: /usr/bin/g++ - skipped
--- Detecting CXX compile features
--- Detecting CXX compile features - done
--- The C compiler identification is GNU 11.4.0
--- Detecting C compiler ABI info
--- Detecting C compiler ABI info - done
--- Check for working C compiler: /usr/bin/cc - skipped
--- Detecting C compile features
--- Detecting C compile features - done
--- Found Python3: /usr/bin/python3.10 (found version "3.10.12") found components: Interpreter
--- Performing Test CMAKE_HAVE_LIBC_PTHREAD
--- Performing Test CMAKE_HAVE_LIBC_PTHREAD - Success
--- Found Threads: TRUE
--- Configuring done
--- Generating done
--- Build files have been written to: /home/runner/work/scope/exemplar/build/gcc-release
-
-Executing workflow step 2 of 3: build preset "gcc-release"
-
-[1/14] Building CXX object src/beman/scope/CMakeFiles/beman.exemplar.dir/identity.cpp.o
-[2/14] Linking CXX static library src/beman/scope/libbeman.exemplar.a
-[3/14] Building CXX object examples/CMakeFiles/beman.scope.examples.identity_direct_usage.dir/identity_direct_usage.cpp.o
-[4/14] Linking CXX executable examples/beman.scope.examples.identity_direct_usage
-[5/14] Building CXX object _deps/googletest-build/googletest/CMakeFiles/gtest_main.dir/src/gtest_main.cc.o
-[6/14] Building CXX object src/beman/scope/CMakeFiles/beman.exemplar.tests.dir/identity.t.cpp.o
-[7/14] Building CXX object _deps/googletest-build/googlemock/CMakeFiles/gmock_main.dir/src/gmock_main.cc.o
-[8/14] Building CXX object _deps/googletest-build/googlemock/CMakeFiles/gmock.dir/src/gmock-all.cc.o
-[9/14] Building CXX object _deps/googletest-build/googletest/CMakeFiles/gtest.dir/src/gtest-all.cc.o
-[10/14] Linking CXX static library lib/libgtest.a
-[11/14] Linking CXX static library lib/libgtest_main.a
-[12/14] Linking CXX static library lib/libgmock.a
-[13/14] Linking CXX executable src/beman/scope/beman.exemplar.tests
-[14/14] Linking CXX static library lib/libgmock_main.a
-
-Executing workflow step 3 of 3: test preset "gcc-release"
-
-Test project /home/runner/work/scope/exemplar/build/gcc-release
-    Start 1: IdentityTest.call_identity_with_int
-1/4 Test #1: IdentityTest.call_identity_with_int ...........   Passed    0.00 sec
-    Start 2: IdentityTest.call_identity_with_custom_type
-2/4 Test #2: IdentityTest.call_identity_with_custom_type ...   Passed    0.00 sec
-    Start 3: IdentityTest.compare_std_vs_beman
-3/4 Test #3: IdentityTest.compare_std_vs_beman .............   Passed    0.00 sec
-    Start 4: IdentityTest.check_is_transparent
-4/4 Test #4: IdentityTest.check_is_transparent .............   Passed    0.00 sec
-
-100% tests passed, 0 tests failed out of 4
-
-Total Test time (real) =   0.01 sec
+TODO
 
 # Run examples.
-$ build/gcc-release/examples/beman.scope.examples.identity_direct_usage
-2024
+$ TODO
 
 ```
 
@@ -251,9 +162,8 @@ $ tree /opt/beman.scope
 ├── include
 │   └── beman
 │       └── scope
-│           └── identity.hpp
-└── lib
-    └── libbeman.scope.a
+│           └── scope.hpp
+
 
 4 directories, 2 files
 ```
