@@ -82,20 +82,23 @@ struct ExecuteAlways;
 
 //=========================================================
 
-template <scope_exit_function ExitFunc, scope_invoke_checker InvokeChecker = ExecuteAlways>
+
+template <scope_exit_function ScopeExitFunc, scope_invoke_checker InvokeChecker = ExecuteAlways>
 class scope_guard {
   public:
-    explicit constexpr scope_guard(ExitFunc&& exit_func) noexcept(std::is_nothrow_constructible_v<ExitFunc>) //
-        try
-        : m_exit_func(std::forward<ExitFunc>(exit_func)) //
+    explicit constexpr scope_guard(ScopeExitFunc&& exit_func) noexcept(
+        std::is_nothrow_constructible_v<ScopeExitFunc>) try
+        : m_exit_func(std::forward<ScopeExitFunc>(exit_func)) //
     {
     } catch (...) {
-        m_exit_func();
+        if constexpr (InvokeChecker::invoke_on_constructor_exception) {
+            exit_func();
+        }
     }
 
-    explicit constexpr scope_guard(ExitFunc&& exit_func, InvokeChecker&& invoke_checker) noexcept(
-        std::is_nothrow_constructible_v<ExitFunc> && std::is_nothrow_constructible_v<InvokeChecker>)
-        : m_exit_func(std::forward<ExitFunc>(exit_func)),
+    explicit constexpr scope_guard(ScopeExitFunc&& exit_func, InvokeChecker&& invoke_checker) noexcept(
+        std::is_nothrow_constructible_v<ScopeExitFunc> && std::is_nothrow_constructible_v<InvokeChecker>)
+        : m_exit_func(std::forward<ScopeExitFunc>(exit_func)),
           m_invoke_checker{std::forward<InvokeChecker>(invoke_checker)} //
     {}
 
@@ -125,7 +128,7 @@ class scope_guard {
     }
 
   private:
-    [[no_unique_address]] ExitFunc      m_exit_func;
+    [[no_unique_address]] ScopeExitFunc m_exit_func;
     [[no_unique_address]] InvokeChecker m_invoke_checker;
 
     template <typename T>
@@ -153,11 +156,15 @@ scope_guard(ExitFunc&&, InvokeChecker&&) -> scope_guard<ExitFunc, InvokeChecker>
 //=========================================================
 
 struct ExecuteAlways {
+    static constexpr bool invoke_on_constructor_exception = true;
+
     [[nodiscard]] static constexpr bool can_invoke() { return true; }
 };
 
 class ExecuteWhenNoException {
   public:
+    static constexpr bool invoke_on_constructor_exception = false;
+
     [[nodiscard]] bool can_invoke() const { return m_uncaught_on_creation >= std::uncaught_exceptions(); }
 
   private:
@@ -166,6 +173,8 @@ class ExecuteWhenNoException {
 
 class ExecuteOnlyWhenException {
   public:
+    static constexpr bool invoke_on_constructor_exception = true;
+
     [[nodiscard]] bool can_invoke() const { return m_uncaught_on_creation < std::uncaught_exceptions(); }
 
   private:
