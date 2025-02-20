@@ -66,12 +66,17 @@ concept HasStaticRelease = requires {
     { T::release() } -> std::same_as<void>;
 };
 
+template <typename T>
+concept HasInvokeOnConstructorExceptionBool = requires {
+    { T::invoke_on_constructor_exception } -> std::convertible_to<const bool>;
+};
+
 template <typename F, typename R, typename... Args>
 concept invocable_return = std::invocable<F, Args...> && std::convertible_to<std::invoke_result_t<F, Args...>, R>;
 
 template <typename F>
 concept scope_exit_function =
-    invocable_return<F, void> && std::is_nothrow_move_constructible_v<F> && std::is_copy_constructible_v<F>;
+    invocable_return<F, void> && (std::is_nothrow_move_constructible_v<F> || std::is_copy_constructible_v<F>);
 
 template <typename T>
 concept scope_invoke_checker = HasStaticCanInvoke<T> || HasCanInvoke<T> || invocable_return<T, bool>;
@@ -82,17 +87,24 @@ struct ExecuteAlways;
 
 //=========================================================
 
-
 template <scope_exit_function ScopeExitFunc, scope_invoke_checker InvokeChecker = ExecuteAlways>
 class scope_guard {
   public:
-    explicit constexpr scope_guard(ScopeExitFunc&& exit_func) noexcept(
-        std::is_nothrow_constructible_v<ScopeExitFunc>) try
+    explicit constexpr scope_guard(ScopeExitFunc&& exit_func) //
+        noexcept(std::is_nothrow_constructible_v<ScopeExitFunc>)
+        requires !std::is_same_v<decltype(exit_func), scope_guard>
+                 try
         : m_exit_func(std::forward<ScopeExitFunc>(exit_func)) //
     {
     } catch (...) {
-        if constexpr (InvokeChecker::invoke_on_constructor_exception) {
-            exit_func();
+        if constexpr (!std::is_nothrow_constructible_v<ScopeExitFunc>) {
+            if constexpr (HasInvokeOnConstructorExceptionBool<ScopeExitFunc>) {
+                if (InvokeChecker::invoke_on_constructor_exception) {
+                    exit_func();
+                }
+            }
+
+            throw;
         }
     }
 
