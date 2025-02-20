@@ -92,8 +92,8 @@ class scope_guard {
   public:
     explicit constexpr scope_guard(ScopeExitFunc&& exit_func) //
         noexcept(std::is_nothrow_constructible_v<ScopeExitFunc>)
-        requires !std::is_same_v<decltype(exit_func), scope_guard>
-                 try
+        requires(!std::is_same_v<decltype(exit_func), scope_guard>)
+    try
         : m_exit_func(std::forward<ScopeExitFunc>(exit_func)) //
     {
     } catch (...) {
