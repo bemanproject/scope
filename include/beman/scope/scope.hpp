@@ -103,14 +103,13 @@ concept scope_invoke_checker = HasStaticCanInvoke<T> || HasCanInvoke<T> || invoc
 
 //==================================================================================================
 
-struct ExecuteAlways;
-struct NeverExecute;
+class ExecuteAlways;
+class NeverExecute;
 
 //==================================================================================================
 
 template<scope_exit_function ScopeExitFunc, scope_invoke_checker InvokeChecker = ExecuteAlways>
-[[nodiscard]]
-class scope_guard
+class [[nodiscard]] scope_guard
 {
 public:
     explicit constexpr scope_guard(ScopeExitFunc&& exit_func)

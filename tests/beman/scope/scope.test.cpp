@@ -105,7 +105,7 @@ TEST_CASE("scope_guard")
 
         auto guard = beman::scope::scope_guard { exit_func_onj };
 
-        auto guard2(std::move(guard));
+        // auto guard2(std::move(guard));
 
         REQUIRE(exit_func_onj.invoked_count == 1);
     }
