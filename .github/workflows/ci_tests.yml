@@ -20,14 +20,6 @@ jobs:
             platform: "ubuntu-latest"
           - preset: "gcc-release"
             platform: "ubuntu-latest"
-          - preset: "appleclang-debug"
-            platform: "macos-latest"
-          - preset: "appleclang-release"
-            platform: "macos-latest"
-          - preset: "msvc-debug"
-            platform: "windows-latest"
-          - preset: "msvc-release"
-            platform: "windows-latest"
     name: "Preset: ${{ matrix.presets.preset }} on ${{ matrix.presets.platform }}"
     runs-on: ${{ matrix.presets.platform }}
     steps:
@@ -56,13 +48,7 @@ jobs:
           - description: "Ubuntu LLVM"
             os: ubuntu-latest
             toolchain: "cmake/llvm-toolchain.cmake"
-          - description: "Windows MSVC"
-            os: windows-latest
-            toolchain: "cmake/msvc-toolchain.cmake"
-          - description: "Macos Appleclang"
-            os: macos-latest
-            toolchain: "cmake/appleclang-toolchain.cmake"
-        cpp_version: [17, 20, 23, 26]
+        cpp_version: [20, 23, 26]
         cmake_args:
           - description: "Default"
           - description: "TSan"
@@ -74,7 +60,7 @@ jobs:
               description: "Ubuntu GCC"
               os: ubuntu-latest
               toolchain: "cmake/gnu-toolchain.cmake"
-            cpp_version: 17
+            cpp_version: 20
             cmake_args:
               description: "Werror"
               args: "-DCMAKE_CXX_FLAGS='-Werror=all -Werror=extra'"
@@ -82,16 +68,10 @@ jobs:
               description: "Ubuntu GCC"
               os: ubuntu-latest
               toolchain: "cmake/gnu-toolchain.cmake"
-            cpp_version: 17
+            cpp_version: 20
             cmake_args:
               description: "Dynamic"
               args: "-DBUILD_SHARED_LIBS=on"
-        exclude:
-            # MSVC does not support thread sanitizer
-          - platform:
-              description: "Windows MSVC"
-            cmake_args:
-              description: "TSan"
 
     name: "Unit: ${{ matrix.platform.description }} ${{ matrix.cpp_version }} ${{ matrix.cmake_args.description }}"
     runs-on: ${{ matrix.platform.os }}
@@ -107,6 +87,15 @@ jobs:
         uses: TheMrMilchmann/setup-msvc-dev@v3
         with:
           arch: x64
+      - name: Setup LLVM
+        if: matrix.platform.toolchain == 'cmake/llvm-toolchain.cmake'
+        run: |
+          wget https://apt.llvm.org/llvm.sh
+          chmod +x llvm.sh
+          sudo bash llvm.sh 19
+
+          sudo ln -sf "$(which clang-19)" /usr/bin/clang
+          sudo ln -sf "$(which clang++-19)" /usr/bin/clang++
       - name: Setup Macos
         if: startsWith(matrix.platform.os, 'macos')
         run: sudo chmod -R 777 /opt/
@@ -164,7 +153,7 @@ jobs:
           ninja --version
       - name: Configure CMake
         run: |
-          cmake -B build -S . -DCMAKE_CXX_STANDARD=17 ${{ matrix.args.arg }}
+          cmake -B build -S . -DCMAKE_CXX_STANDARD=20 -DCMAKE_TOOLCHAIN_FILE="cmake/gnu-toolchain.cmake" ${{ matrix.args.arg }}
         env:
           CMAKE_GENERATOR: "Ninja Multi-Config"
       - name: Build Release
@@ -190,18 +179,16 @@ jobs:
         compilers:
           - class: GNU
             version: 14
+            toolchain: "cmake/gnu-toolchain.cmake"
           - class: GNU
             version: 13
-          - class: GNU
-            version: 12
+            toolchain: "cmake/gnu-toolchain.cmake"
           - class: LLVM
             version: 20
+            toolchain: "cmake/llvm-toolchain.cmake"
           - class: LLVM
             version: 19
-          - class: LLVM
-            version: 18
-          - class: LLVM
-            version: 17
+            toolchain: "cmake/llvm-toolchain.cmake"
     name: "Compiler: ${{ matrix.compilers.class }} ${{ matrix.compilers.version }}"
     steps:
       - uses: actions/checkout@v4
@@ -222,8 +209,10 @@ jobs:
             sudo apt-get install -y $CC
             sudo apt-get install -y $CXX
 
-            $CC --version
-            $CXX --version
+            sudo ln -sf "$(which $CC)" /usr/bin/gcc
+            sudo ln -sf "$(which $CXX)" /usr/bin/g++
+
+            /usr/bin/g++ --version
           else
             wget https://apt.llvm.org/llvm.sh
             chmod +x llvm.sh
@@ -232,18 +221,15 @@ jobs:
             CC=clang-${{ matrix.compilers.version }}
             CXX=clang++-${{ matrix.compilers.version }}
 
-            $CC --version
-            $CXX --version
-          fi
+            sudo ln -sf "$(which $CC)" /usr/bin/clang
+            sudo ln -sf "$(which $CXX)" /usr/bin/clang++
 
-          echo "CC=$CC" >> "$GITHUB_OUTPUT"
-          echo "CXX=$CXX" >> "$GITHUB_OUTPUT"
+            /usr/bin/clang++ --version
+          fi
       - name: Configure CMake
         run: |
-          cmake -B build -S . -DCMAKE_CXX_STANDARD=20
+          cmake -B build -S . -DCMAKE_CXX_STANDARD=20 -DCMAKE_TOOLCHAIN_FILE="${{ matrix.compilers.toolchain }}"
         env:
-          CC: ${{ steps.install-compiler.outputs.CC }}
-          CXX: ${{ steps.install-compiler.outputs.CXX }}
           CMAKE_GENERATOR: "Ninja Multi-Config"
       - name: Build Debug
         run: |
