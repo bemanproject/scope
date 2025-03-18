@@ -72,7 +72,7 @@ TEST_CASE("scope_guard")
 
             beman::scope::Releasable<> releaser;
 
-            SECTION("Multiple exit guards disabled by releaser")
+            SECTION("Multiple exit guards disabled by 1 releaser")
             {
                 {
                     auto exit_guard3_1 = beman::scope::scope_guard { exit_func_onj, releaser };
@@ -103,9 +103,13 @@ TEST_CASE("scope_guard")
         } exit_func_onj;
 
 
-        auto guard = beman::scope::scope_guard { exit_func_onj };
+        {
+            auto guard = beman::scope::scope_guard { exit_func_onj,
+                                                     beman::scope::Releasable<>{} };
 
-        // auto guard2(std::move(guard));
+
+            auto guard2(std::move(guard));
+        }
 
         REQUIRE(exit_func_onj.invoked_count == 1);
     }
@@ -123,7 +127,7 @@ TEST_CASE("scope_exit")
 
         auto exit_guard4 = beman::scope::scope_exit([] {});
 
-        auto exit_guard5 = beman::scope::scope_guard { [] {},
+        auto exit_guard5 = beman::scope::scope_exit { [] {},
                                                        []
                                                        {
                                                            return true;

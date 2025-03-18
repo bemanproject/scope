@@ -15,9 +15,8 @@
 #include <version>
 
 #if (!(defined(__cpp_concepts) || !(defined(__cpp_lib_concepts))))
-    static_assert(false, "C++20 Concepts Required");
+static_assert(false, "C++20 Concepts Required");
 #endif
-
 
 
 #include <concepts>
@@ -112,13 +111,35 @@ template<scope_exit_function ScopeExitFunc, scope_invoke_checker InvokeChecker =
 class [[nodiscard]] scope_guard
 {
 public:
-    explicit constexpr scope_guard(ScopeExitFunc&& exit_func)
+    template<typename T, typename S>
+    explicit constexpr scope_guard(T&& exit_func, S&& invoke_checker)
+          noexcept(std::is_nothrow_constructible_v<ScopeExitFunc> && std::is_nothrow_constructible_v<InvokeChecker>)
+    try
+          : m_exit_func(std::forward<T>(exit_func)),
+            m_invoke_checker{ std::forward<S>(invoke_checker) }
+    {}
+    catch (...)
+    {
+        if constexpr (!std::is_nothrow_constructible_v<ScopeExitFunc>)
+        {
+            if constexpr (!HasDontInvokeOnCreationException<ScopeExitFunc>)
+            {
+                exit_func();
+            }
+
+            throw;
+        }
+    }
+
+
+    template<typename T>
+    explicit constexpr scope_guard(T&& exit_func)
           // Is the noexcept depending only on scope_exit construct or also on invoke_checker construct?
-          noexcept(std::is_nothrow_constructible_v<ScopeExitFunc>)
-          //noexcept(std::is_nothrow_constructible_v<ScopeExitFunc> && std::is_nothrow_constructible_v<InvokeChecker>)
+          //noexcept(std::is_nothrow_constructible_v<ScopeExitFunc>)
+          noexcept(std::is_nothrow_constructible_v<ScopeExitFunc> && std::is_nothrow_constructible_v<InvokeChecker>)
         requires (!std::is_same_v<decltype(exit_func), scope_guard>)
     try
-          : m_exit_func(std::forward<ScopeExitFunc>(exit_func))
+          : m_exit_func(std::forward<T>(exit_func))
     {}
     catch (...)
     {
@@ -135,32 +156,17 @@ public:
         }
     }
 
-    explicit constexpr scope_guard(ScopeExitFunc&& exit_func, InvokeChecker&& invoke_checker)
-          noexcept(std::is_nothrow_constructible_v<ScopeExitFunc> && std::is_nothrow_constructible_v<InvokeChecker>)
-    try
-          : m_exit_func(std::forward<ScopeExitFunc>(exit_func)),
-            m_invoke_checker{ std::forward<InvokeChecker>(invoke_checker) }
-    {}
-    catch (...)
-    {
-        if constexpr (!std::is_nothrow_constructible_v<ScopeExitFunc>)
-        {
-            if constexpr (!HasDontInvokeOnCreationException<ScopeExitFunc>)
-            {
-                exit_func();
-            }
-
-            throw;
-        }
-    }
 
     explicit constexpr scope_guard(scope_guard&& rhs) noexcept(std::is_nothrow_move_constructible_v<ScopeExitFunc>
                                                                && std::is_nothrow_move_constructible_v<InvokeChecker>)
+        requires (HasRelease<InvokeChecker> || HasStaticRelease<InvokeChecker>)
           : m_exit_func { std::move(rhs.m_exit_func) },
             m_invoke_checker { std::move(rhs.m_invoke_checker) }
     {
+        rhs.release();
         //rhs.m_invoke_checker = NeverExecute {};
     }
+
 
     scope_guard(const scope_guard&)            = delete;
     scope_guard& operator=(const scope_guard&) = delete;
@@ -212,11 +218,11 @@ private:
 
 //==================================================================================================
 
-template<std::invocable ExitFunc>
-scope_guard(ExitFunc&&) -> scope_guard<ExitFunc>;
-
 template<std::invocable ExitFunc, scope_invoke_checker InvokeChecker>
 scope_guard(ExitFunc&&, InvokeChecker&&) -> scope_guard<ExitFunc, InvokeChecker>;
+
+template<std::invocable ExitFunc>
+scope_guard(ExitFunc&&) -> scope_guard<ExitFunc>;
 
 //==================================================================================================
 
@@ -329,14 +335,18 @@ private:
 
 //==================================================================================================
 
+
 template<class ExitFunc>
 using scope_exit = scope_guard<ExitFunc, Releasable<>>;
+
 
 template<class ExitFunc>
 using scope_success = scope_guard<ExitFunc, Releasable<ExecuteWhenNoException>>;
 
+
 template<class ExitFunc>
 using scope_fail = scope_guard<ExitFunc, Releasable<ExecuteOnlyWhenException>>;
+
 
 //==================================================================================================
 
