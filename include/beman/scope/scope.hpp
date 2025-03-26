@@ -23,6 +23,7 @@ static_assert(false, "C++20 Concepts Required");
 #include <functional>
 #include <exception>
 
+
 namespace beman::scope {
 
 //==================================================================================================
@@ -203,6 +204,7 @@ public:
         }
     }
 
+
     template<typename T, typename S>
     explicit constexpr scope_guard(T&& exit_func, S&& invoke_checker)
           noexcept(std::is_nothrow_constructible_v<ScopeExitFunc> && std::is_nothrow_constructible_v<InvokeChecker>)
@@ -248,6 +250,7 @@ public:
         }
     }
 
+
     template<typename T>
     explicit constexpr scope_guard(T&& exit_func)
           noexcept(std::is_nothrow_constructible_v<ScopeExitFunc> && std::is_nothrow_constructible_v<InvokeChecker>)
@@ -292,6 +295,7 @@ public:
     scope_guard& operator=(const scope_guard&) = delete;
     scope_guard& operator=(scope_guard&&)      = delete;
 
+
     constexpr ~scope_guard() noexcept(noexcept(m_exit_func()) && noexcept(check_can_invoke(m_invoke_checker)))
     {
         if (check_can_invoke(m_invoke_checker))
@@ -300,8 +304,9 @@ public:
         }
     }
 
-    constexpr void
-          release() noexcept // Shouldn't this "noexcept" be dependent on the noexcept of the release function? how??
+
+    constexpr void release() noexcept
+          // Shouldn't this "noexcept" be dependent on the noexcept of the release function? how??
         requires HasRelease<InvokeChecker> || HasStaticRelease<InvokeChecker>
     {
         if constexpr (HasRelease<InvokeChecker>)
@@ -317,6 +322,7 @@ public:
 private:
     ScopeExitFunc m_exit_func;
     InvokeChecker m_invoke_checker;
+
 
     template<typename T>
     static constexpr bool check_can_invoke(const T& obj) // noexcept?? how??
@@ -335,6 +341,7 @@ private:
         }
     }
 };
+
 
 //==================================================================================================
 
@@ -355,10 +362,12 @@ public:
     }
 };
 
+
 class ExecuteWhenNoException
 {
 public:
     using DontInvokeOnCreationException = void;
+
 
     [[nodiscard]] bool can_invoke() const noexcept(noexcept(std::uncaught_exceptions()))
     {
@@ -368,6 +377,7 @@ public:
 private:
     int m_uncaught_on_creation = std::uncaught_exceptions();
 };
+
 
 class ExecuteOnlyWhenException
 {
@@ -381,6 +391,7 @@ private:
     int m_uncaught_on_creation = std::uncaught_exceptions();
 };
 
+
 class NeverExecute
 {
 public:
@@ -390,10 +401,12 @@ public:
     }
 };
 
+
 //==================================================================================================
 
 template<typename T = void>
 class Releasable;
+
 
 template<>
 class Releasable<void>
@@ -404,6 +417,7 @@ public:
         return m_can_invoke;
     }
 
+
     void release()
     {
         m_can_invoke = false;
@@ -413,20 +427,24 @@ private:
     bool m_can_invoke = true;
 };
 
+
 template<scope_function_invoke_predicate InvokeChecker>
 class Releasable<InvokeChecker>
 {
 public:
     Releasable() = default;
 
+
     Releasable(InvokeChecker&& invoke_checker)
           : InvokeChecker(std::move(invoke_checker))
     {}
+
 
     bool can_invoke() const
     {
         return m_can_invoke && m_invoke_checker.can_invoke();
     }
+
 
     void release()
     {
@@ -438,6 +456,7 @@ private:
 
     bool m_can_invoke = true;
 };
+
 
 //==================================================================================================
 
