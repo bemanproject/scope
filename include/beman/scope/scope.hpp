@@ -345,10 +345,14 @@ private:
 
 //==================================================================================================
 
-template<scope_exit_function ExitFunc, scope_function_invoke_predicate InvokeChecker>
+// Due to gcc error `ExitFunc` cannot be `scope_exit_function`
+// error: no type named 'type' in 'struct std::invoke_result<beman::scope::Releasable<void> >'
+// using std::invocable instead
+
+template<std::invocable ExitFunc, scope_function_invoke_predicate InvokeChecker>
 scope_guard(ExitFunc, InvokeChecker) -> scope_guard<std::decay_t<ExitFunc>, std::decay_t<InvokeChecker>>;
 
-template<scope_exit_function ExitFunc, scope_function_invoke_predicate InvokeChecker = ExecuteAlways>
+template<std::invocable ExitFunc, scope_function_invoke_predicate InvokeChecker = ExecuteAlways>
 scope_guard(ExitFunc) -> scope_guard<ExitFunc, InvokeChecker>;
 
 //==================================================================================================
