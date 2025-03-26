@@ -341,11 +341,11 @@ private:
 template<std::invocable ExitFunc, scope_invoke_checker InvokeChecker>
 scope_guard(ExitFunc&&, InvokeChecker&&) -> scope_guard<std::decay_t<ExitFunc>, std::decay_t<InvokeChecker>>;
 
-template<std::invocable ExitFunc, typename InvokeChecker>
+template<std::invocable ExitFunc, typename InvokeChecker = ExecuteAlways>
 scope_guard(ExitFunc) -> scope_guard<ExitFunc, InvokeChecker>;
 
 template<std::invocable ExitFunc>
-scope_guard(ExitFunc&&) -> scope_guard<std::decay_t<ExitFunc>, ExecuteAlways>;
+scope_guard(ExitFunc&&) -> scope_guard<std::decay_t<ExitFunc>>;
 
 
 //==================================================================================================
