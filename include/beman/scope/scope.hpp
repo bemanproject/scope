@@ -315,8 +315,8 @@ public:
     }
 
 private:
-    [[msvc::no_unique_address]] ScopeExitFunc m_exit_func;
-    [[msvc::no_unique_address]] InvokeChecker m_invoke_checker;
+    ScopeExitFunc m_exit_func;
+    InvokeChecker m_invoke_checker;
 
     template<typename T>
     static constexpr bool check_can_invoke(const T& obj) // noexcept?? how??
@@ -339,13 +339,13 @@ private:
 //==================================================================================================
 
 template<std::invocable ExitFunc, scope_invoke_checker InvokeChecker>
-scope_guard(ExitFunc, InvokeChecker) -> scope_guard<ExitFunc, InvokeChecker>;
+scope_guard(ExitFunc&&, InvokeChecker&&) -> scope_guard<std::decay_t<ExitFunc>, std::decay_t<InvokeChecker>>;
 
 template<std::invocable ExitFunc, typename InvokeChecker>
 scope_guard(ExitFunc) -> scope_guard<ExitFunc, InvokeChecker>;
 
 template<std::invocable ExitFunc>
-scope_guard(ExitFunc) -> scope_guard<ExitFunc>;
+scope_guard(ExitFunc&&) -> scope_guard<std::decay_t<ExitFunc>, ExecuteAlways>;
 
 
 //==================================================================================================
