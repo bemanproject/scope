@@ -107,13 +107,39 @@ class NeverExecute;
 
 //==================================================================================================
 
+//Template argument `ScopeExitFunc` shall be
+//  - a function object type([function.objects]),
+//  - lvalue reference to function,
+//  - or lvalue reference to function object type.
+//
+//  If `ScopeExitFunc` is an object type, it shall meet the requirements of Cpp17Destructible(Table 30).
+//  Given an lvalue g of type remove_reference_t<EF>, the expression g() shall be well- formed.
+
+
 template<scope_exit_function ScopeExitFunc, scope_invoke_checker InvokeChecker = ExecuteAlways>
 class [[nodiscard]] scope_guard
 {
 public:
+    //The constructor parameter `exit_func` in the following constructors shall be :
+    // - a reference to a function
+    // - or a reference to a function object([function.objects])
+    //
+
+    // If EFP is not an lvalue reference type and is_nothrow_constructible_v<EF,EFP> is true,
+    // initialize exit_function with std::forward<EFP>(f);
+    // otherwise initialize exit_function with f.
+
+    // scope_fail / scope_exit
+    // If the initialization of exit_function throws an exception, calls f().
+
+    // scope_success
+    //  [Note: If initialization of exit_function fails, f() won’t be called. —end note]
+
     template<typename T, typename S>
     explicit constexpr scope_guard(T&& exit_func, S&& invoke_checker)
           noexcept(std::is_nothrow_constructible_v<ScopeExitFunc> && std::is_nothrow_constructible_v<InvokeChecker>)
+        requires (std::is_lvalue_reference_v<T> && std::is_nothrow_constructible_v<ScopeExitFunc, T>
+                  && std::is_lvalue_reference_v<S> && std::is_nothrow_constructible_v<InvokeChecker, S>)
     try
           : m_exit_func(std::forward<T>(exit_func)),
             m_invoke_checker{ std::forward<S>(invoke_checker) }
@@ -132,12 +158,100 @@ public:
     }
 
 
+    template<typename T, typename S>
+    explicit constexpr scope_guard(T&& exit_func, S&& invoke_checker)
+          noexcept(std::is_nothrow_constructible_v<ScopeExitFunc> && std::is_nothrow_constructible_v<InvokeChecker>)
+        requires (std::is_lvalue_reference_v<T> && std::is_nothrow_constructible_v<ScopeExitFunc, T>
+                  && ( !std::is_lvalue_reference_v<S> || !std::is_nothrow_constructible_v<InvokeChecker, S> ))
+    try
+          : m_exit_func(std::forward<T>(exit_func)),
+            m_invoke_checker{ invoke_checker }
+    {}
+    catch (...)
+    {
+        if constexpr (!std::is_nothrow_constructible_v<ScopeExitFunc>)
+        {
+            if constexpr (!HasDontInvokeOnCreationException<ScopeExitFunc>)
+            {
+                exit_func();
+            }
+
+            throw;
+        }
+    }
+
+
+    template<typename T, typename S>
+    explicit constexpr scope_guard(T&& exit_func, S&& invoke_checker)
+          noexcept(std::is_nothrow_constructible_v<ScopeExitFunc> && std::is_nothrow_constructible_v<InvokeChecker>)
+        requires ((!std::is_lvalue_reference_v<T> || !std::is_nothrow_constructible_v<ScopeExitFunc, T>)
+                  && std::is_lvalue_reference_v<S> && std::is_nothrow_constructible_v<InvokeChecker, S>)
+    try
+          : m_exit_func(exit_func),
+            m_invoke_checker{ std::forward<S>(invoke_checker) }
+    {}
+    catch (...)
+    {
+        if constexpr (!std::is_nothrow_constructible_v<ScopeExitFunc>)
+        {
+            if constexpr (!HasDontInvokeOnCreationException<ScopeExitFunc>)
+            {
+                exit_func();
+            }
+
+            throw;
+        }
+    }
+
+    template<typename T, typename S>
+    explicit constexpr scope_guard(T&& exit_func, S&& invoke_checker)
+          noexcept(std::is_nothrow_constructible_v<ScopeExitFunc> && std::is_nothrow_constructible_v<InvokeChecker>)
+        requires ((!std::is_lvalue_reference_v<T> || !std::is_nothrow_constructible_v<ScopeExitFunc, T>)
+                  && ( !std::is_lvalue_reference_v<S> || !std::is_nothrow_constructible_v<InvokeChecker, S> ))
+    try
+          : m_exit_func(exit_func),
+            m_invoke_checker{ invoke_checker }
+    {}
+    catch (...)
+    {
+        if constexpr (!std::is_nothrow_constructible_v<ScopeExitFunc>)
+        {
+            if constexpr (!HasDontInvokeOnCreationException<ScopeExitFunc>)
+            {
+                exit_func();
+            }
+
+            throw;
+        }
+    }
+
+
     template<typename T>
     explicit constexpr scope_guard(T&& exit_func)
-          // Is the noexcept depending only on scope_exit construct or also on invoke_checker construct?
-          //noexcept(std::is_nothrow_constructible_v<ScopeExitFunc>)
           noexcept(std::is_nothrow_constructible_v<ScopeExitFunc> && std::is_nothrow_constructible_v<InvokeChecker>)
-        requires (!std::is_same_v<decltype(exit_func), scope_guard>)
+        requires (!std::is_same_v<std::remove_cvref<T>, scope_guard> && std::is_lvalue_reference_v<T>)
+    try
+          : m_exit_func(exit_func)
+    {}
+    catch (...)
+    {
+        if constexpr (!std::is_nothrow_constructible_v<ScopeExitFunc>)
+        {
+            if constexpr (!HasDontInvokeOnCreationException<ScopeExitFunc>)
+            {
+                // Can we call the invoke_checker?? we don't know who threw the exception? (exit_func or invoke_checker default construct?)
+
+                exit_func();
+            }
+
+            throw;
+        }
+    }
+
+    template<typename T>
+    explicit constexpr scope_guard(T&& exit_func)
+          noexcept(std::is_nothrow_constructible_v<ScopeExitFunc> && std::is_nothrow_constructible_v<InvokeChecker>)
+        requires (!std::is_same_v<std::remove_cvref<T>, scope_guard> && !std::is_lvalue_reference_v<T>)
     try
           : m_exit_func(std::forward<T>(exit_func))
     {}
@@ -163,8 +277,14 @@ public:
           : m_exit_func { std::move(rhs.m_exit_func) },
             m_invoke_checker { std::move(rhs.m_invoke_checker) }
     {
-        rhs.release();
-        //rhs.m_invoke_checker = NeverExecute {};
+        if constexpr (HasRelease<InvokeChecker>)
+        {
+            rhs.release();
+        }
+        else
+        {
+            InvokeChecker::release();
+        }
     }
 
 
@@ -195,8 +315,8 @@ public:
     }
 
 private:
-    [[no_unique_address]] ScopeExitFunc m_exit_func;
-    [[no_unique_address]] InvokeChecker m_invoke_checker;
+    [[msvc::no_unique_address]] ScopeExitFunc m_exit_func;
+    [[msvc::no_unique_address]] InvokeChecker m_invoke_checker;
 
     template<typename T>
     static constexpr bool check_can_invoke(const T& obj) // noexcept?? how??
@@ -219,10 +339,14 @@ private:
 //==================================================================================================
 
 template<std::invocable ExitFunc, scope_invoke_checker InvokeChecker>
-scope_guard(ExitFunc&&, InvokeChecker&&) -> scope_guard<ExitFunc, InvokeChecker>;
+scope_guard(ExitFunc, InvokeChecker) -> scope_guard<ExitFunc, InvokeChecker>;
+
+template<std::invocable ExitFunc, typename InvokeChecker>
+scope_guard(ExitFunc) -> scope_guard<ExitFunc, InvokeChecker>;
 
 template<std::invocable ExitFunc>
-scope_guard(ExitFunc&&) -> scope_guard<ExitFunc>;
+scope_guard(ExitFunc) -> scope_guard<ExitFunc>;
+
 
 //==================================================================================================
 

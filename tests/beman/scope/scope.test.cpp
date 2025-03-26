@@ -17,6 +17,19 @@ TEST_CASE("concepts")
 }
 
 
+namespace scope_testing {
+
+static bool is_executed = false;
+
+
+static void global_function()
+{
+    is_executed = true;
+}
+
+
+}
+
 TEST_CASE("scope_guard")
 {
     SECTION("Constructing")
@@ -24,22 +37,24 @@ TEST_CASE("scope_guard")
         SECTION("lambdas")
         {
             auto exit_guard0 = beman::scope::scope_guard{[] {}};
-
-            auto exit_guard1 = beman::scope::scope_guard { [] {},
-                                                           []
-                                                           {
-                                                               return true;
-                                                           } };
+            //beman::scope::scope_guard exit_guard0 {[] {}};
 
             // vvv doesn't compile (as planned)- guard NOT releasable
-            // exit_guard1.release();
+            // exit_guard0.release();
             // ^^^
 
-            auto exit_guard2 = beman::scope::scope_guard { [] {},
-                                                           []
-                                                           {
-                                                               return 1;
-                                                           } };
+            auto exit_guard_with_bool_checker = beman::scope::scope_guard { [] {},
+                                                                            []
+                                                                            {
+                                                                                return true;
+                                                                            } };
+
+
+            auto exit_guard_with_convertable_to_bool_checker = beman::scope::scope_guard { [] {},
+                                                                                           []
+                                                                                           {
+                                                                                               return 1;
+                                                                                           } };
 
             REQUIRE(true);
         }
@@ -55,65 +70,80 @@ TEST_CASE("scope_guard")
 
                 int invoked_count = 0;
 
-            } exit_func_onj;
+            } exit_func_obj;
 
             SECTION("func obj is called multiple times")
             {
                 {
-                    auto exit_guard3_1 = beman::scope::scope_guard { exit_func_onj };
-                    auto exit_guard3_2 = beman::scope::scope_guard { exit_func_onj };
-                    auto exit_guard3_3 = beman::scope::scope_guard { exit_func_onj };
-                    auto exit_guard3_4 = beman::scope::scope_guard { exit_func_onj };
-                    auto exit_guard3_5 = beman::scope::scope_guard { exit_func_onj };
+                    auto exit_guard3_1 = beman::scope::scope_guard { std::ref(exit_func_obj) };
+                    auto exit_guard3_2 = beman::scope::scope_guard { std::ref(exit_func_obj) };
+                    auto exit_guard3_3 = beman::scope::scope_guard { std::ref(exit_func_obj) };
+                    auto exit_guard3_4 = beman::scope::scope_guard { std::ref(exit_func_obj) };
+                    auto exit_guard3_5 = beman::scope::scope_guard { std::ref(exit_func_obj) };
                 }
 
-                REQUIRE(exit_func_onj.invoked_count == 5);
+                REQUIRE(exit_func_obj.invoked_count == 5);
             }
-
-            beman::scope::Releasable<> releaser;
 
             SECTION("Multiple exit guards disabled by 1 releaser")
             {
                 {
-                    auto exit_guard3_1 = beman::scope::scope_guard { exit_func_onj, releaser };
-                    auto exit_guard3_2 = beman::scope::scope_guard { exit_func_onj, releaser };
-                    auto exit_guard3_3 = beman::scope::scope_guard { exit_func_onj, releaser };
-                    auto exit_guard3_4 = beman::scope::scope_guard { exit_func_onj, releaser };
-                    auto exit_guard3_5 = beman::scope::scope_guard { exit_func_onj, releaser };
+                    beman::scope::Releasable<> releaser;
+
+                    auto exit_guard3_1 = beman::scope::scope_guard { exit_func_obj, releaser };
+                    auto exit_guard3_2 = beman::scope::scope_guard { exit_func_obj, releaser };
+                    auto exit_guard3_3 = beman::scope::scope_guard { exit_func_obj, releaser };
+                    auto exit_guard3_4 = beman::scope::scope_guard { exit_func_obj, releaser };
+                    auto exit_guard3_5 = beman::scope::scope_guard { exit_func_obj, releaser };
 
                     releaser.release();
                 }
 
-                REQUIRE(exit_func_onj.invoked_count == 0);
+                REQUIRE(exit_func_obj.invoked_count == 0);
             }
+
+
+            SECTION("Multiple exit guards guarded by 1 releaser")
+            {
+                {
+                    beman::scope::Releasable<> releaser;
+
+                    auto exit_guard3_1 = beman::scope::scope_guard { std::ref(exit_func_obj), releaser };
+                    auto exit_guard3_2 = beman::scope::scope_guard { std::ref(exit_func_obj), releaser };
+                    auto exit_guard3_3 = beman::scope::scope_guard { std::ref(exit_func_obj), releaser };
+                    auto exit_guard3_4 = beman::scope::scope_guard { std::ref(exit_func_obj), releaser };
+                    auto exit_guard3_5 = beman::scope::scope_guard { std::ref(exit_func_obj), releaser };
+                }
+
+                REQUIRE(exit_func_obj.invoked_count == 5);
+            }
+        }
+
+        SECTION("Function pointer")
+        {
+            {
+                auto exit_guard = beman::scope::scope_guard { scope_testing::global_function };
+            }
+
+            REQUIRE(scope_testing::is_executed);
         }
     }
 
     SECTION("Moving - double release check")
     {
-        struct FunctionObject
-        {
-            void operator()()
-            {
-                invoked_count++;
-            }
-
-            int invoked_count = 0;
-
-        } exit_func_onj;
-
+        int invoked_count = 0;
 
         {
-            auto guard = beman::scope::scope_guard { exit_func_onj,
-                                                     beman::scope::Releasable<>{} };
+            auto guard = beman::scope::scope_guard { [&] { ++invoked_count; }, beman::scope::Releasable<> {} };
 
 
             auto guard2(std::move(guard));
         }
 
-        REQUIRE(exit_func_onj.invoked_count == 1);
+        REQUIRE(invoked_count == 1);
     }
 }
+
 
 TEST_CASE("scope_exit")
 {
@@ -127,13 +157,7 @@ TEST_CASE("scope_exit")
 
         auto exit_guard4 = beman::scope::scope_exit([] {});
 
-        auto exit_guard5 = beman::scope::scope_exit { [] {},
-                                                       []
-                                                       {
-                                                           return true;
-                                                       } };
-
-        // exit_guard5.release(); // doesn't compile (as planned)- NOT releasable
+        exit_guard4.release(); // scope_exit releasable by default.
 
         REQUIRE(true);
     }
@@ -223,6 +247,7 @@ TEST_CASE("scope_exit")
         }
     }
 }
+
 
 TEST_CASE("scope_fail")
 {
@@ -236,6 +261,8 @@ TEST_CASE("scope_fail")
 
         auto exit_guard4 = beman::scope::scope_fail([] {});
 
+        exit_guard4.release(); // scope_fail releasable by default.
+
         REQUIRE(true);
     }
 
@@ -326,6 +353,7 @@ TEST_CASE("scope_fail")
     }
 }
 
+
 TEST_CASE("scope_success")
 {
     SECTION("Constructing")
@@ -338,11 +366,7 @@ TEST_CASE("scope_success")
 
         auto exit_guard4 = beman::scope::scope_success([] {});
 
-        auto exit_gaurd5 = beman::scope::scope_guard { [] {},
-                                                       []
-                                                       {
-                                                           return true;
-                                                       } };
+        exit_guard4.release(); // scope_success releasable by default
 
         REQUIRE(true);
     }
