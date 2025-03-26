@@ -98,7 +98,7 @@ concept scope_exit_function = invocable_return<F, void>
                               && (std::is_nothrow_move_constructible_v<F> || std::is_copy_constructible_v<F>);
 
 template<typename T>
-concept scope_invoke_checker = HasStaticCanInvoke<T> || HasCanInvoke<T> || invocable_return<T, bool>;
+concept scope_function_invoke_predicate = HasStaticCanInvoke<T> || HasCanInvoke<T> || invocable_return<T, bool>;
 
 //==================================================================================================
 
@@ -116,7 +116,7 @@ class NeverExecute;
 //  Given an lvalue g of type remove_reference_t<EF>, the expression g() shall be well- formed.
 
 
-template<scope_exit_function ScopeExitFunc, scope_invoke_checker InvokeChecker = ExecuteAlways>
+template<scope_exit_function ScopeExitFunc, scope_function_invoke_predicate InvokeChecker = ExecuteAlways>
 class [[nodiscard]] scope_guard
 {
 public:
@@ -277,13 +277,13 @@ public:
           : m_exit_func { std::move(rhs.m_exit_func) },
             m_invoke_checker { std::move(rhs.m_invoke_checker) }
     {
-        if constexpr (HasRelease<InvokeChecker>)
+        if constexpr (HasStaticRelease<InvokeChecker>)
         {
-            rhs.release();
+            InvokeChecker::release();
         }
         else
         {
-            InvokeChecker::release();
+            rhs.release();
         }
     }
 
@@ -338,15 +338,11 @@ private:
 
 //==================================================================================================
 
-template<std::invocable ExitFunc, scope_invoke_checker InvokeChecker>
-scope_guard(ExitFunc&&, InvokeChecker&&) -> scope_guard<std::decay_t<ExitFunc>, std::decay_t<InvokeChecker>>;
+template<scope_exit_function ExitFunc, scope_function_invoke_predicate InvokeChecker>
+scope_guard(ExitFunc, InvokeChecker) -> scope_guard<std::decay_t<ExitFunc>, std::decay_t<InvokeChecker>>;
 
-template<std::invocable ExitFunc, typename InvokeChecker = ExecuteAlways>
+template<scope_exit_function ExitFunc, scope_function_invoke_predicate InvokeChecker = ExecuteAlways>
 scope_guard(ExitFunc) -> scope_guard<ExitFunc, InvokeChecker>;
-
-template<std::invocable ExitFunc>
-scope_guard(ExitFunc&&) -> scope_guard<std::decay_t<ExitFunc>>;
-
 
 //==================================================================================================
 
@@ -417,7 +413,7 @@ private:
     bool m_can_invoke = true;
 };
 
-template<scope_invoke_checker InvokeChecker>
+template<scope_function_invoke_predicate InvokeChecker>
 class Releasable<InvokeChecker>
 {
 public:
