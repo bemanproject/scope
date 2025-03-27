@@ -346,7 +346,7 @@ private:
 //==================================================================================================
 
 
-#ifdef defined(__GNUC__)
+#if defined(__GNUC__)
 
 // Due to gcc error `ExitFunc` cannot be `scope_exit_function`
 // error: no type named 'type' in 'struct std::invoke_result<beman::scope::Releasable<void> >'
