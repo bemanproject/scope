@@ -346,13 +346,13 @@ private:
 //==================================================================================================
 
 
-#ifdef 0
+#ifdef __GNUC__
 
 // Due to gcc error `ExitFunc` cannot be `scope_exit_function`
 // error: no type named 'type' in 'struct std::invoke_result<beman::scope::Releasable<void> >'
 // using std::invocable instead
 
-//Also deduction guides are diffrent
+//Also deduction guides are different
 
 
 template<std::invocable ExitFunc, scope_function_invoke_check InvokeChecker>
