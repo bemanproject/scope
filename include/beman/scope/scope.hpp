@@ -355,13 +355,13 @@ private:
 //Also deduction guides are different
 
 
-template<std::invocable ExitFunc, scope_function_invoke_check InvokeChecker>
+template<typename ExitFunc, typename InvokeChecker>
 scope_guard(ExitFunc, InvokeChecker) -> scope_guard<ExitFunc, InvokeChecker>;
 
-template<std::invocable ExitFunc, scope_function_invoke_check InvokeChecker>
+template<typename ExitFunc, typename InvokeChecker>
 scope_guard(ExitFunc) -> scope_guard<ExitFunc, InvokeChecker>;
 
-template<std::invocable ExitFunc>
+template<typename ExitFunc>
 scope_guard(ExitFunc) -> scope_guard<ExitFunc>;
 
 #else
