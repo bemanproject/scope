@@ -16,7 +16,7 @@ TEST_CASE("Construct scope_exit") {
   // beman::scope::scope_exit guard_exit2 = [] {};
   // beman::scope::scope_exit guard_exit3 = {[] {}};
 
-  auto guard_exit4 = beman::scope::scope_exit([]() {});
+    auto guard_exit4 = beman::scope::scope_exit([]() {});
 
   REQUIRE(true);
 }
