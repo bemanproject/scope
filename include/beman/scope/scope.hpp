@@ -3,6 +3,11 @@
 #ifndef BEMAN_SCOPE_HPP
 #define BEMAN_SCOPE_HPP
 
+#include <type_traits>
+#include <utility>
+
+#include <experimental/scope>
+
 namespace beman::scope {
 
 // -- 7.6.7 Feature test macro --
@@ -13,22 +18,39 @@ namespace beman::scope {
 // -- 7.5.1 Header <scope> synopsis [scope.syn] --
 //
 //        namespace std {
+
 //        template <class EF>
 //        class scope_exit;
-//
+template <class EF>
+using scope_exit = std::experimental::scope_exit<EF>;
+
 //        template <class EF>
 //        class scope_fail;
-//
+template <class EF>
+using scope_fail = std::experimental::scope_fail<EF>;
+
 //        template <class EF>
 //        class scope_success;
-//
+template <class EF>
+using scope_success = std::experimental::scope_success<EF>;
+
 //        template <class R, class D>
 //        class unique_resource;
-//
+template <class R, class D>
+using unique_resource = std::experimental::unique_resource<R, D>;
+
 //        // factory function
 //        template <class R, class D, class S = decay_t<R>>
 //        unique_resource<decay_t<R>, decay_t<D>>
 //        make_unique_resource_checked(R&& r, const S& invalid, D&& d) noexcept(see below);
+
+template <class R, class D, class S = std::decay_t<R>>
+unique_resource<std::decay_t<R>, std::decay_t<D>>
+make_unique_resource_checked(R&& r, const S& invalid, D&& d) noexcept(noexcept(
+    std::experimental::make_unique_resource_checked(std::forward(r), std::forward(invalid), std::forward(d)))) {
+    return std::experimental::make_unique_resource_checked(std::forward(r), std::forward(invalid), std::forward(d));
+}
+
 //        } // namespace std
 //
 
@@ -59,7 +81,6 @@ namespace beman::scope {
 //        template <class EF>
 //        scope_guard(EF) -> scope_guard<EF>;
 //
-
 // -- 7.6.1 Class template unique_resource [scope.unique_resource.class] --
 //
 //        template <class R, class D>
@@ -92,33 +113,6 @@ namespace beman::scope {
 //
 //        template <typename R, typename D>
 //        unique_resource(R, D) -> unique_resource<R, D>;
-
-// TODO: Implement
-struct scope_exit {
-    template <typename F>
-    scope_exit(F) {}
-    ~scope_exit() {
-        // TODO: Cleanup
-    }
-};
-
-// TODO: Implement
-struct scope_fail {
-    template <typename F>
-    scope_fail(F) {}
-    ~scope_fail() {
-        // TODO: Cleanup
-    }
-};
-
-// TODO: Implement
-struct scope_success {
-    template <typename F>
-    scope_success(F) {}
-    ~scope_success() {
-        // TODO: Cleanup
-    }
-};
 
 } // namespace beman::scope
 
