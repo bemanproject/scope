@@ -14,8 +14,6 @@ endif()
 
 # Set the C++ standard based on the user input
 set(CMAKE_CXX_STANDARD ${CXX_STANDARD})
-set(CMAKE_CXX_STANDARD_REQUIRED ON)
-set(CMAKE_CXX_EXTENSIONS OFF)
 
 enable_testing()
 
