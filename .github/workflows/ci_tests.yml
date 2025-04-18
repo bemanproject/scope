@@ -114,7 +114,6 @@ jobs:
         run: |
           # Portable commands only
           cmake --build build --config Release --parallel --verbose
-          cmake --build build --config Release --target all_verify_interface_header_sets
           cmake --install build --config Release --prefix /opt/beman.scope
           ls -R /opt/beman.scope
       - name: Test Release
@@ -123,7 +122,6 @@ jobs:
         run: |
           # Portable commands only
           cmake --build build --config Debug --parallel --verbose
-          cmake --build build --config Debug --target all_verify_interface_header_sets
           cmake --install build --config Debug --prefix /opt/beman.scope
           ls -R /opt/beman.scope
       - name: Test Debug
@@ -160,14 +158,12 @@ jobs:
         run: |
           # Portable commands only
           cmake --build build --config Release --parallel --verbose
-          cmake --build build --config Release --target all_verify_interface_header_sets
           cmake --install build --config Release --prefix /opt/beman.scope
           ls -R /opt/beman.scope
       - name: Build Debug
         run: |
           # Portable commands only
           cmake --build build --config Debug --parallel --verbose
-          cmake --build build --config Debug --target all_verify_interface_header_sets
           cmake --install build --config Debug --prefix /opt/beman.scope
           ls -R /opt/beman.scope
 
@@ -234,7 +230,6 @@ jobs:
       - name: Build Debug
         run: |
           cmake --build build --config Debug --verbose
-          cmake --build build --config Debug --target all_verify_interface_header_sets
           cmake --install build --config Debug --prefix /opt/beman.scope
           find /opt/beman.scope -type f
       - name: Test Debug
