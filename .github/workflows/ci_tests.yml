@@ -62,7 +62,7 @@ jobs:
           - description: "Macos Appleclang"
             os: macos-latest
             toolchain: "cmake/appleclang-toolchain.cmake"
-        cpp_version: [17, 20, 23, 26]
+        cpp_version: [20, 23, 26]
         cmake_args:
           - description: "Default"
           - description: "TSan"
@@ -74,7 +74,7 @@ jobs:
               description: "Ubuntu GCC"
               os: ubuntu-latest
               toolchain: "cmake/gnu-toolchain.cmake"
-            cpp_version: 17
+            cpp_version: 20
             cmake_args:
               description: "Werror"
               args: "-DCMAKE_CXX_FLAGS='-Werror=all -Werror=extra'"
@@ -82,7 +82,7 @@ jobs:
               description: "Ubuntu GCC"
               os: ubuntu-latest
               toolchain: "cmake/gnu-toolchain.cmake"
-            cpp_version: 17
+            cpp_version: 20
             cmake_args:
               description: "Dynamic"
               args: "-DBUILD_SHARED_LIBS=on"
@@ -164,7 +164,7 @@ jobs:
           ninja --version
       - name: Configure CMake
         run: |
-          cmake -B build -S . -DCMAKE_CXX_STANDARD=17 ${{ matrix.args.arg }}
+          cmake -B build -S . -DCMAKE_CXX_STANDARD=20 ${{ matrix.args.arg }}
         env:
           CMAKE_GENERATOR: "Ninja Multi-Config"
       - name: Build Release
