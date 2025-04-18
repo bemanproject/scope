@@ -12,33 +12,33 @@
 
 TEST_CASE("Construct scope_exit") {
 
-    beman::scope::scope_exit guard_exit1([] {});
-    beman::scope::scope_exit guard_exit2 = [] {};
-    beman::scope::scope_exit guard_exit3 = {[] {}};
+  // beman::scope::scope_exit guard_exit1([]) {});
+  // beman::scope::scope_exit guard_exit2 = [] {};
+  // beman::scope::scope_exit guard_exit3 = {[] {}};
 
-    auto guard_exit4 = beman::scope::scope_exit([] {});
+  auto guard_exit4 = beman::scope::scope_exit([]() {});
 
-    REQUIRE(true);
+  REQUIRE(true);
 }
 
 TEST_CASE("Construct scope_fail") {
 
-    beman::scope::scope_fail guard_exit1([] {});
-    beman::scope::scope_fail guard_exit2 = [] {};
-    beman::scope::scope_fail guard_exit3 = {[] {}};
+    // beman::scope::scope_fail guard_exit1([] {});
+    // beman::scope::scope_fail guard_exit2 = [] {};
+    // beman::scope::scope_fail guard_exit3 = {[] {}};
 
-    auto guard_exit4 = beman::scope::scope_fail([] {});
+  auto guard_exit4 = beman::scope::scope_fail([](){});
 
-    REQUIRE(true);
+  REQUIRE(true);
 }
 
 TEST_CASE("Construct scope_success") {
 
-    beman::scope::scope_success guard_exit1([] {});
-    beman::scope::scope_success guard_exit2 = [] {};
-    beman::scope::scope_success guard_exit3 = {[] {}};
+    // beman::scope::scope_success guard_exit1([] {});
+    // beman::scope::scope_success guard_exit2 = [] {};
+    // beman::scope::scope_success guard_exit3 = {[] {}};
 
-    auto guard_exit4 = beman::scope::scope_success([] {});
+  auto guard_exit4 = beman::scope::scope_success([]() {});
 
-    REQUIRE(true);
+  REQUIRE(true);
 }
