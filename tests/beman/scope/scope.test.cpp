@@ -18,7 +18,7 @@ TEST_CASE("Construct scope_exit") {
 
     auto guard_exit4 = beman::scope::scope_exit([]() {});
 
-  REQUIRE(true);
+    REQUIRE(true);
 }
 
 TEST_CASE("Construct scope_fail") {
