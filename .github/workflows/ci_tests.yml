@@ -114,16 +114,12 @@ jobs:
         run: |
           # Portable commands only
           cmake --build build --config Release --parallel --verbose
-          cmake --install build --config Release --prefix /opt/beman.scope
-          ls -R /opt/beman.scope
       - name: Test Release
         run: ctest --test-dir build --build-config Release
       - name: Build Debug
         run: |
           # Portable commands only
           cmake --build build --config Debug --parallel --verbose
-          cmake --install build --config Debug --prefix /opt/beman.scope
-          ls -R /opt/beman.scope
       - name: Test Debug
         run: ctest --test-dir build --build-config Debug
 
@@ -158,14 +154,10 @@ jobs:
         run: |
           # Portable commands only
           cmake --build build --config Release --parallel --verbose
-          cmake --install build --config Release --prefix /opt/beman.scope
-          ls -R /opt/beman.scope
       - name: Build Debug
         run: |
           # Portable commands only
           cmake --build build --config Debug --parallel --verbose
-          cmake --install build --config Debug --prefix /opt/beman.scope
-          ls -R /opt/beman.scope
 
   compiler-test:
     runs-on: ubuntu-24.04
@@ -230,8 +222,6 @@ jobs:
       - name: Build Debug
         run: |
           cmake --build build --config Debug --verbose
-          cmake --install build --config Debug --prefix /opt/beman.scope
-          find /opt/beman.scope -type f
       - name: Test Debug
         run: ctest --test-dir build --build-config Debug
 
