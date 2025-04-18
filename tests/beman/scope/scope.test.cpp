@@ -27,7 +27,7 @@ TEST_CASE("Construct scope_fail") {
     // beman::scope::scope_fail guard_exit2 = [] {};
     // beman::scope::scope_fail guard_exit3 = {[] {}};
 
-  auto guard_exit4 = beman::scope::scope_fail([](){});
+    auto guard_exit4 = beman::scope::scope_fail([]() {});
 
   REQUIRE(true);
 }
