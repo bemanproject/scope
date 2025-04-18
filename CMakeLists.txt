@@ -33,10 +33,10 @@ option(
 
 include(GNUInstallDirs)
 
-add_subdirectory(src/beman/scope)
+# todo rm add_subdirectory(src/beman/scope)
 
 if(BEMAN_SCOPE_BUILD_TESTS)
-    add_subdirectory(tests/beman/scope)
+    add_subdirectory(tests)
 endif()
 
 if(BEMAN_SCOPE_BUILD_EXAMPLES)

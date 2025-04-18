@@ -9,16 +9,16 @@ FetchContent_Declare(
 )
 FetchContent_MakeAvailable(Catch2)
 
-add_executable(beman.scope.tests.scope)
-target_sources(beman.scope.tests.scope PRIVATE scope.test.cpp)
+add_executable(tests.scope)
+target_sources(tests.scope PRIVATE scope.test.cpp)
 
-target_link_libraries(beman.scope.tests.scope PRIVATE Catch2::Catch2WithMain)
+target_link_libraries(tests.scope PRIVATE Catch2::Catch2WithMain)
 
 target_include_directories(
-    beman.scope.tests.scope
+    tests.scope
     PRIVATE ${CMAKE_SOURCE_DIR}/include
 )
 
 include(CTest)
 include(Catch)
-catch_discover_tests(beman.scope.tests.scope)
+catch_discover_tests(tests.scope)
