@@ -20,7 +20,10 @@ include(Catch)
 foreach(testname ${ALL_TESTNAMES})
     add_executable(test.${testname})
     target_sources(test.${testname} PRIVATE ${testname}.test.cpp)
-    target_include_directories(test.${testname} PRIVATE ${CMAKE_SOURCE_DIR}/include)
+    target_include_directories(
+        test.${testname}
+        PRIVATE ${CMAKE_SOURCE_DIR}/include
+    )
     target_link_libraries(test.${testname} PRIVATE Catch2::Catch2WithMain)
 endforeach()
 
