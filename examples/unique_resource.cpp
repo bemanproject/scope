@@ -10,7 +10,7 @@ int main() {
   
   {
     // Allocate an array
-    auto resource_ptr = beman::unique_resource
+    auto resource_ptr = beman::scope::unique_resource
     (
        new int[arr_size], // acquire array resource
        // Cleanup function
