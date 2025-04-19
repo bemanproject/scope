@@ -29,4 +29,3 @@ int main() {
   std::cout << "File has been closed \n";
 
 }
-
