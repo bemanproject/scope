@@ -25,7 +25,7 @@ TEST_CASE("Construct file unique_resource") {
     if (!file.get()) {
         return 1;
     }
-
-    REQUIRE(open_file_good == true);
-    REQUIRE(close_file_good == true);
+  }
+  REQUIRE(open_file_good == true);
+  REQUIRE(close_file_good == true);
 }
