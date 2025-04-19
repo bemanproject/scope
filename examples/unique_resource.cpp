@@ -5,7 +5,7 @@
 #include <beman/scope/scope.hpp>
 
 constexpr size_t arr_size = 10;
-//clang-format off
+// clang-format off
 int main() {
 
   {
@@ -29,4 +29,4 @@ int main() {
   std::cout << "After scope: \n";
 
 }
-//clang-format on
+

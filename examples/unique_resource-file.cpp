@@ -5,7 +5,7 @@
 #include <cstdio>
 #include <beman/scope/scope.hpp>
 
-//clang-format off
+// clang-format off
 int main() {
 
   {
@@ -29,4 +29,4 @@ int main() {
   std::cout << "File has been closed \n";
 
 }
-//clang-format on
+
