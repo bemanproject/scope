@@ -137,9 +137,9 @@ TEST_CASE("unique_resource does not clean up if reset before exception", "[uniqu
         );
 
         res.reset(); // disables cleanup, sets cleaned true
-        
+
         cleaned = false; //reset cleaned
-        
+
         throw std::runtime_error("Throwing after release");
 
     } catch (...) {
