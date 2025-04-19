@@ -1,3 +1,32 @@
 // SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
 
-int main() {}
+#include <iostream>
+#include <memory>
+#include <beman/scope.hpp>
+
+constexpr size_t arr_size = 10;
+
+int main() {
+  
+  {
+    // Allocate an array
+    auto resoure_ptr = beman::unique_resource
+    (
+       new int[arr_szie], // acquire array resource
+       // Cleanup function
+       [](int* ptr) { delete[] ptr;
+                      std::cout << "Array deleted.\n"; }
+    );
+
+    // Use the array
+    for (size_t i = 0; i < size; ++i) {
+        resource_ptr.get()[i] = static_cast<int>(i * 2);
+    }
+    std::cout << "First element: " << resource_ptr.get()[0] << "\n";
+  }
+
+  // Resource is automatically released when `resource_ptr` goes out of scope
+  std::cout << "After scope: \n";
+
+}
+
