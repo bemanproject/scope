@@ -16,7 +16,7 @@ TEST_CASE("Construct file unique_resource", "[unique_resource]") {
    {
        auto file = beman::scope::unique_resource(
            fopen("example.txt", "w"), // Acquire the FILE*
-           [](FILE* f) { if (f) {
+           [close_file_good](FILE* f) { if (f) {
                             fclose(f); // Release (cleanup) the resource
                             close_file_good = true;
                          }
@@ -25,6 +25,7 @@ TEST_CASE("Construct file unique_resource", "[unique_resource]") {
        if (!file.get()) {
            throw std::runtime_error("file didn't open");
        }
+       open_file_good = true;
    }
    REQUIRE(open_file_good == true);
    REQUIRE(close_file_good == true);
@@ -64,7 +65,7 @@ TEST_CASE("unique_resource does not clean up after release", "[unique_resource]"
             [](DummyResource r) { *(r.cleanedUp) = true; }
         );
 
-        [[maybe_unused]] auto raw = res.release();
+        res.release(); //no cleanup run
     }
 
     REQUIRE(cleaned == false);
@@ -126,7 +127,7 @@ TEST_CASE("unique_resource cleans up on exception", "[unique_resource][exception
     REQUIRE(cleaned == true);
 }
 
-TEST_CASE("unique_resource does not clean up if released before exception", "[unique_resource][exception]") {
+TEST_CASE("unique_resource does not clean up if reset before exception", "[unique_resource][exception]") {
     bool cleaned = false;
 
     try {
@@ -135,7 +136,7 @@ TEST_CASE("unique_resource does not clean up if released before exception", "[un
             [](DummyResource r) { *(r.cleanedUp) = true; }
         );
 
-        [[maybe_unused]] auto raw = res.release(); // disables cleanup
+        res.reset(); // disables cleanup
 
         throw std::runtime_error("Throwing after release");
 
