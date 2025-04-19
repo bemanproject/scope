@@ -2,7 +2,7 @@
 
 #include <iostream>
 #include <memory>
-#include <beman/scope.hpp>
+#include <beman/scope/scope.hpp>
 
 constexpr size_t arr_size = 10;
 
