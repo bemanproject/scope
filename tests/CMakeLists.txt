@@ -9,7 +9,7 @@ FetchContent_Declare(
 )
 FetchContent_MakeAvailable(Catch2)
 
-set(ALL_TESTNAMES scope unique_resource)
+set(ALL_TESTNAMES scope_success scope_exit scope_fail unique_resource)
 
 message("Tests to be built: ${ALL_TESTS}")
 

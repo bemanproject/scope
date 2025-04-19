@@ -1,7 +1,9 @@
+// SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
+
+#include <beman/scope/scope.hpp>
 #include <memory>
 #include <cstdio>
 #include <stdexcept>
-#include <beman/scope/scope.hpp>
 
 // clang-format off
 
@@ -9,6 +11,7 @@
 #include <catch2/catch_all.hpp>
 
 using namespace beman::scope;
+
 TEST_CASE("Construct file unique_resource", "[unique_resource]") {
     bool open_file_good  = false;
     bool close_file_good = false;
