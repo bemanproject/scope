@@ -26,4 +26,5 @@ foreach(testname ${ALL_TESTNAMES})
     target_link_libraries(test.${testname} PRIVATE Catch2::Catch2WithMain)
 endforeach()
 
-catch_discover_tests(test.scope test.unique_resource)
+catch_discover_tests(test.scope)
+catch_discover_tests(test.unique_resource)
