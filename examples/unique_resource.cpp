@@ -5,9 +5,9 @@
 #include <beman/scope/scope.hpp>
 
 constexpr size_t arr_size = 10;
-
+//clang-format off
 int main() {
-  
+
   {
     // Allocate an array
     auto resource_ptr = beman::scope::unique_resource
@@ -29,3 +29,4 @@ int main() {
   std::cout << "After scope: \n";
 
 }
+//clang-format on
