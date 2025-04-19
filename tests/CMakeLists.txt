@@ -16,7 +16,6 @@ message("Tests to be built: ${ALL_TESTS}")
 include(CTest)
 include(Catch)
 
-
 foreach(testname ${ALL_TESTNAMES})
     add_executable(test.${testname})
     target_sources(test.${testname} PRIVATE ${testname}.test.cpp)
