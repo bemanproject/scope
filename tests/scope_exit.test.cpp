@@ -9,6 +9,7 @@
 #define CATCH_CONFIG_MAIN
 #include <catch2/catch_all.hpp>
 
+using namespace beman::scope;
 
 TEST_CASE("scope_exit runs handler on normal scope exit", "[scope_exit]") {
     bool cleanup_ran = false;

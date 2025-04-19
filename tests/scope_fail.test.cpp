@@ -11,7 +11,6 @@
 
 using namespace beman::scope;
 
-
 TEST_CASE("scope_fail runs handler on exception", "[scope_fail]") {
     bool triggered = false;
 
