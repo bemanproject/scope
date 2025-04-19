@@ -29,6 +29,6 @@ TEST_CASE("Construct file unique_resource") {
   }
 
 
-  REQUIRE(open_file_good == true);
-  REQUIRE(cloes_file_good == true);
+    REQUIRE(open_file_good == true);
+    REQUIRE(cloes_file_good == true);
 }
