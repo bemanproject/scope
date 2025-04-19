@@ -24,7 +24,5 @@ foreach(testname ${ALL_TESTNAMES})
         PRIVATE ${CMAKE_SOURCE_DIR}/include
     )
     target_link_libraries(test.${testname} PRIVATE Catch2::Catch2WithMain)
+    catch_discover_tests(test.${testname})
 endforeach()
-
-catch_discover_tests(test.scope)
-catch_discover_tests(test.unique_resource)
