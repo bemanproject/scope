@@ -19,7 +19,7 @@ int main() {
     );
 
     // Use the array
-    for (size_t i = 0; i < size; ++i) {
+    for (size_t i = 0; i < arr_size; ++i) {
         resource_ptr.get()[i] = static_cast<int>(i * 2);
     }
     std::cout << "First element: " << resource_ptr.get()[0] << "\n";
