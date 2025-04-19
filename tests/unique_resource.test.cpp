@@ -2,7 +2,7 @@
 #include <cstdio>
 #include <beman/scope/scope.hpp>
 
-constexpr bool open_file_good = false;
+constexpr bool open_file_good  = false;
 constexpr bool close_file_good = false;
 
 // define only in one cpp file
