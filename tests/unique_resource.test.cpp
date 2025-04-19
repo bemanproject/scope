@@ -16,7 +16,7 @@ TEST_CASE("Construct file unique_resource", "[unique_resource]") {
    {
        auto file = beman::scope::unique_resource(
            fopen("example.txt", "w"), // Acquire the FILE*
-           [close_file_good](FILE* f) { if (f) {
+           [close_file_good&](FILE* f) { if (f) {
                             fclose(f); // Release (cleanup) the resource
                             close_file_good = true;
                          }
@@ -38,7 +38,7 @@ struct DummyResource {
         *cleanedUp = false;
     }
 
-    void do_something() {}
+    void do_something() const {}
 };
 
 TEST_CASE("unique_resource calls cleanup on destruction", "[unique_resource]") {
