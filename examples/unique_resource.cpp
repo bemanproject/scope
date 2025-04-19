@@ -29,5 +29,3 @@ int main() {
   std::cout << "After scope: \n";
 
 }
-
-
