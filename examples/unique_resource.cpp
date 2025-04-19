@@ -10,7 +10,7 @@ int main() {
   
   {
     // Allocate an array
-    auto resoure_ptr = beman::unique_resource
+    auto resource_ptr = beman::unique_resource
     (
        new int[arr_szie], // acquire array resource
        // Cleanup function
