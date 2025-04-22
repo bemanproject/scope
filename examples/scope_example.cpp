@@ -10,7 +10,7 @@ namespace scope = beman::scope;
 
 void print_exit_status(std::string_view name, bool exit_status, bool did_throw) {
     std::cout << name << ":\n";
-    std::cout << "  Throwed exception  " << (did_throw ? "yes" : "no") << "\n";
+    std::cout << "  Threw exception    " << (did_throw ? "yes" : "no") << "\n";
     std::cout << "  Exit status        " << (exit_status ? "finished" : "pending") << "\n\n";
 }
 
