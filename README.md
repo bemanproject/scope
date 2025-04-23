@@ -1,5 +1,5 @@
 <!--
-SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
+SPDX-License-Identifier: CC0-1.0
 -->
 
 # beman.scope: Generic Scope Guard
@@ -56,25 +56,80 @@ For discussions of this library see:
 
 `beman.scope` is a C++ library conforming to [The Beman Standard](https://github.com/bemanproject/beman/blob/main/docs/BEMAN_STANDARD.md).
 
-**Implements**: TODO
+**Implements**: D3610R0 Scope Guard for C++29
 
 **Status**: [Under development and not yet ready for production use.](https://github.com/bemanproject/beman/blob/main/docs/BEMAN_LIBRARY_MATURITY_MODEL.md#under-development-and-not-yet-ready-for-production-use)
 
 ## Usage
 
-TODO
+The following is an example of using `scope_fail` to trigger and action when the scope
+is exited with an exception.  `scope_success` and `scope_exit` provide similar capability
+but with different checked conditions on exiting the scope.
 
-### Example Usage
+```c++
+#include <beman/scope/scope.hpp>
 
-TODO
+
+    bool triggered = false;
+    {
+        scope_fail guard([&]() { triggered = true; });
+        // no exception thrown
+    }
+    // triggered == false
+    try {
+        scope_fail guard([&]() { triggered = true; });
+
+        throw std::runtime_error( "trigger failure" );
+
+    } catch (...) { // expected }
+    
+    // triggered == true
+```
+
+`unique_resource` is a cutomizeable RAII type similar to `unique_ptr`. 
+
+```c++
+#include <beman/scope/scope.hpp>
+
+  {
+    auto file = beman::scope::unique_resource(
+        fopen("example.txt", "w"), // function to acquire the FILE*
+        [](FILE* f) {              // function to cleanup on destruction
+            if (f) {
+                fclose(f); // Release (cleanup) the resource
+            }
+        }
+    );
+    
+    // use file via f->
+  }
+
+  // Resource is automatically released when `file` goes out of scope
+  std::cout << "File has been closed \n";
+```
 
 Full runnable examples can be found in `examples/`.
 
+## Integrate beman.scope into your project
+
+Beman.scope is a header-only library that currently relies on TS implementations
+and is thus currently available only on GCC13 and up, or Clang 19 and up -- in C++20 mode.
+
+As a header only library no building is required to use in a project -- simply make
+the `include` directory available add add the following to your source.
+
+```cpp
+#include <beman/scope/scope.hpp>
+```
+
 ## Building beman.scope
 
-### Dependencies
+Building is only required to run tests and examples.
 
-This project has no C or C++ dependencies.
+### Build Dependencies
+
+The library itself has no build dependencies other than Catch2 for testing
+and cmake.
 
 Build-time dependencies:
 
@@ -82,50 +137,7 @@ Build-time dependencies:
 - `ninja`, `make`, or another CMake-supported build system
   - CMake defaults to "Unix Makefiles" on POSIX systems
 
-#### How to install dependencies
-
-<!-- TODO Darius: rewrite section!-->
-
-<details>
-<summary>Dependencies install scope on Ubuntu 24.04  </summary>
-
-<!-- TODO Darius: rewrite section!-->
-
-```shell
-# Install tools:
-apt-get install -y cmake make ninja-build
-
-# Toolchains:
-apt-get install                           \
-  g++-14 gcc-14 gcc-13 g++-14             \
-  clang-18 clang++-18 clang-17 clang++-17
-```
-
-</details>
-
-<details>
-<summary>Dependencies install scope on MAC OS $VERSION </summary>
-
-<!-- TODO Darius: rewrite section!-->
-```shell
-# TODO
-```
-
-</details>
-
-<details>
-<summary>Dependencies install scope on Windows $VERSION  </summary>
-<!-- TODO Darius: rewrite section!-->
-
-```shell
-# TODO
-```
-
-</details>
-
 ### How to build beman.scope
-
-Beman scope is header only.
 
 ```shell
 cmake --workflow --preset gcc-debug
@@ -133,121 +145,22 @@ cmake --workflow --preset gcc-release
 cmake --install build/gcc-release --prefix /opt/beman.scope
 ```
 
-<details>
-<summary> Build beman.scope (verbose logs) </summary>
+# License
 
-```shell
-# Configure beman.scope via gcc-debug workflow for development.
-$ cmake --workflow --preset gcc-debug
-Executing workflow step 1 of 3: configure preset "gcc-debug"
+Source is licensed with the Apache 2.0 license with LLVM exceptions
 
-Preset CMake variables:
+// SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
 
-  CMAKE_BUILD_TYPE="Debug"
-  CMAKE_CXX_COMPILER="g++"
-  CMAKE_CXX_FLAGS="-fsanitize=address -fsanitize=pointer-compare -fsanitize=pointer-subtract -fsanitize=leak -fsanitize=undefined"
-  CMAKE_CXX_STANDARD="20"
+Documentation and associated papers are licensed with the Creative Commons Attribution 4.0 International license.
 
-TODO
+// SPDX-License-Identifier: CC-BY-4.0
 
-# Run examples.
-$ TODO
+The intent is that the source and documentation are available for use by people how they wish.
 
-```
+The README itself is licensed with CC0 1.0 Universal. Copy the contents and incorporate in your own work as you see fit.
 
-</details>
+// SPDX-License-Identifier: CC0-1.0
 
-<details>
-<summary> Install beman.scope (verbose logs) </summary>
-
-```shell
-# Install build artifacts from `build` directory into `opt/beman.scope` path.
-$ cmake --install build/gcc-release --prefix /opt/beman.scope
--- Install configuration: "RelWithDebInfo"
--- Up-to-date: /opt/beman.scope/lib/libbeman.exemplar.a
--- Up-to-date: /opt/beman.scope/include/beman/exemplar/identity.hpp
-
-
-# Check tree.
-$ tree /opt/beman.scope
-/opt/beman.scope
-├── include
-│   └── beman
-│       └── scope
-│           └── scope.hpp
-
-
-4 directories, 2 files
-```
-
-</details>
-
-<details>
-<summary> Disable tests build </summary>
-
-To build this project with tests disabled (and their dependencies),
-simply use `BEMAN_EXEMPLAR_BUILD_TESTING=OFF` as documented in upstream [CMake documentation](https://cmake.org/cmake/help/latest/module/CTest.html):
-
-```shell
-cmake -B build -S . -DBEMAN_EXEMPLAR_BUILD_TESTING=OFF
-```
-
-</details>
-
-## Integrate beman.scope into your project
-
-<details>
-<summary> Use beman.scope directly from C++ </summary>
-<!-- TODO Darius: rewrite section!-->
-
-If you want to use `beman.scope` from your project,
-you can include `beman/scope/*.hpp`  files from your C++ source files
-
-```cpp
-#include <beman/scope/identity.hpp>
-```
-
-and directly link with `libbeman.scope.a`
-
-```shell
-# Assume /opt/beman.scope staging directory.
-$ c++ -o identity_usage examples/identity_usage.cpp \
-    -I /opt/beman.scope/include/ \
-    -L/opt/beman.scope/lib/ -lbeman.exemplar
-```
-
-</details>
-
-<details>
-<summary> Use beman.scope directly from CMake </summary>
-
-<!-- TODO Darius: rewrite section! Add examples. -->
-
-For CMake based projects, you will need to use the `beman.scope` CMake module to define the `beman::exemplar` CMake target:
-
-```cmake
-find_package(beman.scope REQUIRED)
-```
-
-You will also need to add `beman::scope`
-to the link libraries of any libraries or executables that include `beman/scope/*.hpp` in their source or header file.
-
-```cmake
-target_link_libraries(yourlib PUBLIC beman::scope)
-```
-
-</details>
-
-<details>
-<summary> Use beman.scope from other build systems </summary>
-
-<!-- TODO Darius: rewrite section! Add examples. -->
-
-Build systems that support `pkg-config` by providing a `beman.scope.pc` file.
-Build systems that support interoperation via `pkg-config` should be able to detect `beman.scope` for you automatically.
-
-</details>
-
-## Contributing
+# Contributing
 
 Please do! Issues and pull requests are appreciated.

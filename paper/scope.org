@@ -1,0 +1,353 @@
+#+AUTHOR: Jeff Garland
+#+TITLE: D3610R0 Scope Guard for C++29
+#+EMAIL: jeff@crystalclearsoftware.com
+#+REVISION: 0
+#+SETUPFILE: https://fniessen.github.io/org-html-themes/org/theme-readtheorg.setup
+#+options: num:nil
+#+LATEX_CLASS: article
+#+LATEX_CLASS_OPTIONS: [11pt]
+#+LaTeX_HEADER: \usepackage[letterpaper,margin=.75in,top=.75in,bottom=.75in]{geometry}
+#+LaTeX_HEADER: \usepackage[frame=lines, linenos=true]{minted}
+#+LaTeX_HEADER: \usepackage{pdfpages}
+
+*Authors:*
+    Jeff Garland
+    Robert Andrzejuk
+    TBD
+
+*Audience:*
+    LEWG
+
+*Project:*
+    ISO/IEC JTC1/SC22/WG21 14882: Programming Language — C++
+
+*Contact:*
+    jeff@crystalclearsoftware.com
+
+
+* Introduction
+
+During the C++20 cycle [[https://wg21.link/P0052][P0052 Generic Scope Guard and RAII Wrapper for the Standard Library]] was added to LTFSv3.  In the intervening time, two standard libraries have implemented support as well as Boost. With the imperative for safety and security in C++, developers need every tool in the toolbox. The authors believe it is time to move this facility into the standard.  The paper will re-examine the now five plus year old design and any learning from deployments of the LTFSv3.
+
+* Motivation and Scope
+
+We propose moving the following facilities from the LTFSv3 into the standard:
+
+| Name              | Purpose                                                        | Triggered when    |
+|-------------------+----------------------------------------------------------------+-------------------|
+| ~scope_exit~      | run a callback function at the end of declared scope           | always            |
+|-------------------+----------------------------------------------------------------+-------------------|
+| ~scope_success~   | run a callback function at scope end when no exception thrown  | no exception      |
+|-------------------+----------------------------------------------------------------+-------------------|
+| ~scope_fail~      | run a callback function at scope end when exception thrown     | on exception exit |
+|-------------------+----------------------------------------------------------------+-------------------|
+| ~unique_resource~ | user customizable RAII resource handle similar to ~unique_ptr~ | always            |
+|-------------------+----------------------------------------------------------------+-------------------|
+
+
+Before the change we'd write this:
+
+| Before |
+#+BEGIN_SRC C++
+// ?
+#+END_SRC
+
+And after, this:
+
+| After |
+#+BEGIN_SRC C++
+// ?
+#+END_SRC
+
+* Design Considerations
+
+This paper will not rehash all the design considerations from P0052, but will instead focus on
+potential changes to the existing TS design.  These include looking at options provided
+in other contemporary libraries such as Boost.scope.
+
+** constexpr
+
+Since these capabilities were added to the TS much of the standard library has been made constexpr.
+That includes ~unique_ptr~ and other raii facilities.  As a result, this proposal marks the entire
+capability as constexpr.
+
+** Interactions with coroutines
+
+TBD
+
+Coroutines we adopted at the same time as the TS and interactions between scope and coroutines likely
+escaped examination.
+
+** Boost.scope ~scope_fail/success/exit~ extensions and changes
+
+Approved in 2024, the Boost.scope library updates the venerable Boost.ScopeExit library with a facility
+similar to the current TS.  However, it changes three things that should be considered including:
+ - user replaceable condition checking function
+ - ~release~ with user activation options
+ - relaxation of some ~noexcept~
+
+The changes are detailed here: https://www.boost.org/doc/libs/1_88_0/libs/scope/doc/html/scope/scope_guards.html#scope.scope_guards.comparison_with_library_fundamentals_ts
+
+The next few sections address these changes.
+
+*** Replacing Condition Checks
+
+The Boost.scope library allows a user provided *condition function* to replace the *exception checking*
+function that determines if the callback function is triggered. This has the advantage that the scope
+guards could be used without exceptions.  For example, the signature for ~scope_fail~ is shown below.
+
+#+BEGIN_SRC C++
+template<typename Func, typename Cond = exception_checker> class scope_fail;
+#+END_SRC
+
+Imagine the following code:
+
+#+BEGIN_SRC C++
+  double sqrt_div_two( double value ) {
+    errno = 0;  // Always clear errno before a call
+    double result;
+    {
+      scope_fail guard {
+                         [&result] { result = -1.0; }, //fail function
+                         [] { return errno != 0; }     // check condition function
+                       };
+      
+      result = sqrt( value ) / 2.0;
+    }
+
+    return result;
+  };
+
+  double d = sqrt_div_two( -100.0 ); //domain error, d == -1.0
+#+END_SRC
+
+TODO - show the equivalent with TS (can be done sortof -- more code and uses ~scope_exit~ with conditions
+
+The authors of this paper feel that this is an extension worthy of consideration as it
+allows working with scope capabilities even in code not using exceptions.  One downside
+to this change is that the scope classes require another function pointer.
+
+*** Active versus release
+
+Boost.scope removes the ~release~ method and replaces it with an activation flag. 
+
+TODO
+
+*** ~noexcept~ relaxations
+
+TODO
+
+** Boost.scope changes to ~unique_resource~
+
+https://www.boost.org/doc/libs/1_88_0/libs/scope/doc/html/scope/unique_resource.html#scope.unique_resource.comparison_with_library_fundamentals_ts
+
+TODO
+
+** Committee design polls 
+
+We like the changes proposed to allow user defined condition function.
+
+POLL: 
+
+| Strongly Favor | Weakly Favor | Neutral | Weakly Against | Strongly Against |
+|----------------+--------------+---------+----------------+------------------|
+|              0 |            0 |       0 |              0 |                0 |
+
+Attendance: 
+
+Author Position: 
+
+Outcome: 
+
+
+* Implementations
+
+There are many implementations of either part or all of this proposal in various libraries.
+
+- [[https://gcc.gnu.org/git/?p=gcc.git;a=blob;f=libstdc%2B%2B-v3/include/experimental/scope;h=6e1d342e1b6486b0d1f32166c7eb91d29ed79f4d;hb=refs/heads/master][GCC libstdc++-v3 experimental/scope implementation]]
+- [[https://github.com/llvm/llvm-project/blob/main/libcxx/include/__utility/scope_guard.h][libcxx - ~scope_guard.h~]]
+- [[https://www.boost.org/doc/libs/1_87_0/libs/scope/doc/html/index.html][Boost.scope]]
+- [[https://github.com/bloomberg/bde/blob/main/groups/bdl/bdlb/bdlb_scopeexit.h][BDE (Bloomberg) - ScopeExit.h]]
+- [[https://github.com/microsoft/GSL/blob/main/include/gsl/util][GSL ~final_action~]] - part of core guidelines
+- [[https://github.com/llvm/llvm-project/blob/main/llvm/include/llvm/ADT/ScopeExit.h][LLVM - ADT/ScopeExit.h]]
+- [[https://ricab.github.io/scope_guard][~scope_guard~ based on Andrei Alexandrescu and Petru Marginean article]]
+- [[https://github.com/microsoft/wil/blob/182e6521140174e1d2ed1920f88d005fc4c546e2/include/wil/resource.h#L660][Windows Implementation Libraries (WIL) - ~scope_exit~]]
+- [[https://github.com/facebook/folly/blob/main/folly/ScopeGuard.h][Folly - ScopeGuard.h]]
+
+
+* Technical Specification
+
+The following wording is *similar* to P0052, but simplified and improved where possible. The use of ~scope_guard~
+is eliminated in this specification as it provided limited economy of words and required mental gymnastics to
+understand the specification. Finally, underscores have been removed from stable names.
+
+** Feature Test Macro
+
+Add the  feature test macro ~__cpp_lib_scope~.
+
+** 7.5 Scope guard support [scope]
+
+This subclause contains infrastructure for a generic scope guard and RAII (resource acquisition is
+initialization) resource wrapper.
+
+*** 7.5.1 Header ~<scope>~ synopsis [scope.syn]
+#+BEGIN_SRC c++
+  namespace std {
+
+    // 
+    bool exception_check();
+
+    // scope guards
+    template <class EF> class scope_exit;
+    template <class EF, class CF = exception_check> class scope_fail;
+    template <class EF, class CF = exception_check> class scope_success;
+
+    // raii handle
+    template <class R, class D> class unique_resource;
+
+    // factory function
+    template <class R, class D, class S=decay_t<R>>
+    unique_resource<decay_t<R>, decay_t<D>>
+    make_unique_resource_checked(R&& r, const S& invalid, D&& d) noexcept(see below );
+  }
+#+END_SRC
+
+  1 The class templates ~scope_exit~, ~scope_fail~, and ~scope_success~ define scope guards
+    that wrap a function object to be called on destruction.
+    
+  2 The class template ~unique_resource~ provides a user customizeable raii style guard.
+
+*** 7.5.2 Class template scope_exit
+
+#+BEGIN_SRC cpp
+namespace std {
+  template <class EF, class CF>
+  class scope_exit {
+  public:
+    constexpr explicit scope_exit(EF&&) noexcept;
+    constexpr scope_exit(scope_exit&&) noexcept;
+    constexpr ~scope_exit() noexcept;
+
+    scope_exit(const scope_exit&) = delete;
+    void operator=(const scope_exit&) = delete;
+    void operator=(const scope_exit&&) = delete;
+
+    constexpr void activate() noexcept;
+    constexpr void deactivate() noexcept;
+  private:
+    EF exit_function; // exposition only
+    bool activated{true}; // exposition only
+  };
+}
+#+END_SRC
+
+*** 7.5.3 Class template ~scope_fail~
+
+
+#+BEGIN_SRC cpp
+namespace std {
+  template <class EF, class CF>
+  class scope_fail {
+  public:
+    constexpr explicit scope_fail(EF&& f) noexcept;
+    constexpr scope_fail(scope_fail&& rhs) noexcept;
+    constexpr ~scope_fail() noexcept;
+
+    scope_fail(const scope_fail&) = delete;
+    void operator=(const scope_fail&) = delete;
+    void operator=(const scope_fail&&) = delete;
+
+    constexpr void activate() noexcept;
+    constexpr void deactivate() noexcept;
+  private:
+    EF exit_function; // exposition only
+    bool activated{true}; // exposition only
+    int uncaught_on_creation{uncaught_exceptions()}; // exposition only
+  };
+}
+#+END_SRC
+
+*** 7.5.4 Class template ~scope_success~
+
+#+BEGIN_SRC cpp
+namespace std {
+  template <class EF, class CF>
+  class scope_success {
+  public:
+    constexpr explicit scope_success(EF&& f) noexcept;
+    constexpr scope_success(scope_success&& rhs) noexcept;
+    constexpr ~scope_success() noexcept;
+
+    scope_success(const scope_success&)  = delete;
+    void operator=(const scope_success&) = delete;
+    void operator=(const scope_success&) = delete;
+
+    constexpr void activate() noexcept;
+    constexpr void deactivate() noexcept;
+  private:
+    EF exit_function; // exposition only
+    bool activated{true}; // exposition only
+    int uncaught_on_creation{uncaught_exceptions()}; // exposition only
+  };
+}
+#+END_SRC
+
+*** 7.5.5 Class template ~unique_resource~
+
+#+BEGIN_SRC cpp
+namespace std {
+  template <class R, class D>
+  class unique_resource {
+  public:
+    unique_resource(R&& resource, D&& deleter);
+    unique_resource(unique_resource&& other) noexcept;
+    ~unique_resource();
+    void release() noexcept;
+    const R& get() const noexcept;
+  private:
+    R resource; // exposition only
+    D deleter; // exposition only
+    bool execute_on_destruction{true}; // exposition only
+  };
+}
+#+END_SRC
+
+** TODO
+
+
+    1 ~template <class F> constexpr auto transform_error(F&& f) &&;~
+
+    2 ~template <class F> constexpr auto transform_error(F&& f) const &&;~
+
+    Let G be ~remove_cv_t<invoke_result_t<F, decltype(std::move(error()))>>~.
+    
+    /Mandates:/ G is a valid value type for ~expected~ and the declaration ~G g(invoke(std::forward<F>(f), std::move(error())));~ is well-formed.
+
+    /Constraints:/ ~is_move_constructible_v<T>~ is ~true~.
+
+    /Returns:/ If ~has_value()~ is ~true~, ~expected<T,G>(in_place, std::move(value()))~; otherwise, an ~expected<T, G>~ object whose ~has_val~ member is ~false~ and ~unex~ member is direct-non-list-initialized with ~invoke(std::forward<F>(f), std::move(error()))~.
+
+
+* Acknowledgements
+ - Peter Sommerlad and Andrew Sandoval for all the work bring Scope Guard to the LTFS.
+   
+* Revision History
+
+| Version |       Date | Changes                                                                     |
+|---------+------------+-----------------------------------------------------------------------------|
+|       0 | 2025-0x-xx | Initial Draft                                                               |
+|---------+------------+-----------------------------------------------------------------------------|
+|       1 |       2025 |                                                                             |
+|         |            |                                                                             |
+|         |            |                                                                             |
+|---------+------------+-----------------------------------------------------------------------------|
+|       2 |       2025 |                                                                             |
+|         |            |                                                                             |
+|         |            |                                                                             |
+|         |            |                                                                             |
+|---------+------------+-----------------------------------------------------------------------------|
+
+
+* References
+  1. Source for this proposal https://github.com/
+  2. Rust ??
