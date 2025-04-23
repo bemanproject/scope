@@ -5,6 +5,7 @@
 
 
 #include <concepts>
+#include <exception>
 #include <type_traits>
 #include <version>
 
@@ -420,12 +421,41 @@ private:
 };
 
 
+//======
+
+class ReleasableExecuteWhenNoException
+{
+public:
+    using DontInvokeOnCreationException = void;
+
+
+    [[nodiscard]] bool operator()() const noexcept(noexcept(std::uncaught_exceptions()))
+    {
+        return m_uncaught_on_creation >= std::uncaught_exceptions();
+    }
+
+    void release()
+    {
+        m_uncaught_on_creation = INT_MIN;
+    }
+
+private:
+    int m_uncaught_on_creation = std::uncaught_exceptions();
+};
+
+
 //==================================================================================================
 
 // --- type aliases ---
 
 template<class ExitFunc>
 using scope_exit = scope_guard<ExitFunc, Releaser, exception_during_constuction_behaviour::invoke_exit_func>;
+
+
+template<class ExitFunc>
+using scope_success = scope_guard<ExitFunc,
+                                  ReleasableExecuteWhenNoException,
+                                  exception_during_constuction_behaviour::dont_invoke_exit_func>;
 
 
 } // namespace beman::scope
