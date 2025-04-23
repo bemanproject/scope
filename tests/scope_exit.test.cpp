@@ -9,7 +9,9 @@
 #define CATCH_CONFIG_MAIN
 #include <catch2/catch_all.hpp>
 
-using namespace beman::scope;
+
+using beman::scope::scope_exit;
+
 
 TEST_CASE("scope_exit runs handler on normal scope exit", "[scope_exit]") {
     bool cleanup_ran = false;
@@ -57,7 +59,7 @@ TEST_CASE("scope_exit does not run handler if released", "[scope_exit]") {
 }
 
 TEST_CASE("scope_exit supports move semantics", "[scope_exit]") {
-    bool cleanup_ran = false;
+    bool cleanup_ran_count = false;
 
     {
         scope_exit guard1([&]() {
@@ -73,17 +75,17 @@ TEST_CASE("scope_exit supports move semantics", "[scope_exit]") {
 }
 
 TEST_CASE("moved-from scope_exit does not trigger handler", "[scope_exit]") {
-    bool cleanup_ran = false;
+    bool cleanup_ran_count = 0;
 
     {
         scope_exit guard1([&]() {
-            cleanup_ran = true;
+            ++cleanup_ran;
         });
 
         [[maybe_unused]] auto guard2 = std::move(guard1); // guard1 is now a no-op
     }
 
-    REQUIRE(cleanup_ran == true); // cleanup still runs — but from guard2
+    REQUIRE(cleanup_ran_count == 1 ); // cleanup still runs — but from guard2
 }
 
 TEST_CASE("scope_exit supports noexcept lambdas", "[scope_exit][advanced]") {
