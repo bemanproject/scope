@@ -82,11 +82,11 @@ but with different checked conditions on exiting the scope.
         throw std::runtime_error( "trigger failure" );
 
     } catch (...) { // expected }
-    
+
     // triggered == true
 ```
 
-`unique_resource` is a cutomizeable RAII type similar to `unique_ptr`. 
+`unique_resource` is a cutomizeable RAII type similar to `unique_ptr`.
 
 ```c++
 #include <beman/scope/scope.hpp>
@@ -100,7 +100,7 @@ but with different checked conditions on exiting the scope.
             }
         }
     );
-    
+
     // use file via f->
   }
 

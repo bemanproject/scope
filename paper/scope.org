@@ -111,7 +111,7 @@ Imagine the following code:
                          [&result] { result = -1.0; }, //fail function
                          [] { return errno != 0; }     // check condition function
                        };
-      
+
       result = sqrt( value ) / 2.0;
     }
 
@@ -129,7 +129,7 @@ to this change is that the scope classes require another function pointer.
 
 *** Active versus release
 
-Boost.scope removes the ~release~ method and replaces it with an activation flag. 
+Boost.scope removes the ~release~ method and replaces it with an activation flag.
 
 TODO
 
@@ -143,21 +143,21 @@ https://www.boost.org/doc/libs/1_88_0/libs/scope/doc/html/scope/unique_resource.
 
 TODO
 
-** Committee design polls 
+** Committee design polls
 
 We like the changes proposed to allow user defined condition function.
 
-POLL: 
+POLL:
 
 | Strongly Favor | Weakly Favor | Neutral | Weakly Against | Strongly Against |
 |----------------+--------------+---------+----------------+------------------|
 |              0 |            0 |       0 |              0 |                0 |
 
-Attendance: 
+Attendance:
 
-Author Position: 
+Author Position:
 
-Outcome: 
+Outcome:
 
 
 * Implementations
@@ -194,7 +194,7 @@ initialization) resource wrapper.
 #+BEGIN_SRC c++
   namespace std {
 
-    // 
+    // default conditional check
     bool exception_check();
 
     // scope guards
@@ -214,7 +214,7 @@ initialization) resource wrapper.
 
   1 The class templates ~scope_exit~, ~scope_fail~, and ~scope_success~ define scope guards
     that wrap a function object to be called on destruction.
-    
+
   2 The class template ~unique_resource~ provides a user customizeable raii style guard.
 
 *** 7.5.2 Class template scope_exit
@@ -320,7 +320,7 @@ namespace std {
     2 ~template <class F> constexpr auto transform_error(F&& f) const &&;~
 
     Let G be ~remove_cv_t<invoke_result_t<F, decltype(std::move(error()))>>~.
-    
+
     /Mandates:/ G is a valid value type for ~expected~ and the declaration ~G g(invoke(std::forward<F>(f), std::move(error())));~ is well-formed.
 
     /Constraints:/ ~is_move_constructible_v<T>~ is ~true~.
@@ -330,7 +330,7 @@ namespace std {
 
 * Acknowledgements
  - Peter Sommerlad and Andrew Sandoval for all the work bring Scope Guard to the LTFS.
-   
+
 * Revision History
 
 | Version |       Date | Changes                                                                     |
