@@ -59,7 +59,7 @@ TEST_CASE("scope_exit does not run handler if released", "[scope_exit]") {
 }
 
 TEST_CASE("scope_exit supports move semantics", "[scope_exit]") {
-    bool cleanup_ran_count = false;
+    bool cleanup_ran = false;
 
     {
         scope_exit guard1([&]() {
@@ -75,11 +75,11 @@ TEST_CASE("scope_exit supports move semantics", "[scope_exit]") {
 }
 
 TEST_CASE("moved-from scope_exit does not trigger handler", "[scope_exit]") {
-    bool cleanup_ran_count = 0;
+    int cleanup_ran_count = 0;
 
     {
         scope_exit guard1([&]() {
-            ++cleanup_ran;
+            ++cleanup_ran_count;
         });
 
         [[maybe_unused]] auto guard2 = std::move(guard1); // guard1 is now a no-op
