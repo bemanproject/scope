@@ -444,6 +444,27 @@ private:
 };
 
 
+//======
+
+class ReleasableExecuteOnlyWhenException
+{
+public:
+    [[nodiscard]] bool operator()() const noexcept(noexcept(std::uncaught_exceptions()))
+    {
+        return m_uncaught_on_creation < std::uncaught_exceptions();
+    }
+
+
+    void release()
+    {
+        m_uncaught_on_creation = INT_MAX;
+    }
+
+private:
+    int m_uncaught_on_creation = std::uncaught_exceptions();
+};
+
+
 //==================================================================================================
 
 // --- type aliases ---
@@ -457,6 +478,9 @@ using scope_success = scope_guard<ExitFunc,
                                   ReleasableExecuteWhenNoException,
                                   exception_during_constuction_behaviour::dont_invoke_exit_func>;
 
+template<class ExitFunc>
+using scope_fail =
+      scope_guard<ExitFunc, ReleasableExecuteOnlyWhenException, exception_during_constuction_behaviour::invoke_exit_func>;
 
 } // namespace beman::scope
 
