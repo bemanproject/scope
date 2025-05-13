@@ -6,6 +6,10 @@
 #include <type_traits>
 #include <utility>
 
+#if __cplusplus < 202002L
+  #error "C++20 or later is required"
+#endif
+
 #include <experimental/scope>
 
 namespace beman::scope {
