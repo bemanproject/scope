@@ -6,6 +6,12 @@
 #include <type_traits>
 #include <utility>
 
+// clang-format off
+#if __cplusplus < 202002L
+  #error "C++20 or later is required"
+#endif
+// clang-format on
+
 #include <experimental/scope>
 
 namespace beman::scope {
