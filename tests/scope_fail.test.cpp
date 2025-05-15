@@ -9,7 +9,8 @@
 #define CATCH_CONFIG_MAIN
 #include <catch2/catch_all.hpp>
 
-using namespace beman::scope;
+using beman::scope::scope_fail;
+using beman::scope::scope_success;
 
 TEST_CASE("scope_fail runs handler on exception", "[scope_fail]") {
     bool triggered = false;
@@ -187,11 +188,11 @@ TEST_CASE("scope_fail coexists with scope_success", "[scope_fail][advanced]") {
     std::string output;
 
     try {
-        std::experimental::scope_success success([&]() {
+        scope_success success([&]() {
             output += "success ";
         });
 
-        std::experimental::scope_fail fail([&]() {
+        scope_fail fail([&]() {
             output += "fail ";
         });
 
