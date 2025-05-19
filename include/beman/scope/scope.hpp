@@ -227,7 +227,7 @@ class [[nodiscard]] scope_guard<ScopeExitFunc, InvokeChecker, ConstructionExcept
     constexpr scope_guard(EF&&   exit_func,
                           CHKR&& invoke_checker) noexcept(std::is_nothrow_constructible_v<ScopeExitFunc> &&
                                                           std::is_nothrow_constructible_v<InvokeChecker>) try
-        : m_exit_func{std::forward<EF>(exit_func)}, m_invoke_checker{std::forward<CHKR>(invoke_checker)} {
+      : exit_func{std::forward<EF>(exit_func)}, invoke_check_func{std::forward<CHKR>(invoke_checker)} {
     } catch (...) {
         if constexpr (ConstructionExceptionBehavior == exception_during_construction_behaviour::invoke_exit_func) {
             exit_func();
@@ -241,7 +241,7 @@ class [[nodiscard]] scope_guard<ScopeExitFunc, InvokeChecker, ConstructionExcept
     explicit constexpr scope_guard(EF&& exit_func) noexcept(std::is_nothrow_constructible_v<ScopeExitFunc> &&
                                                             std::is_nothrow_constructible_v<InvokeChecker>)
         requires(std::is_default_constructible_v<InvokeChecker> && !std::is_same_v<std::remove_cvref<EF>, scope_guard>)
-    try : m_exit_func{std::forward<EF>(exit_func)} {
+    try : exit_func{std::forward<EF>(exit_func)} {
     } catch (...) {
         if constexpr (ConstructionExceptionBehavior == exception_during_construction_behaviour::invoke_exit_func) {
             exit_func();
@@ -254,7 +254,7 @@ class [[nodiscard]] scope_guard<ScopeExitFunc, InvokeChecker, ConstructionExcept
     constexpr scope_guard(scope_guard&& rhs) noexcept(std::is_nothrow_move_constructible_v<ScopeExitFunc> &&
                                                       std::is_nothrow_move_constructible_v<InvokeChecker>)
         requires(HasRelease<InvokeChecker> || HasStaticRelease<InvokeChecker>)
-        : m_exit_func{std::move(rhs.m_exit_func)}, m_invoke_checker{std::move(rhs.m_invoke_checker)} {
+        : exit_func{std::move(rhs.exit_func)}, invoke_check_func{std::move(rhs.invoke_check_func)} {
         // TODO: This does not work corectly for a shared invoke checker
         //       After a move will disable all.
 
@@ -269,28 +269,28 @@ class [[nodiscard]] scope_guard<ScopeExitFunc, InvokeChecker, ConstructionExcept
     scope_guard& operator=(const scope_guard&) = delete;
     scope_guard& operator=(scope_guard&& rhs)  = delete;
 
-    constexpr ~scope_guard() noexcept(noexcept(m_exit_func()) && noexcept(m_invoke_checker())) {
-        if (m_invoke_checker()) {
-            m_exit_func();
+    constexpr ~scope_guard() noexcept(noexcept(exit_func()) && noexcept(invoke_check_func())) {
+        if (invoke_check_func()) {
+            exit_func();
         }
     }
 
-    InvokeChecker& invoke_checker() & noexcept { return m_invoke_checker; }
+    InvokeChecker& invoke_checker() & noexcept { return invoke_checker; }
 
     constexpr void release() noexcept
         // Shouldn't this "noexcept" be dependent on the noexcept of the release function? how??
         requires(HasRelease<InvokeChecker> || HasStaticRelease<InvokeChecker>)
     {
         if constexpr (HasRelease<InvokeChecker>) {
-            m_invoke_checker.release();
+            invoke_check_func.release();
         } else {
             InvokeChecker::release();
         }
     }
 
   private:
-    ScopeExitFunc m_exit_func;
-    InvokeChecker m_invoke_checker;
+    ScopeExitFunc exit_func;
+    InvokeChecker invoke_check_func;
 };
 
 //======
@@ -299,13 +299,13 @@ class [[nodiscard]] scope_guard<ScopeExitFunc, InvokeChecker, ConstructionExcept
 
 template <scope_exit_function ScopeExitFunc>
 class [[nodiscard]] scope_guard<ScopeExitFunc, void, exception_during_construction_behaviour::invoke_exit_func> {
-    ScopeExitFunc m_exit_func;
+    ScopeExitFunc exit_func;
 
   public:
     template <typename T>
     explicit constexpr scope_guard(T&& exit_func) noexcept(std::is_nothrow_constructible_v<ScopeExitFunc>)
         requires(!std::is_same_v<std::remove_cvref<T>, scope_guard>)
-    try : m_exit_func(std::forward<T>(exit_func)) {
+    try : exit_func(std::forward<T>(exit_func)) {
     } catch (...) {
         exit_func();
 
@@ -317,27 +317,27 @@ class [[nodiscard]] scope_guard<ScopeExitFunc, void, exception_during_constructi
     scope_guard& operator=(const scope_guard&) = delete;
     scope_guard& operator=(scope_guard&&)      = delete;
 
-    constexpr ~scope_guard() noexcept(noexcept(m_exit_func())) { m_exit_func(); }
+    constexpr ~scope_guard() noexcept(noexcept(exit_func())) { exit_func(); }
 };
 
 //======
 
 template <scope_exit_function ScopeExitFunc>
 class [[nodiscard]] scope_guard<ScopeExitFunc, void, exception_during_construction_behaviour::dont_invoke_exit_func> {
-    ScopeExitFunc m_exit_func;
+    ScopeExitFunc exit_func;
 
   public:
     template <typename T>
     explicit constexpr scope_guard(T&& exit_func) noexcept(std::is_nothrow_constructible_v<ScopeExitFunc>)
         requires(!std::is_same_v<std::remove_cvref<T>, scope_guard>)
-        : m_exit_func(std::forward<T>(exit_func)) {}
+        : exit_func(std::forward<T>(exit_func)) {}
 
     scope_guard(const scope_guard&)            = delete;
     scope_guard(scope_guard&&)                 = delete;
     scope_guard& operator=(const scope_guard&) = delete;
     scope_guard& operator=(scope_guard&&)      = delete;
 
-    constexpr ~scope_guard() noexcept(noexcept(m_exit_func())) { m_exit_func(); }
+    constexpr ~scope_guard() noexcept(noexcept(exit_func())) { exit_func(); }
 };
 
 //==================================================================================================
@@ -361,12 +361,12 @@ scope_guard(ExitFunc&&) -> scope_guard<std::decay_t<ExitFunc>, InvokeChecker, ec
 
 class Releaser {
   public:
-    bool operator()() const { return m_can_invoke; }
+    bool operator()() const { return can_invoke; }
 
-    void release() { m_can_invoke = false; }
+    void release() { can_invoke = false; }
 
   private:
-    bool m_can_invoke = true;
+    bool can_invoke = true;
 };
 
 //======
@@ -376,13 +376,13 @@ class ReleasableExecuteWhenNoException {
     using DontInvokeOnCreationException = void;
 
     [[nodiscard]] bool operator()() const noexcept(noexcept(std::uncaught_exceptions())) {
-        return m_uncaught_on_creation >= std::uncaught_exceptions();
+        return uncaught_on_creation >= std::uncaught_exceptions();
     }
 
-  void release() { m_uncaught_on_creation = std::numeric_limits<int>::min(); }
+  void release() { uncaught_on_creation = std::numeric_limits<int>::min(); }
 
   private:
-    int m_uncaught_on_creation = std::uncaught_exceptions();
+    int uncaught_on_creation = std::uncaught_exceptions();
 };
 
 //======
@@ -390,13 +390,13 @@ class ReleasableExecuteWhenNoException {
 class ReleasableExecuteOnlyWhenException {
   public:
     [[nodiscard]] bool operator()() const noexcept(noexcept(std::uncaught_exceptions())) {
-        return m_uncaught_on_creation < std::uncaught_exceptions();
+        return uncaught_on_creation < std::uncaught_exceptions();
     }
 
-    void release() { m_uncaught_on_creation = std::numeric_limits<int>::max(); }
+    void release() { uncaught_on_creation = std::numeric_limits<int>::max(); }
 
   private:
-    int m_uncaught_on_creation = std::uncaught_exceptions();
+    int uncaught_on_creation = std::uncaught_exceptions();
 };
 
 //==================================================================================================
