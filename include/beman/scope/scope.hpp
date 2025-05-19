@@ -362,7 +362,7 @@ scope_guard(ExitFunc&&) -> scope_guard<std::decay_t<ExitFunc>, InvokeChecker, ec
 
 //==================================================================================================
 
-class Releaser {
+class releaser {
   public:
     bool operator()() const { return can_invoke; }
 
@@ -374,7 +374,7 @@ class Releaser {
 
 //======
 
-class ReleasableExecuteWhenNoException {
+class releaseable_execute_when_no_exception {
   public:
     using DontInvokeOnCreationException = void;
 
@@ -390,7 +390,7 @@ class ReleasableExecuteWhenNoException {
 
 //======
 
-class ReleasableExecuteOnlyWhenException {
+class releaseable_execute_only_when_exception {
   public:
     [[nodiscard]] bool operator()() const noexcept(noexcept(std::uncaught_exceptions())) {
         return uncaught_on_creation < std::uncaught_exceptions();
@@ -407,16 +407,16 @@ class ReleasableExecuteOnlyWhenException {
 // --- type aliases ---
 
 template <class ExitFunc>
-using scope_exit = scope_guard<ExitFunc, Releaser, exception_during_construction_behaviour::invoke_exit_func>;
+using scope_exit = scope_guard<ExitFunc, releaser, exception_during_construction_behaviour::invoke_exit_func>;
 
 template <class ExitFunc>
 using scope_success = scope_guard<ExitFunc,
-                                  ReleasableExecuteWhenNoException,
+                                  releaseable_execute_when_no_exception,
                                   exception_during_construction_behaviour::dont_invoke_exit_func>;
 
 template <class ExitFunc>
 using scope_fail = scope_guard<ExitFunc,
-                               ReleasableExecuteOnlyWhenException,
+                               releaseable_execute_only_when_exception,
                                exception_during_construction_behaviour::invoke_exit_func>;
 
 } // namespace beman::scope
