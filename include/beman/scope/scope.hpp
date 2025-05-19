@@ -209,8 +209,8 @@ class [[nodiscard]] scope_guard;
  * @tparam ConstructionExceptionBehavior callable function that defines the behavior if an exception occurs
  *         on the construction.
  */
-template <scope_exit_function                    ScopeExitFunc,
-          scope_function_invoke_check            InvokeChecker,
+template <scope_exit_function                     ScopeExitFunc,
+          scope_function_invoke_check             InvokeChecker,
           exception_during_construction_behaviour ConstructionExceptionBehavior>
 class [[nodiscard]] scope_guard<ScopeExitFunc, InvokeChecker, ConstructionExceptionBehavior> {
   public:
@@ -233,7 +233,7 @@ class [[nodiscard]] scope_guard<ScopeExitFunc, InvokeChecker, ConstructionExcept
     constexpr scope_guard(EF&&   exit_func,
                           CHKR&& invoke_checker) noexcept(std::is_nothrow_constructible_v<ScopeExitFunc> &&
                                                           std::is_nothrow_constructible_v<InvokeChecker>) try
-      : exit_func{std::forward<EF>(exit_func)}, invoke_check_func{std::forward<CHKR>(invoke_checker)} {
+        : exit_func{std::forward<EF>(exit_func)}, invoke_check_func{std::forward<CHKR>(invoke_checker)} {
     } catch (...) {
         if constexpr (ConstructionExceptionBehavior == exception_during_construction_behaviour::invoke_exit_func) {
             exit_func();
@@ -357,7 +357,7 @@ template <typename ExitFunc,
 scope_guard(ExitFunc&&, InvokeChecker&&) -> scope_guard<std::decay_t<ExitFunc>, std::decay_t<InvokeChecker>, ecdb>;
 
 template <typename ExitFunc,
-          typename InvokeChecker                      = void,
+          typename InvokeChecker                       = void,
           exception_during_construction_behaviour ecdb = exception_during_construction_behaviour::invoke_exit_func>
     requires(scope_exit_function<ExitFunc> &&
              (scope_function_invoke_check<InvokeChecker> || std::is_void_v<InvokeChecker>))
@@ -385,7 +385,7 @@ class ReleasableExecuteWhenNoException {
         return uncaught_on_creation >= std::uncaught_exceptions();
     }
 
-  void release() { uncaught_on_creation = std::numeric_limits<int>::min(); }
+    void release() { uncaught_on_creation = std::numeric_limits<int>::min(); }
 
   private:
     int uncaught_on_creation = std::uncaught_exceptions();
