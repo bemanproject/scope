@@ -201,28 +201,33 @@ class [[nodiscard]] scope_guard;
 
 //==================================================================================================
 
-// --- General definition ---
-
+/**  Generalized scope guard template
+ * This template provides the general behaviors required for more concrete instances of scope types.
+ * @tparam ScopeExitFunction callable function that is conditionally invoked at the end of the scope.
+ * @tparam InvokeChecker callable function that handles checking if callback should be called on scope exit.
+ * @tparam ConstructionExceptionBehavior callable function that defines the behavior if an exception occurs
+ *         on the construction.
+ */
 template <scope_exit_function                    ScopeExitFunc,
           scope_function_invoke_check            InvokeChecker,
           exception_during_construction_behaviour ConstructionExceptionBehavior>
 class [[nodiscard]] scope_guard<ScopeExitFunc, InvokeChecker, ConstructionExceptionBehavior> {
   public:
-    // The constructor parameter `exit_func` in the following constructors shall be :
-    //  - a reference to a function
-    //  - or a reference to a function object([function.objects])
-    //
-
-    // If EFP is not an lvalue reference type and is_nothrow_constructible_v<EF,EFP> is true,
-    // initialize exit_function with std::forward<EFP>(f);
-    // otherwise initialize exit_function with f.
-
-    // scope_fail / scope_exit
-    // If the initialization of exit_function throws an exception, calls f().
-
-    // scope_success
-    //  [Note: If initialization of exit_function fails, f() won’t be called. —end note]
-
+    /** The constructor parameter `exit_func` in the following constructors shall be :
+     *  - a reference to a function
+     *  - or a reference to a function object([function.objects])
+     *
+     *
+     * If EFP is not an lvalue reference type and is_nothrow_constructible_v<EF,EFP> is true,
+     * initialize exit_function with std::forward<EFP>(f);
+     * otherwise initialize exit_function with f.
+     *
+     * scope_fail / scope_exit
+     * If the initialization of exit_function throws an exception, calls f().
+     *
+     * scope_success
+     *  [Note: If initialization of exit_function fails, f() wont be called. end note]
+     */
     template <typename EF, typename CHKR>
     constexpr scope_guard(EF&&   exit_func,
                           CHKR&& invoke_checker) noexcept(std::is_nothrow_constructible_v<ScopeExitFunc> &&
