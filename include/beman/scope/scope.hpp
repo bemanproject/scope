@@ -9,14 +9,15 @@
 #include <version>
 #include <limits>
 
-#if (!(defined(__cpp_concepts) || !(defined(__cpp_lib_concepts))))
-static_assert(false, "C++20 Concepts Required");
+// clang-format off
+#if __cplusplus < 202002L
+  #error "C++20 or later is required"
 #endif
+// clang-format on
 
 #include <experimental/scope> //todo unconditional for unique_resource
 
 #ifdef BEMAN_SCOPE_USE_STD_EXPERIMENTAL
-
 
 namespace beman::scope {
 
