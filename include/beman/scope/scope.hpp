@@ -185,10 +185,7 @@ concept HasStaticRelease = requires {
 
 // --- Enum ---
 
-enum class exception_during_construction_behaviour {
-    dont_invoke_exit_func,
-    invoke_exit_func
-};
+enum class exception_during_construction_behaviour { dont_invoke_exit_func, invoke_exit_func };
 
 //==================================================================================================
 
