@@ -7,14 +7,16 @@
 #include <exception>
 #include <type_traits>
 #include <version>
+#include <limits>
 
 #if (!(defined(__cpp_concepts) || !(defined(__cpp_lib_concepts))))
 static_assert(false, "C++20 Concepts Required");
 #endif
 
+#include <experimental/scope> //todo unconditional for unique_resource
+
 #ifdef BEMAN_SCOPE_USE_STD_EXPERIMENTAL
 
-#include <experimental/scope>
 
 namespace beman::scope {
 
@@ -27,21 +29,34 @@ using scope_fail = std::experimental::scope_fail<EF>;
 template <class EF>
 using scope_success = std::experimental::scope_success<EF>;
 
-template <class R, class D>
-using unique_resource = std::experimental::unique_resource<R, D>;
+// todo temporary
+// template <class R, class D>
+// using unique_resource = std::experimental::unique_resource<R, D>;
 
-template <class R, class D, class S = std::decay_t<R>>
-unique_resource<std::decay_t<R>, std::decay_t<D>>
-make_unique_resource_checked(R&& r, const S& invalid, D&& d) noexcept(noexcept(
-    std::experimental::make_unique_resource_checked(std::forward(r), std::forward(invalid), std::forward(d)))) {
-    return std::experimental::make_unique_resource_checked(std::forward(r), std::forward(invalid), std::forward(d));
-}
+// template <class R, class D, class S = std::decay_t<R>>
+// unique_resource<std::decay_t<R>, std::decay_t<D>>
+// make_unique_resource_checked(R&& r, const S& invalid, D&& d) noexcept(noexcept(
+//     std::experimental::make_unique_resource_checked(std::forward(r), std::forward(invalid), std::forward(d)))) {
+//     return std::experimental::make_unique_resource_checked(std::forward(r), std::forward(invalid), std::forward(d));
+//}
 
 } // namespace beman::scope
 
 #else // ! BEMAN_SCOPE__USE_STD_EXPERIMENTAL
 
 namespace beman::scope {
+
+// todo temporary
+template <class R, class D>
+using unique_resource = std::experimental::unique_resource<R, D>;
+  
+// todo temporary 
+template <class R, class D, class S = std::decay_t<R>>
+unique_resource<std::decay_t<R>, std::decay_t<D>>
+make_unique_resource_checked(R&& r, const S& invalid, D&& d) noexcept(noexcept(
+    std::experimental::make_unique_resource_checked(std::forward(r), std::forward(invalid), std::forward(d)))) {
+    return std::experimental::make_unique_resource_checked(std::forward(r), std::forward(invalid), std::forward(d));
+}
 
 //==================================================================================================
 //
@@ -169,9 +184,9 @@ concept HasStaticRelease = requires {
 
 // --- Enum ---
 
-enum class exception_during_constuction_behaviour : std::uint8_t {
+enum class exception_during_construction_behaviour {
     dont_invoke_exit_func,
-    invoke_exit_func,
+    invoke_exit_func
 };
 
 //==================================================================================================
@@ -180,8 +195,8 @@ enum class exception_during_constuction_behaviour : std::uint8_t {
 
 template <scope_exit_function ScopeExitFunc,
           typename InvokeChecker = void,
-          exception_during_constuction_behaviour ConstructionExceptionBehavior =
-              exception_during_constuction_behaviour::invoke_exit_func>
+          exception_during_construction_behaviour ConstructionExceptionBehavior =
+              exception_during_construction_behaviour::invoke_exit_func>
 class [[nodiscard]] scope_guard;
 
 //==================================================================================================
@@ -190,7 +205,7 @@ class [[nodiscard]] scope_guard;
 
 template <scope_exit_function                    ScopeExitFunc,
           scope_function_invoke_check            InvokeChecker,
-          exception_during_constuction_behaviour ConstructionExceptionBehavior>
+          exception_during_construction_behaviour ConstructionExceptionBehavior>
 class [[nodiscard]] scope_guard<ScopeExitFunc, InvokeChecker, ConstructionExceptionBehavior> {
   public:
     // The constructor parameter `exit_func` in the following constructors shall be :
@@ -214,7 +229,7 @@ class [[nodiscard]] scope_guard<ScopeExitFunc, InvokeChecker, ConstructionExcept
                                                           std::is_nothrow_constructible_v<InvokeChecker>) try
         : m_exit_func{std::forward<EF>(exit_func)}, m_invoke_checker{std::forward<CHKR>(invoke_checker)} {
     } catch (...) {
-        if constexpr (ConstructionExceptionBehavior == exception_during_constuction_behaviour::invoke_exit_func) {
+        if constexpr (ConstructionExceptionBehavior == exception_during_construction_behaviour::invoke_exit_func) {
             exit_func();
 
             // To throw? or not to throw?
@@ -228,7 +243,7 @@ class [[nodiscard]] scope_guard<ScopeExitFunc, InvokeChecker, ConstructionExcept
         requires(std::is_default_constructible_v<InvokeChecker> && !std::is_same_v<std::remove_cvref<EF>, scope_guard>)
     try : m_exit_func{std::forward<EF>(exit_func)} {
     } catch (...) {
-        if constexpr (ConstructionExceptionBehavior == exception_during_constuction_behaviour::invoke_exit_func) {
+        if constexpr (ConstructionExceptionBehavior == exception_during_construction_behaviour::invoke_exit_func) {
             exit_func();
 
             // To throw? or not to throw?
@@ -283,7 +298,7 @@ class [[nodiscard]] scope_guard<ScopeExitFunc, InvokeChecker, ConstructionExcept
 // --- Specializations for no releaser
 
 template <scope_exit_function ScopeExitFunc>
-class [[nodiscard]] scope_guard<ScopeExitFunc, void, exception_during_constuction_behaviour::invoke_exit_func> {
+class [[nodiscard]] scope_guard<ScopeExitFunc, void, exception_during_construction_behaviour::invoke_exit_func> {
     ScopeExitFunc m_exit_func;
 
   public:
@@ -308,7 +323,7 @@ class [[nodiscard]] scope_guard<ScopeExitFunc, void, exception_during_constuctio
 //======
 
 template <scope_exit_function ScopeExitFunc>
-class [[nodiscard]] scope_guard<ScopeExitFunc, void, exception_during_constuction_behaviour::dont_invoke_exit_func> {
+class [[nodiscard]] scope_guard<ScopeExitFunc, void, exception_during_construction_behaviour::dont_invoke_exit_func> {
     ScopeExitFunc m_exit_func;
 
   public:
@@ -331,13 +346,13 @@ class [[nodiscard]] scope_guard<ScopeExitFunc, void, exception_during_constuctio
 
 template <typename ExitFunc,
           typename InvokeChecker,
-          exception_during_constuction_behaviour ecdb = exception_during_constuction_behaviour::invoke_exit_func>
+          exception_during_construction_behaviour ecdb = exception_during_construction_behaviour::invoke_exit_func>
     requires(scope_exit_function<ExitFunc> && (scope_function_invoke_check<InvokeChecker>))
 scope_guard(ExitFunc&&, InvokeChecker&&) -> scope_guard<std::decay_t<ExitFunc>, std::decay_t<InvokeChecker>, ecdb>;
 
 template <typename ExitFunc,
           typename InvokeChecker                      = void,
-          exception_during_constuction_behaviour ecdb = exception_during_constuction_behaviour::invoke_exit_func>
+          exception_during_construction_behaviour ecdb = exception_during_construction_behaviour::invoke_exit_func>
     requires(scope_exit_function<ExitFunc> &&
              (scope_function_invoke_check<InvokeChecker> || std::is_void_v<InvokeChecker>))
 scope_guard(ExitFunc&&) -> scope_guard<std::decay_t<ExitFunc>, InvokeChecker, ecdb>;
@@ -364,7 +379,7 @@ class ReleasableExecuteWhenNoException {
         return m_uncaught_on_creation >= std::uncaught_exceptions();
     }
 
-    void release() { m_uncaught_on_creation = INT_MIN; }
+  void release() { m_uncaught_on_creation = std::numeric_limits<int>::min(); }
 
   private:
     int m_uncaught_on_creation = std::uncaught_exceptions();
@@ -378,7 +393,7 @@ class ReleasableExecuteOnlyWhenException {
         return m_uncaught_on_creation < std::uncaught_exceptions();
     }
 
-    void release() { m_uncaught_on_creation = INT_MAX; }
+    void release() { m_uncaught_on_creation = std::numeric_limits<int>::max(); }
 
   private:
     int m_uncaught_on_creation = std::uncaught_exceptions();
@@ -389,17 +404,17 @@ class ReleasableExecuteOnlyWhenException {
 // --- type aliases ---
 
 template <class ExitFunc>
-using scope_exit = scope_guard<ExitFunc, Releaser, exception_during_constuction_behaviour::invoke_exit_func>;
+using scope_exit = scope_guard<ExitFunc, Releaser, exception_during_construction_behaviour::invoke_exit_func>;
 
 template <class ExitFunc>
 using scope_success = scope_guard<ExitFunc,
                                   ReleasableExecuteWhenNoException,
-                                  exception_during_constuction_behaviour::dont_invoke_exit_func>;
+                                  exception_during_construction_behaviour::dont_invoke_exit_func>;
 
 template <class ExitFunc>
 using scope_fail = scope_guard<ExitFunc,
                                ReleasableExecuteOnlyWhenException,
-                               exception_during_constuction_behaviour::invoke_exit_func>;
+                               exception_during_construction_behaviour::invoke_exit_func>;
 
 } // namespace beman::scope
 
