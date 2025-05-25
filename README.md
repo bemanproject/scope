@@ -117,6 +117,7 @@ cmake --workflow --preset gcc-debug
 cmake --workflow --preset gcc-release
 cmake --install build/gcc-release --prefix /opt/beman.scope
 ```
+
 # License
 
 Source is licensed with the Apache 2.0 license with LLVM exceptions
