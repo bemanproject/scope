@@ -4,15 +4,22 @@ SPDX-License-Identifier: CC0-1.0
 
 # beman.scope: Generic Scope Guard
 
-![Library Status](https://github.com/bemanproject/beman/blob/c6997986557ec6dda98acbdf502082cdf7335526/images/badges/beman_badge-beman_library_under_development.svg)
+![Library Status](https://github.com/bemanproject/beman/blob/main/images/badges/beman_badge-beman_library_under_development.svg)
 ![Continuous Integration Tests](https://github.com/bemanproject/scope/actions/workflows/ci_tests.yml/badge.svg)
 ![Lint Check (pre-commit)](https://github.com/bemanproject/scope/actions/workflows/pre-commit.yml/badge.svg)
+
+`beman.scope` is a C++ library conforming to [The Beman Standard](https://github.com/bemanproject/beman/blob/main/docs/BEMAN_STANDARD.md).
+
+**Implements**: D3610R0 Scope Guard for C++29
+
+**Status**: [Under development and not yet ready for production use.](https://github.com/bemanproject/beman/blob/main/docs/BEMAN_LIBRARY_MATURITY_MODEL.md#under-development-and-not-yet-ready-for-production-use)
 
 # Overview
 
 During the C++20 cycle [P0052 Generic Scope Guard and RAII Wrapper for the Standard Library](https://wg21.link/P0052)
 added 4 types: `scope_exit`, `scope_fail`, `scope_success`
 and `unique_resource` to [LTFSv3](https://www.open-std.org/jtc1/sc22/wg21/docs/papers/2022/n4908#scopeguard).
+
 In the intervening time, two standard libraries have implemented support as well as Boost.
 With the imperative for safety and security in C++ developers need every tool in the toolbox.
 The authors believe it is time to move this facility into the standard.
@@ -22,45 +29,9 @@ For discussions of this library see:
 
 - [Discourse for discussion of scope](https://discourse.bemanproject.org/t/scope-library/315)
 
-# Prior And Other Work
-
-## Papers
-
-- TS design and wording paper [p0052 - Generic Scope Guard and RAII Wrapper for the Standard Library](https://wg21.link/p0052)
-- TS adoption paper [p1411 - Please reconsider <scope> for C++20](https://wg21.link/p1411)
-- [N3677 A Proposal to Add additional RAII Wrappers to the Standard Library](https://www.open-std.org/jtc1/sc22/wg21/docs/papers/2013/n3677.html)
-- [N4152 uncaught_exceptions - Sutter](https://www.open-std.org/jtc1/sc22/wg21/docs/papers/2014/n4152.pdf)
-
-## Implementations
-
-- [GSL final_action](https://github.com/microsoft/GSL/blob/main/include/gsl/util) - part of core guidelines
-- [Boost.scope](https://www.boost.org/doc/libs/1_87_0/libs/scope/doc/html/index.html)
-- [scope_guard based on Andrei Alexandrescu and Petru Marginean article](https://ricab.github.io/scope_guard)
-- [Windows Implementation Libraries (WIL) - scope_exit](https://github.com/microsoft/wil/blob/182e6521140174e1d2ed1920f88d005fc4c546e2/include/wil/resource.h#L660)
-- [GCC libstdc++-v3 experimental/scope implementation](https://gcc.gnu.org/git/?p=gcc.git;a=blob;f=libstdc%2B%2B-v3/include/experimental/scope;h=6e1d342e1b6486b0d1f32166c7eb91d29ed79f4d;hb=refs/heads/master)
-- [LLVM - ADT/ScopeExit.h](https://github.com/llvm/llvm-project/blob/main/llvm/include/llvm/ADT/ScopeExit.h)
-- [libcxx - scope_guard.h](https://github.com/llvm/llvm-project/blob/main/libcxx/include/__utility/scope_guard.h)
-- [Folly - ScopeGuard.h](https://github.com/facebook/folly/blob/main/folly/ScopeGuard.h)
-- [BDE (Bloomberg) - ScopeExit.h](https://github.com/bloomberg/bde/blob/main/groups/bdl/bdlb/bdlb_scopeexit.h)
-
-## Videos
-
-- [Peter Sommerlad - Woes of Scope Guards and Unique_Resource - 5+ years in the making](https://www.youtube.com/watch?v=O1sK__G5Nrg)
-- [Andrei Alexandrescu - Declarative Control Flow](https://www.youtube.com/watch?v=WjTrfoiB0MQ)
-
-# Examples
-
-- [TS example of scope_exit](https://godbolt.org/z/T5KhTYjP7)
-
----
-
-`beman.scope` is a C++ library conforming to [The Beman Standard](https://github.com/bemanproject/beman/blob/main/docs/BEMAN_STANDARD.md).
-
-**Implements**: D3610R0 Scope Guard for C++29
-
-**Status**: [Under development and not yet ready for production use.](https://github.com/bemanproject/beman/blob/main/docs/BEMAN_LIBRARY_MATURITY_MODEL.md#under-development-and-not-yet-ready-for-production-use)
-
 ## Usage
+
+- [![Compiler Explorer Example](https://img.shields.io/badge/Try%20it%20on%20Compiler%20Explorer-grey?logo=compilerexplorer&logoColor=67c52a)](https://godbolt.org/z/qMvrsPexd)
 
 The following is an example of using `scope_fail` to trigger and action when the scope
 is exited with an exception.  `scope_success` and `scope_exit` provide similar capability
@@ -136,6 +107,7 @@ Build-time dependencies:
 - `cmake`
 - `ninja`, `make`, or another CMake-supported build system
   - CMake defaults to "Unix Makefiles" on POSIX systems
+- `catch2` for building tests
 
 ### How to build beman.scope
 
@@ -144,6 +116,36 @@ cmake --workflow --preset gcc-debug
 cmake --workflow --preset gcc-release
 cmake --install build/gcc-release --prefix /opt/beman.scope
 ```
+
+# Prior And Other Work
+
+This section contains a variety of links to related works and libraries.
+
+## Papers
+
+- TS design and wording paper [p0052 - Generic Scope Guard and RAII Wrapper for the Standard Library](https://wg21.link/p0052)
+- TS adoption paper [p1411 - Please reconsider <scope> for C++20](https://wg21.link/p1411)
+- [N3677 A Proposal to Add additional RAII Wrappers to the Standard Library](https://www.open-std.org/jtc1/sc22/wg21/docs/papers/2013/n3677.html)
+- [N4152 uncaught_exceptions - Sutter](https://www.open-std.org/jtc1/sc22/wg21/docs/papers/2014/n4152.pdf)
+
+## Implementations
+- [TS example of scope_exit](https://godbolt.org/z/T5KhTYjP7)
+- [GSL final_action](https://github.com/microsoft/GSL/blob/main/include/gsl/util) - part of core guidelines
+- [Boost.scope](https://www.boost.org/doc/libs/1_87_0/libs/scope/doc/html/index.html)
+- [scope_guard based on Andrei Alexandrescu and Petru Marginean article](https://ricab.github.io/scope_guard)
+- [Windows Implementation Libraries (WIL) - scope_exit](https://github.com/microsoft/wil/blob/182e6521140174e1d2ed1920f88d005fc4c546e2/include/wil/resource.h#L660)
+- [GCC libstdc++-v3 experimental/scope implementation](https://gcc.gnu.org/git/?p=gcc.git;a=blob;f=libstdc%2B%2B-v3/include/experimental/scope;h=6e1d342e1b6486b0d1f32166c7eb91d29ed79f4d;hb=refs/heads/master)
+- [LLVM - ADT/ScopeExit.h](https://github.com/llvm/llvm-project/blob/main/llvm/include/llvm/ADT/ScopeExit.h)
+- [libcxx - scope_guard.h](https://github.com/llvm/llvm-project/blob/main/libcxx/include/__utility/scope_guard.h)
+- [Folly - ScopeGuard.h](https://github.com/facebook/folly/blob/main/folly/ScopeGuard.h)
+- [BDE (Bloomberg) - ScopeExit.h](https://github.com/bloomberg/bde/blob/main/groups/bdl/bdlb/bdlb_scopeexit.h)
+
+## Videos
+
+- [Peter Sommerlad - Woes of Scope Guards and Unique_Resource - 5+ years in the making](https://www.youtube.com/watch?v=O1sK__G5Nrg)
+- [Andrei Alexandrescu - Declarative Control Flow](https://www.youtube.com/watch?v=WjTrfoiB0MQ)
+
+
 
 # License
 
