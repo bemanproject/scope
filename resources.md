@@ -1,11 +1,17 @@
-# Papers
+<!-- SPDX-License-Identifier: CC0-1.0 -->
+
+# Resources
+
+This file contains a variety of links to prior art in this area including related libraries and videos.
+
+## Papers
 
 - TS design and wording paper [p0052 - Generic Scope Guard and RAII Wrapper for the Standard Library](https://wg21.link/p0052)
 - TS adoption paper [p1411 - Please reconsider <scope> for C++20](https://wg21.link/p1411)
 - [N3677 A Proposal to Add additional RAII Wrappers to the Standard Library](https://www.open-std.org/jtc1/sc22/wg21/docs/papers/2013/n3677.html)
 - [N4152 uncaught_exceptions - Sutter](https://www.open-std.org/jtc1/sc22/wg21/docs/papers/2014/n4152.pdf)
 
-# Implementations
+## Implementations
 
 - [TS example of scope_exit](https://godbolt.org/z/T5KhTYjP7)
 - [GSL final_action](https://github.com/microsoft/GSL/blob/main/include/gsl/util) - part of core guidelines
@@ -18,7 +24,7 @@
 - [Folly - ScopeGuard.h](https://github.com/facebook/folly/blob/main/folly/ScopeGuard.h)
 - [BDE (Bloomberg) - ScopeExit.h](https://github.com/bloomberg/bde/blob/main/groups/bdl/bdlb/bdlb_scopeexit.h)
 
-# Videos
+## Videos
 
 - [Peter Sommerlad - Woes of Scope Guards and Unique_Resource - 5+ years in the making](https://www.youtube.com/watch?v=O1sK__G5Nrg)
 - [Andrei Alexandrescu - Declarative Control Flow](https://www.youtube.com/watch?v=WjTrfoiB0MQ)
