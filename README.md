@@ -129,6 +129,7 @@ This section contains a variety of links to related works and libraries.
 - [N4152 uncaught_exceptions - Sutter](https://www.open-std.org/jtc1/sc22/wg21/docs/papers/2014/n4152.pdf)
 
 ## Implementations
+
 - [TS example of scope_exit](https://godbolt.org/z/T5KhTYjP7)
 - [GSL final_action](https://github.com/microsoft/GSL/blob/main/include/gsl/util) - part of core guidelines
 - [Boost.scope](https://www.boost.org/doc/libs/1_87_0/libs/scope/doc/html/index.html)
@@ -144,8 +145,6 @@ This section contains a variety of links to related works and libraries.
 
 - [Peter Sommerlad - Woes of Scope Guards and Unique_Resource - 5+ years in the making](https://www.youtube.com/watch?v=O1sK__G5Nrg)
 - [Andrei Alexandrescu - Declarative Control Flow](https://www.youtube.com/watch?v=WjTrfoiB0MQ)
-
-
 
 # License
 
