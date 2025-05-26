@@ -4,7 +4,7 @@ SPDX-License-Identifier: CC0-1.0
 
 # beman.scope: Generic Scope Guard
 
-![Library Status](https://github.com/bemanproject/beman/images/badges/beman_badge-beman_library_under_development.svg)
+![Library Status](https://raw.githubusercontent.com/bemanproject/beman/refs/heads/main/images/badges/beman_badge-beman_library_under_development.svg)
 ![Continuous Integration Tests](https://github.com/bemanproject/scope/actions/workflows/ci_tests.yml/badge.svg)
 ![Lint Check (pre-commit)](https://github.com/bemanproject/scope/actions/workflows/pre-commit.yml/badge.svg)
 
