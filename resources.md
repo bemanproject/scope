@@ -15,6 +15,7 @@ This file contains a variety of links to prior art in this area including relate
 
 - [TS example of scope_exit](https://godbolt.org/z/T5KhTYjP7)
 - [GSL final_action](https://github.com/microsoft/GSL/blob/main/include/gsl/util) - part of core guidelines
+- [gsl-lite `finally`, `on_return`, `on_error`](https://github.com/gsl-lite/gsl-lite/blob/master/doc/Reference.md#ad-hoc-resource-management-c11-and-higher)
 - [Boost.scope](https://www.boost.org/doc/libs/1_87_0/libs/scope/doc/html/index.html)
 - [scope_guard based on Andrei Alexandrescu and Petru Marginean article](https://ricab.github.io/scope_guard)
 - [Windows Implementation Libraries (WIL) - scope_exit](https://github.com/microsoft/wil/blob/182e6521140174e1d2ed1920f88d005fc4c546e2/include/wil/resource.h#L660)
