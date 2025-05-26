@@ -26,6 +26,7 @@
 
 
 * Introduction
+- NOTE: This paper is a draft work in progress.
 
 During the C++20 cycle [[https://wg21.link/P0052][P0052 Generic Scope Guard and RAII Wrapper for the Standard Library]] was added to LTFSv3.  In the intervening time, two standard libraries have implemented support as well as Boost. With the imperative for safety and security in C++, developers need every tool in the toolbox. The authors believe it is time to move this facility into the standard.  The paper will re-examine the now five plus year old design and any learning from deployments of the LTFSv3.
 
