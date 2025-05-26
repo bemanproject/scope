@@ -11,7 +11,7 @@ FetchContent_MakeAvailable(Catch2)
 
 set(ALL_TESTNAMES scope_success scope_exit scope_fail unique_resource)
 
-message("Tests to be built: ${ALL_TESTS}")
+message("Tests to be built: ${ALL_TESTNAMES}")
 
 include(CTest)
 include(Catch)
