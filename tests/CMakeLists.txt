@@ -13,16 +13,14 @@ set(ALL_TESTNAMES scope_success scope_exit scope_fail unique_resource)
 
 message("Tests to be built: ${ALL_TESTNAMES}")
 
-include(CTest)
 include(Catch)
 
 foreach(testname ${ALL_TESTNAMES})
     add_executable(test.${testname})
     target_sources(test.${testname} PRIVATE ${testname}.test.cpp)
-    target_include_directories(
+    target_link_libraries(
         test.${testname}
-        PRIVATE ${CMAKE_SOURCE_DIR}/include
+        PRIVATE Catch2::Catch2WithMain beman::scope
     )
-    target_link_libraries(test.${testname} PRIVATE Catch2::Catch2WithMain)
     catch_discover_tests(test.${testname})
 endforeach()
