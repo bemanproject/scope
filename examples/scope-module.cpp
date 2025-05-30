@@ -18,9 +18,10 @@
 import std;
 import beman.scope;
 
+// clang-format off
 struct noisy_resource {
-    noisy_resource() { std::print("construct noisy\n"); }
-    ~noisy_resource() { std::print("destroy noisy\n"); }
+    noisy_resource()  { std::print( "construct noisy\n" ); }
+    ~noisy_resource() { std::print( "destroy noisy\n"   ); }
 };
 
 int main() {
@@ -28,9 +29,9 @@ int main() {
     bool exit_ran, success_ran, fail_ran = false;
     {
         std::print("--> scope start\n");
-        beman::scope::scope_exit    _([&exit_ran] { exit_ran = true; });
+        beman::scope::scope_exit    _([&exit_ran]    { exit_ran = true;    });
         beman::scope::scope_success _([&success_ran] { success_ran = true; });
-        beman::scope::scope_fail    _([&fail_ran] { fail_ran = true; });
+        beman::scope::scope_fail    _([&fail_ran]    { fail_ran = true;    });
         auto                        resource_ptr = beman::scope::unique_resource(new noisy_resource(),
                                                           // Cleanup function
                                                           [](noisy_resource* ptr) { delete ptr; });
