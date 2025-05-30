@@ -8,8 +8,8 @@ module;
 export module beman.scope;
 
 export namespace beman::scope {
-    using ::beman::scope::scope_exit;
-    using ::beman::scope::scope_fail;
-    using ::beman::scope::scope_success;
-    using ::beman::scope::unique_resource;
-}
+using ::beman::scope::scope_exit;
+using ::beman::scope::scope_fail;
+using ::beman::scope::scope_success;
+using ::beman::scope::unique_resource;
+} // namespace beman::scope
