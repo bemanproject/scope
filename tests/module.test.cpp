@@ -6,7 +6,6 @@
 // for g++-15 the order is important -- import after includes
 import beman.scope;
 
-
 struct DummyResource {
     bool& cleaned;
 
