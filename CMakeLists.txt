@@ -31,16 +31,19 @@ elseif(
     AND CMAKE_CXX_COMPILER_VERSION VERSION_GREATER_EQUAL 15
 )
     set(CMAKE_CXX_SCAN_FOR_MODULES 1)
-else(NOT CMAKE_CXX_MODULE_STD)
+elseif(CMAKE_CXX_SCAN_FOR_MODULES)
+    set(CMAKE_CXX_STANDARD_REQUIRED OFF)
+else()
     set(CMAKE_CXX_SCAN_FOR_MODULES 0)
 endif()
 
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
-message(STATUS "CMAKE_CXX_SCAN_FOR_MODULES: ${CMAKE_CXX_SCAN_FOR_MODULES}")
-message(STATUS "CMAKE_CXX_MODULE_STD: ${CMAKE_CXX_MODULE_STD}")
-message(
-    STATUS
-    "CMAKE_CXX_COMPILER_IMPORT_STD: ${CMAKE_CXX_COMPILER_IMPORT_STD}"
+
+include(CMakePrintHelpers)
+cmake_print_variables(
+    CMAKE_CXX_SCAN_FOR_MODULES
+    CMAKE_CXX_MODULE_STD
+    CMAKE_CXX_COMPILER_IMPORT_STD
 )
 
 # [CMAKE.SKIP_TESTS]
@@ -67,7 +70,6 @@ option(
 
 if(CMAKE_CXX_SCAN_FOR_MODULES)
     add_library(beman.scope)
-    target_compile_features(beman.scope PRIVATE cxx_std_23)
     target_sources(
         beman.scope
         PUBLIC
