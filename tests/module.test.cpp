@@ -6,6 +6,7 @@
 // for g++-15 the order is important -- import after includes
 import beman.scope;
 
+
 struct DummyResource {
     bool& cleaned;
 
@@ -15,7 +16,8 @@ struct DummyResource {
 };
 
 TEST_CASE("module-test", "[scope_module_test]") {
-    bool exit_ran, success_ran, fail_ran, cleaned = true;
+    bool exit_ran, success_ran, fail_ran = false;
+    bool cleaned = true;
     {
         // clang-format off
         beman::scope::scope_exit    _se([&exit_ran]    { exit_ran = true;    });
