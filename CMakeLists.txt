@@ -89,7 +89,8 @@ if(BEMAN_SCOPE_INSTALL_CONFIG_FILE_PACKAGE)
         EXPORT beman.scope-targets
         DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/beman.scope
         NAMESPACE beman::
-        CXX_MODULES_DIRECTORY cxx-modules
+        CXX_MODULES_DIRECTORY
+        cxx-modules
         COMPONENT beman.scope
     )
 endif()
