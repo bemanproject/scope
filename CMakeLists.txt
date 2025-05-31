@@ -1,6 +1,6 @@
 # SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
 
-cmake_minimum_required(VERSION 3.25)
+cmake_minimum_required(VERSION 3.28)
 
 project(
     beman.scope
@@ -89,8 +89,7 @@ if(BEMAN_SCOPE_INSTALL_CONFIG_FILE_PACKAGE)
         EXPORT beman.scope-targets
         DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/beman.scope
         NAMESPACE beman::
-        CXX_MODULES_DIRECTORY
-        cxx-modules
+        CXX_MODULES_DIRECTORY cxx-modules
         COMPONENT beman.scope
     )
 endif()
