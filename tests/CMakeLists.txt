@@ -15,11 +15,11 @@ message(
 
 # module tests will only compile with gcc15 or clang20 and above
 if (CMAKE_CXX_COMPILER_ID STREQUAL "Clang" AND CMAKE_CXX_COMPILER_VERSION VERSION_GREATER_EQUAL 20)
-  set(ALL_TESTNAMES scope_success scope_exit scope_fail unique_resource module)
+    set(ALL_TESTNAMES scope_success scope_exit scope_fail unique_resource module)
 elseif (CMAKE_CXX_COMPILER_ID STREQUAL "GNU" AND CMAKE_CXX_COMPILER_VERSION VERSION_GREATER_EQUAL 15)
-  set(ALL_TESTNAMES scope_success scope_exit scope_fail unique_resource module)
+    set(ALL_TESTNAMES scope_success scope_exit scope_fail unique_resource module)
 else()
-  set(ALL_TESTNAMES scope_success scope_exit scope_fail unique_resource)
+    set(ALL_TESTNAMES scope_success scope_exit scope_fail unique_resource)
 endif()
 
 message("Tests to be built: ${ALL_TESTNAMES}")
