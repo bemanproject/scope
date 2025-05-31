@@ -31,28 +31,52 @@ option(
     ${PROJECT_IS_TOP_LEVEL}
 )
 
-add_library(beman.scope)
-add_library(beman::scope ALIAS beman.scope)
-
 # gersemi: off
+
+message(
+    "Compiler is: ${CMAKE_CXX_COMPILER_ID} version:  ${CMAKE_CXX_COMPILER_VERSION}"
+)
+
+# Modules opt in only on compilers that support g++-15 and clang-20
+if (CMAKE_CXX_COMPILER_ID STREQUAL "Clang" AND CMAKE_CXX_COMPILER_VERSION VERSION_GREATER_EQUAL 20)
+    set(CMAKE_CXX_SCAN_FOR_MODULES 1)
+elseif (CMAKE_CXX_COMPILER_ID STREQUAL "GNU" AND CMAKE_CXX_COMPILER_VERSION VERSION_GREATER_EQUAL 15)
+    set(CMAKE_CXX_SCAN_FOR_MODULES 1)
+endif()
+
+if(CMAKE_CXX_SCAN_FOR_MODULES)
+    add_library(beman.scope)
+#    target_compile_features(beman.scope PRIVATE cxx_std_23)
+    target_sources(
+        beman.scope
+        PUBLIC
+            FILE_SET HEADERS
+            BASE_DIRS include
+            FILES include/beman/scope/scope.hpp
+        PUBLIC
+            FILE_SET CXX_MODULES
+            BASE_DIRS include
+            FILES include/beman/scope/beman.scope.cppm
+    )
+else()
+    add_library(beman.scope INTERFACE)
+#    target_compile_features(beman.scope INTERFACE cxx_std_20)
+    target_sources(
+        beman.scope
+        INTERFACE
+            FILE_SET HEADERS
+            BASE_DIRS include
+            FILES include/beman/scope/scope.hpp
+    )
+endif()
+
+add_library(beman::scope ALIAS beman.scope)
 
 set_target_properties(
     beman.scope
     PROPERTIES
         VERIFY_INTERFACE_HEADER_SETS ON
         EXPORT_NAME scope
-)
-
-target_sources(
-    beman.scope
-    PUBLIC
-        FILE_SET HEADERS
-        BASE_DIRS include
-        FILES include/beman/scope/scope.hpp
-    PUBLIC
-        FILE_SET CXX_MODULES
-        BASE_DIRS include
-        FILES include/beman/scope/beman.scope.cppm
 )
 
 include(GNUInstallDirs)
