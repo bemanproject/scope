@@ -26,7 +26,6 @@ target_compile_options(test.module PRIVATE "-fmodules")
 # )
 # catch_discover_tests(test.module)
 
-
 foreach(testname ${ALL_TESTNAMES})
     add_executable(test.${testname})
     target_sources(test.${testname} PRIVATE ${testname}.test.cpp)
