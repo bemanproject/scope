@@ -9,6 +9,8 @@ project(
     VERSION 0.0.1
 )
 
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
+
 # [CMAKE.SKIP_TESTS]
 option(
     BEMAN_SCOPE_BUILD_TESTS
@@ -29,10 +31,11 @@ option(
     ${PROJECT_IS_TOP_LEVEL}
 )
 
-add_library(beman.scope INTERFACE)
+add_library(beman.scope)
 add_library(beman::scope ALIAS beman.scope)
 
 # gersemi: off
+
 set_target_properties(
     beman.scope
     PROPERTIES
@@ -42,22 +45,31 @@ set_target_properties(
 
 target_sources(
     beman.scope
-    INTERFACE
+    PUBLIC
         FILE_SET HEADERS
         BASE_DIRS include
         FILES include/beman/scope/scope.hpp
+    PUBLIC
+        FILE_SET CXX_MODULES
+        BASE_DIRS include
+        FILES include/beman/scope/beman.scope.cppm
 )
+
+include(GNUInstallDirs)
 
 install(
     TARGETS beman.scope
-    EXPORT beman.scope-targets
     COMPONENT beman.scope
+    EXPORT beman.scope-targets
+
+    FILE_SET CXX_MODULES
+        DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
     FILE_SET HEADERS
 )
+
 # gersemi: on
 
 if(BEMAN_SCOPE_INSTALL_CONFIG_FILE_PACKAGE)
-    include(GNUInstallDirs)
     include(CMakePackageConfigHelpers)
 
     write_basic_package_version_file(
@@ -77,6 +89,7 @@ if(BEMAN_SCOPE_INSTALL_CONFIG_FILE_PACKAGE)
         EXPORT beman.scope-targets
         DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/beman.scope
         NAMESPACE beman::
+        CXX_MODULES_DIRECTORY cxx-modules
         COMPONENT beman.scope
     )
 endif()
