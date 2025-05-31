@@ -28,7 +28,6 @@ add_test(NAME test.module COMMAND test.module)
 # )
 # catch_discover_tests(test.module)
 
-
 foreach(testname ${ALL_TESTNAMES})
     add_executable(test.${testname})
     target_sources(test.${testname} PRIVATE ${testname}.test.cpp)
