@@ -9,6 +9,17 @@ project(
     VERSION 0.0.1
 )
 
+# gersemi: off
+
+# Modules opt in only on compilers that support g++-15 and clang-20
+if (CMAKE_CXX_COMPILER_ID STREQUAL "Clang" AND CMAKE_CXX_COMPILER_VERSION VERSION_GREATER_EQUAL 20)
+    set(CMAKE_CXX_SCAN_FOR_MODULES 1)
+elseif (CMAKE_CXX_COMPILER_ID STREQUAL "GNU" AND CMAKE_CXX_COMPILER_VERSION VERSION_GREATER_EQUAL 15)
+    set(CMAKE_CXX_SCAN_FOR_MODULES 1)
+elseif()
+    set(CMAKE_CXX_SCAN_FOR_MODULES 0)
+endif()
+
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 # [CMAKE.SKIP_TESTS]
@@ -31,24 +42,15 @@ option(
     ${PROJECT_IS_TOP_LEVEL}
 )
 
-# gersemi: off
-
 message(
     "Compiler is: ${CMAKE_CXX_COMPILER_ID} version:  ${CMAKE_CXX_COMPILER_VERSION}"
 )
-
-# Modules opt in only on compilers that support g++-15 and clang-20
-if (CMAKE_CXX_COMPILER_ID STREQUAL "Clang" AND CMAKE_CXX_COMPILER_VERSION VERSION_GREATER_EQUAL 20)
-    set(CMAKE_CXX_SCAN_FOR_MODULES 1)
-elseif (CMAKE_CXX_COMPILER_ID STREQUAL "GNU" AND CMAKE_CXX_COMPILER_VERSION VERSION_GREATER_EQUAL 15)
-    set(CMAKE_CXX_SCAN_FOR_MODULES 1)
-elseif()
-    set(CMAKE_CXX_SCAN_FOR_MODULES 0)
-endif()
+message(
+    "cmake is: ${CMAKE_VERSION} modules scan :  ${CMAKE_CXX_SCAN_FOR_MODULES}"
+)
 
 if(CMAKE_CXX_SCAN_FOR_MODULES)
     add_library(beman.scope)
-#    target_compile_features(beman.scope PRIVATE cxx_std_23)
     target_sources(
         beman.scope
         PUBLIC
@@ -62,7 +64,6 @@ if(CMAKE_CXX_SCAN_FOR_MODULES)
     )
 else()
     add_library(beman.scope INTERFACE)
-#    target_compile_features(beman.scope INTERFACE cxx_std_20)
     target_sources(
         beman.scope
         INTERFACE
