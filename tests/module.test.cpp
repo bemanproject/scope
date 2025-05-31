@@ -1,8 +1,11 @@
 // SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
 
+// TODO(CK): import std;
+
 import beman.scope;
 // #include <stdexcept>
 // #include <string>
+// FIXME: #include <print>
 #include <cassert>
 
 // #define CATCH_CONFIG_MAIN
@@ -13,15 +16,16 @@ import beman.scope;
 //     noisy_resource()  { std::print( "construct noisy\n" ); }
 //     ~noisy_resource() { std::print( "destroy noisy\n"   ); }
 // };
+// clang-format on
 
-//TEST_CASE("module-test", "[scope_module_test]") {
-int main()
-{
+// TEST_CASE("module-test", "[scope_module_test]") {
+int main() {
     bool exit_ran, success_ran, fail_ran = false;
     {
-        beman::scope::scope_exit    _([&exit_ran]    { exit_ran = true;    });
+        beman::scope::scope_exit    _([&exit_ran] { exit_ran = true; });
         beman::scope::scope_success _([&success_ran] { success_ran = true; });
-        beman::scope::scope_fail    _([&fail_ran]    { fail_ran = true;    });
+        beman::scope::scope_fail    _([&fail_ran] { fail_ran = true; });
+        // FIXME:
         // auto                        resource_ptr = beman::scope::unique_resource(new noisy_resource(),
         //                                                   // Cleanup function
         //                                                   [](noisy_resource* ptr) { delete ptr; });
@@ -30,5 +34,4 @@ int main()
     assert(exit_ran == true);
     assert(success_ran == true);
     assert(fail_ran == false);
-
- }
+}

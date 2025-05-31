@@ -1,6 +1,17 @@
 # SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
 
-cmake_minimum_required(VERSION 3.28)
+if(CMAKE_CXX_STANDARD STREQUAL 26)
+    set(CMAKE_CXX_SCAN_FOR_MODULES 1)
+    set(CMAKE_CXX_MODULE_STD 1)
+    if(CMAKE_CXX_MODULE_STD)
+        set(CMAKE_EXPERIMENTAL_CXX_IMPORT_STD
+            "d0edc3af-4c50-42ea-a356-e2862fe7a444"
+        )
+    endif()
+    set(CMAKE_CXX_STANDARD_REQUIRED OFF)
+endif()
+
+cmake_minimum_required(VERSION 3.28...4.0)
 
 project(
     beman.scope
@@ -31,7 +42,7 @@ option(
     ${PROJECT_IS_TOP_LEVEL}
 )
 
-add_library(beman.scope)
+add_library(beman.scope INTERFACE)
 add_library(beman::scope ALIAS beman.scope)
 
 # gersemi: off
@@ -43,17 +54,29 @@ set_target_properties(
         EXPORT_NAME scope
 )
 
-target_sources(
-    beman.scope
-    PUBLIC
-        FILE_SET HEADERS
-        BASE_DIRS include
-        FILES include/beman/scope/scope.hpp
-    PUBLIC
-        FILE_SET CXX_MODULES
-        BASE_DIRS include
-        FILES include/beman/scope/beman.scope.cppm
-)
+if(CMAKE_CXX_SCAN_FOR_MODULES)
+    target_compile_features(beman.scope PRIVATE cxx_std_23)
+    target_sources(
+        beman.scope
+        PUBLIC
+            FILE_SET HEADERS
+            BASE_DIRS include
+            FILES include/beman/scope/scope.hpp
+        PUBLIC
+            FILE_SET CXX_MODULES
+            BASE_DIRS include
+            FILES include/beman/scope/beman.scope.cppm
+    )
+else()
+    target_compile_features(beman.scope INTERFACE cxx_std_20)
+    target_sources(
+        beman.scope
+        INTERFACE
+            FILE_SET HEADERS
+            BASE_DIRS include
+            FILES include/beman/scope/scope.hpp
+    )
+endif()
 
 include(GNUInstallDirs)
 
@@ -63,7 +86,6 @@ install(
     EXPORT beman.scope-targets
 
     FILE_SET CXX_MODULES
-        DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
     FILE_SET HEADERS
 )
 
@@ -89,7 +111,8 @@ if(BEMAN_SCOPE_INSTALL_CONFIG_FILE_PACKAGE)
         EXPORT beman.scope-targets
         DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/beman.scope
         NAMESPACE beman::
-        CXX_MODULES_DIRECTORY cxx-modules
+        CXX_MODULES_DIRECTORY
+        cxx-modules
         COMPONENT beman.scope
     )
 endif()
