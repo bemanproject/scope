@@ -166,10 +166,10 @@ jobs:
       matrix:
         compilers:
           - class: GNU
-            version: 15
+            version: 14
             toolchain: "cmake/gnu-toolchain.cmake"
           - class: GNU
-            version: 14
+            version: 13
             toolchain: "cmake/gnu-toolchain.cmake"
           - class: LLVM
             version: 20
