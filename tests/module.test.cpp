@@ -4,6 +4,9 @@
 #include <catch2/catch_all.hpp>
 
 // for g++-15 the order is important -- import after includes
+#ifdef HAS_STDLIB_MODULES
+import std;
+#endif
 import beman.scope;
 
 struct DummyResource {
@@ -33,5 +36,4 @@ TEST_CASE("module-test", "[scope_module_test]") {
     REQUIRE(success_ran == true);
     REQUIRE(fail_ran == false);
     REQUIRE(cleaned == true);
-
 }
