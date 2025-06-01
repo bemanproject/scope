@@ -11,7 +11,7 @@ project(
 
 # gersemi: off
 
-# Modules opt in only on compilers that support g++-15 and clang-20
+# Modules opt in only on compilers that support g++-15 and clang-19+
 if (CMAKE_CXX_COMPILER_ID STREQUAL "Clang" AND CMAKE_CXX_COMPILER_VERSION VERSION_GREATER_EQUAL 19)
     set(CMAKE_CXX_SCAN_FOR_MODULES 1)
 elseif (CMAKE_CXX_COMPILER_ID STREQUAL "GNU" AND CMAKE_CXX_COMPILER_VERSION VERSION_GREATER_EQUAL 15)
