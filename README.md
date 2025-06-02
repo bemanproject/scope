@@ -85,23 +85,32 @@ Full runnable examples can be found in `examples/`.
 ## Integrate beman.scope into your project
 
 Beman.scope is a header-only library that currently relies on TS implementations
-and is thus currently available only on GCC13 and up, or Clang 19 and up -- in C++20 mode.
+and is thus currently available only on g++-13 and up, or clang 19 and up -- in C++20 mode.
+
+Note that modules support is currently tested only on clang++-19 and above and g++-15.
 
 As a header only library no building is required to use in a project -- simply make
 the `include` directory available add add the following to your source.
 
 ```cpp
 #include <beman/scope/scope.hpp>
+
+//modular version
+
+import beman.scope;
 ```
+With g++-15 modules is import needs to be after any includes to avoid compilation errors.
 
 ## Building beman.scope
 
-Building is only required to run tests and examples.
+Building is only required to run tests and examples. All compilers build and
+run `include` based tests. Compilers known to support modules are automatically
+detected added to tests.
 
 ### Build Dependencies
 
-The library itself has no build dependencies other than Catch2 for testing
-and cmake.
+The library itself has no build dependencies other than Catch2 for testing.
+And for building cmake and ninja.  Makefiles are supported in non-modular builds.
 
 Build-time dependencies:
 
@@ -110,14 +119,21 @@ Build-time dependencies:
   - CMake defaults to "Unix Makefiles" on POSIX systems
 - `catch2` for building tests
 
-### How to build beman.scope
+### How to build beman.scope tests and examples
+
+from root of repo:
 
 ```shell
-cmake --workflow --preset gcc-debug
+mkdir build; cd build;
+cmake .. -DCMAKE_CXX_COMPILER=g++-15 -DCMAKE_CXX_STANDARD=26 -G=Ninja
+ninja -j 5 -v; ctest
+```
+
+or using cmake presets
+```shell
 cmake --workflow --preset gcc-release
 cmake --install build/gcc-release --prefix /opt/beman.scope
 ```
-
 # License
 
 Source is licensed with the Apache 2.0 license with LLVM exceptions
