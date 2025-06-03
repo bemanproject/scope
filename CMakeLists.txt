@@ -1,6 +1,17 @@
 # SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
 
-cmake_minimum_required(VERSION 3.28)
+if(CMAKE_CXX_STANDARD STREQUAL 26)
+    if(CMAKE_CXX_MODULE_STD)
+        set(CMAKE_CXX_SCAN_FOR_MODULES 1)
+        set(CMAKE_EXPERIMENTAL_CXX_IMPORT_STD
+            "d0edc3af-4c50-42ea-a356-e2862fe7a444"
+        )
+        add_definitions(-DHAS_STDLIB_MODULES)
+    endif()
+    set(CMAKE_CXX_STANDARD_REQUIRED OFF)
+endif()
+
+cmake_minimum_required(VERSION 3.28...4.0)
 
 project(
     beman.scope
@@ -14,13 +25,27 @@ project(
 # Modules opt in only on compilers that support g++-15 and clang-19+
 if (CMAKE_CXX_COMPILER_ID STREQUAL "Clang" AND CMAKE_CXX_COMPILER_VERSION VERSION_GREATER_EQUAL 19)
     set(CMAKE_CXX_SCAN_FOR_MODULES 1)
-elseif (CMAKE_CXX_COMPILER_ID STREQUAL "GNU" AND CMAKE_CXX_COMPILER_VERSION VERSION_GREATER_EQUAL 15)
+elseif(CMAKE_CXX_COMPILER_ID STREQUAL "GNU" AND CMAKE_CXX_COMPILER_VERSION VERSION_GREATER_EQUAL 15)
     set(CMAKE_CXX_SCAN_FOR_MODULES 1)
-elseif()
+else()
     set(CMAKE_CXX_SCAN_FOR_MODULES 0)
 endif()
 
+if(CMAKE_CXX_SCAN_FOR_MODULES)
+    set(CMAKE_CXX_STANDARD_REQUIRED OFF)
+endif()
+
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
+if(CMAKE_EXPORT_COMPILE_COMMANDS)
+  set(CMAKE_CXX_STANDARD_INCLUDE_DIRECTORIES ${CMAKE_CXX_IMPLICIT_INCLUDE_DIRECTORIES})
+endif()
+
+include(CMakePrintHelpers)
+cmake_print_variables(
+    CMAKE_CXX_SCAN_FOR_MODULES
+    CMAKE_CXX_MODULE_STD
+    CMAKE_CXX_COMPILER_IMPORT_STD
+)
 
 # [CMAKE.SKIP_TESTS]
 option(
@@ -42,12 +67,8 @@ option(
     ${PROJECT_IS_TOP_LEVEL}
 )
 
-message(
-    "Compiler is: ${CMAKE_CXX_COMPILER_ID} version:  ${CMAKE_CXX_COMPILER_VERSION}"
-)
-message(
-    "cmake is: ${CMAKE_VERSION} modules scan :  ${CMAKE_CXX_SCAN_FOR_MODULES}"
-)
+message(STATUS "Compiler is: ${CMAKE_CXX_COMPILER_ID} version: ${CMAKE_CXX_COMPILER_VERSION}")
+message(STATUS "CMake is: ${CMAKE_VERSION} modules scan: ${CMAKE_CXX_SCAN_FOR_MODULES}")
 
 if(CMAKE_CXX_SCAN_FOR_MODULES)
     add_library(beman.scope)
@@ -90,7 +111,7 @@ install(
     EXPORT beman.scope-targets
 
     FILE_SET CXX_MODULES
-        DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
+    DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
     FILE_SET HEADERS
 )
 
@@ -116,7 +137,8 @@ if(BEMAN_SCOPE_INSTALL_CONFIG_FILE_PACKAGE)
         EXPORT beman.scope-targets
         DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/beman.scope
         NAMESPACE beman::
-        CXX_MODULES_DIRECTORY cxx-modules
+        CXX_MODULES_DIRECTORY
+        cxx-modules
         COMPONENT beman.scope
     )
 endif()
