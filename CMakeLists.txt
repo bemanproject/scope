@@ -37,7 +37,8 @@ endif()
 
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 if(CMAKE_EXPORT_COMPILE_COMMANDS)
-  set(CMAKE_CXX_STANDARD_INCLUDE_DIRECTORIES ${CMAKE_CXX_IMPLICIT_INCLUDE_DIRECTORIES})
+    set(CMAKE_CXX_STANDARD_INCLUDE_DIRECTORIES ${CMAKE_CXX_IMPLICIT_INCLUDE_DIRECTORIES})
+    find_program(CLANG_TIDY_EXE NAMES clang-tidy clang-tidy-20 DOC "Path to clang-tidy executable")
 endif()
 
 include(CMakePrintHelpers)
@@ -149,5 +150,11 @@ if(BEMAN_SCOPE_BUILD_TESTS)
 endif()
 
 if(BEMAN_SCOPE_BUILD_EXAMPLES)
+    if(CLANG_TIDY_EXE)
+        message(STATUS "clang-tidy found: ${CLANG_TIDY_EXE}")
+        set(CMAKE_CXX_CLANG_TIDY
+            "${CLANG_TIDY_EXE};-extra-arg=--Wno-error=unknown-argument"
+        )
+    endif()
     add_subdirectory(examples)
 endif()
