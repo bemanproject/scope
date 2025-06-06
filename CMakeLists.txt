@@ -24,10 +24,12 @@ project(
 # gersemi: off
 
 # Modules opt in only on compilers that support g++-15 and clang-19+
-if(CMAKE_CXX_COMPILER_ID STREQUAL "Clang" AND CMAKE_CXX_COMPILER_VERSION VERSION_GREATER_EQUAL 19)
-    set(CMAKE_CXX_SCAN_FOR_MODULES 1)
-elseif(CMAKE_CXX_COMPILER_ID STREQUAL "GNU" AND CMAKE_CXX_COMPILER_VERSION VERSION_GREATER_EQUAL 15)
-    set(CMAKE_CXX_SCAN_FOR_MODULES 1)
+if(CMAKE_CXX_STANDARD GREATER_EQUAL 23)
+    if(CMAKE_CXX_COMPILER_ID STREQUAL "Clang" AND CMAKE_CXX_COMPILER_VERSION VERSION_GREATER_EQUAL 19)
+        set(CMAKE_CXX_SCAN_FOR_MODULES 1)
+    elseif(CMAKE_CXX_COMPILER_ID STREQUAL "GNU" AND CMAKE_CXX_COMPILER_VERSION VERSION_GREATER_EQUAL 15)
+        set(CMAKE_CXX_SCAN_FOR_MODULES 1)
+    endif()
 else()
     set(CMAKE_CXX_SCAN_FOR_MODULES 0)
 endif()
@@ -86,6 +88,7 @@ if(CMAKE_CXX_SCAN_FOR_MODULES)
             BASE_DIRS include
             FILES include/beman/scope/beman.scope.cppm
     )
+    # prevent "not include "cxx_std_20" (or newer) among its `target_compile_features`; no C++ standard found"
     target_compile_features(beman.scope PUBLIC cxx_std_23)
 else()
     add_library(beman.scope INTERFACE)
@@ -96,8 +99,7 @@ else()
             BASE_DIRS include
             FILES include/beman/scope/scope.hpp
     )
-    # prevent "not include "cxx_std_20" (or newer) among its `target_compile_features`; no C++ standard found"
-    target_compile_features(beman.scope PUBLIC cxx_std_20)
+    target_compile_features(beman.scope INTERFACE cxx_std_20)
 endif()
 
 add_library(beman::scope ALIAS beman.scope)
