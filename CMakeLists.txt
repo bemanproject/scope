@@ -1,17 +1,18 @@
 # SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
 
-if(CMAKE_CXX_STANDARD STREQUAL 26)
+if(CMAKE_CXX_STANDARD GREATER_EQUAL 23)
     if(CMAKE_CXX_MODULE_STD)
         set(CMAKE_CXX_SCAN_FOR_MODULES 1)
+        # for cmake version 4.0.2
         set(CMAKE_EXPERIMENTAL_CXX_IMPORT_STD
-            "d0edc3af-4c50-42ea-a356-e2862fe7a444"
+            "a9e1cf81-9932-4810-974b-6eccaf14e457"
         )
         add_definitions(-DHAS_STDLIB_MODULES)
     endif()
     set(CMAKE_CXX_STANDARD_REQUIRED OFF)
 endif()
 
-cmake_minimum_required(VERSION 3.28...4.0)
+cmake_minimum_required(VERSION 4.0)
 
 project(
     beman.scope
@@ -43,6 +44,7 @@ endif()
 
 include(CMakePrintHelpers)
 cmake_print_variables(
+    CMAKE_CXX_STANDARD
     CMAKE_CXX_SCAN_FOR_MODULES
     CMAKE_CXX_MODULE_STD
     CMAKE_CXX_COMPILER_IMPORT_STD
@@ -84,6 +86,7 @@ if(CMAKE_CXX_SCAN_FOR_MODULES)
             BASE_DIRS include
             FILES include/beman/scope/beman.scope.cppm
     )
+    target_compile_features(beman.scope PUBLIC cxx_std_23)
 else()
     add_library(beman.scope INTERFACE)
     target_sources(
@@ -93,6 +96,8 @@ else()
             BASE_DIRS include
             FILES include/beman/scope/scope.hpp
     )
+    # prevent "not include "cxx_std_20" (or newer) among its `target_compile_features`; no C++ standard found"
+    target_compile_features(beman.scope PUBLIC cxx_std_20)
 endif()
 
 add_library(beman::scope ALIAS beman.scope)
