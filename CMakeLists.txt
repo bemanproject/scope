@@ -2,11 +2,16 @@
 
 if(CMAKE_CXX_STANDARD GREATER_EQUAL 23)
     if(CMAKE_CXX_MODULE_STD)
+        if(CMAKE_VERSION VERSION_EQUAL 4.0.2)
+            set(CMAKE_EXPERIMENTAL_CXX_IMPORT_STD
+                "a9e1cf81-9932-4810-974b-6eccaf14e457"
+            )
+        else()
+            set(CMAKE_EXPERIMENTAL_CXX_IMPORT_STD
+                "d0edc3af-4c50-42ea-a356-e2862fe7a444"
+            )
+        endif()
         set(CMAKE_CXX_SCAN_FOR_MODULES 1)
-        # for cmake version 4.0.2
-        set(CMAKE_EXPERIMENTAL_CXX_IMPORT_STD
-            "a9e1cf81-9932-4810-974b-6eccaf14e457"
-        )
         add_definitions(-DHAS_STDLIB_MODULES)
     endif()
     set(CMAKE_CXX_STANDARD_REQUIRED OFF)
@@ -26,6 +31,18 @@ project(
 # Modules opt in only on compilers that support g++-15 and clang-19+
 if(CMAKE_CXX_STANDARD GREATER_EQUAL 23)
     if(CMAKE_CXX_COMPILER_ID STREQUAL "Clang" AND CMAKE_CXX_COMPILER_VERSION VERSION_GREATER_EQUAL 19)
+        if(APPLE AND CMAKE_CXX_COMPILER_VERSION VERSION_EQUAL 20.1.5)
+            execute_process(OUTPUT_VARIABLE LLVM_PREFIX COMMAND brew --prefix llvm@20 COMMAND_ECHO STDOUT)
+            string(STRIP ${LLVM_PREFIX} LLVM_PREFIX)
+            file(REAL_PATH ${LLVM_PREFIX} LLVM_ROOT)
+            set(LLVM_ROOT ${LLVM_ROOT} CACHE PATH "")
+            message(STATUS "LLVM_ROOT=${LLVM_ROOT}")
+
+            add_compile_options(-fexperimental-library)
+            add_link_options(-L${LLVM_ROOT}/lib/c++ -lc++experimental)
+            add_compile_options(-stdlib=libc++)
+            add_link_options(-stdlib=libc++)
+        endif()
         set(CMAKE_CXX_SCAN_FOR_MODULES 1)
     elseif(CMAKE_CXX_COMPILER_ID STREQUAL "GNU" AND CMAKE_CXX_COMPILER_VERSION VERSION_GREATER_EQUAL 15)
         set(CMAKE_CXX_SCAN_FOR_MODULES 1)
