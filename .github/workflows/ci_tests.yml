@@ -27,8 +27,8 @@ jobs:
       - name: Setup build environment
         uses: lukka/get-cmake@latest
         with:
-          cmakeVersion: "~3.28.0"
-          ninjaVersion: "^1.11.1"
+          cmakeVersion: latest
+          ninjaVersion: latest
       - name: Setup MSVC
         if: startsWith(matrix.presets.platform, 'windows')
         uses: TheMrMilchmann/setup-msvc-dev@v3
@@ -80,8 +80,8 @@ jobs:
       - name: Install Ninja
         uses: lukka/get-cmake@latest
         with:
-          cmakeVersion: "~4.0.0"
-          ninjaVersion: "^1.11.1"
+          cmakeVersion: latest
+          ninjaVersion: latest
       - name: Setup MSVC
         if: startsWith(matrix.platform.os, 'windows')
         uses: TheMrMilchmann/setup-msvc-dev@v3
@@ -139,8 +139,8 @@ jobs:
       - name: Setup build environment
         uses: lukka/get-cmake@latest
         with:
-          cmakeVersion: "~3.28.0"
-          ninjaVersion: "^1.11.1"
+          cmakeVersion: latest
+          ninjaVersion: latest
       - name: Print installed softwares
         run: |
           cmake --version
@@ -183,8 +183,8 @@ jobs:
       - name: Setup build environment
         uses: lukka/get-cmake@latest
         with:
-          cmakeVersion: "~4.0.0"
-          ninjaVersion: "^1.11.1"
+          cmakeVersion: latest
+          ninjaVersion: latest
       - name: Install Compiler
         id: install-compiler
         run: |

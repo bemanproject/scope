@@ -5,18 +5,18 @@ include(FetchContent)
 FetchContent_Declare(
     Catch2
     GIT_REPOSITORY https://github.com/catchorg/Catch2.git
-    GIT_TAG v3.8.0
+    GIT_TAG v3.8.1
+    SYSTEM
+    # FIXME: FIND_PACKAGE_ARGS 3.8.1
 )
 FetchContent_MakeAvailable(Catch2)
 
-# module tests will only compile with gcc15 or clang20 and above
+set(ALL_TESTNAMES scope_success scope_exit scope_fail unique_resource)
 if(CMAKE_CXX_SCAN_FOR_MODULES)
-    set(ALL_TESTNAMES scope_success scope_exit scope_fail unique_resource module)
-else()
-    set(ALL_TESTNAMES scope_success scope_exit scope_fail unique_resource)
+    list(APPEND ALL_TESTNAMES module)
 endif()
 
-message("Tests to be built: ${ALL_TESTNAMES}")
+message(DEBUG "Tests to be built: ${ALL_TESTNAMES}")
 
 include(Catch)
 
