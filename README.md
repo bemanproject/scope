@@ -7,8 +7,9 @@ SPDX-License-Identifier: CC0-1.0
 ![Library Status](https://raw.githubusercontent.com/bemanproject/beman/refs/heads/main/images/badges/beman_badge-beman_library_under_development.svg)
 ![Continuous Integration Tests](https://github.com/bemanproject/scope/actions/workflows/ci_tests.yml/badge.svg)
 ![Lint Check (pre-commit)](https://github.com/bemanproject/scope/actions/workflows/pre-commit.yml/badge.svg)
+![Target Standard](https://github.com/bemanproject/beman/blob/main/images/badges/cpp29.svg)
 
-`beman.scope` is a C++ library provides `scope_guard` facilities. The library conforms to [The Beman Standard](https://github.com/bemanproject/beman/blob/main/docs/BEMAN_STANDARD.md).
+`beman.scope` is a C++ library that provides `scope_guard` facilities. The library conforms to [The Beman Standard](https://github.com/bemanproject/beman/blob/main/docs/BEMAN_STANDARD.md).
 
 **Implements**: [D3610R0 Scope Guard](./paper/scope.org) targeted at C++29.
 
@@ -99,7 +100,7 @@ the `include` directory available add add the following to your source.
 
 import beman.scope;
 ```
-Withmodules import needs to be after any includes to avoid compilation errors.
+With modules import needs to be after any includes to avoid compilation errors.
 
 ## Building beman.scope
 
