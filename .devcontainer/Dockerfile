@@ -7,10 +7,10 @@ RUN wget -O - https://apt.kitware.com/keys/kitware-archive-latest.asc 2>/dev/nul
 RUN echo 'deb [signed-by=/usr/share/keyrings/kitware-archive-keyring.gpg] https://apt.kitware.com/ubuntu/ noble main' | sudo tee /etc/apt/sources.list.d/kitware.list >/dev/null
 RUN sudo apt-get update && sudo apt-get install -y cmake
 
-# Install pre-commit
-RUN sudo apt-get install -y pipx && pipx install pre-commit
+# Install pre-commit and ninja
+RUN sudo apt-get install -y pipx && pipx install pre-commit && pipx install ninja
 
 # Newer gcc/ llvm is needed to avoid ASAN Stalling
 # See: https://github.com/google/sanitizers/issues/1614
-# Minimal vesion: clang-18.1.3, gcc-13.2
+# Minimal version: clang-18.1.3, gcc-13.2
 RUN sudo apt-get install -y gcc-14
