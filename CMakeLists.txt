@@ -1,6 +1,6 @@
 # SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
 
-cmake_minimum_required(VERSION 3.28)
+cmake_minimum_required(VERSION 3.28...4.1)
 
 project(
     beman.scope
@@ -16,7 +16,7 @@ if (CMAKE_CXX_COMPILER_ID STREQUAL "Clang" AND CMAKE_CXX_COMPILER_VERSION VERSIO
     set(CMAKE_CXX_SCAN_FOR_MODULES 1)
 elseif (CMAKE_CXX_COMPILER_ID STREQUAL "GNU" AND CMAKE_CXX_COMPILER_VERSION VERSION_GREATER_EQUAL 15)
     set(CMAKE_CXX_SCAN_FOR_MODULES 1)
-elseif()
+else()
     set(CMAKE_CXX_SCAN_FOR_MODULES 0)
 endif()
 
@@ -116,7 +116,8 @@ if(BEMAN_SCOPE_INSTALL_CONFIG_FILE_PACKAGE)
         EXPORT beman.scope-targets
         DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/beman.scope
         NAMESPACE beman::
-        CXX_MODULES_DIRECTORY cxx-modules
+        CXX_MODULES_DIRECTORY
+        cxx-modules
         COMPONENT beman.scope
     )
 endif()

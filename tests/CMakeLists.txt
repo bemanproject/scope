@@ -11,7 +11,13 @@ FetchContent_MakeAvailable(Catch2)
 
 # module tests will only compile with gcc15 or clang20 and above
 if(CMAKE_CXX_SCAN_FOR_MODULES)
-    set(ALL_TESTNAMES scope_success scope_exit scope_fail unique_resource module)
+    set(ALL_TESTNAMES
+        scope_success
+        scope_exit
+        scope_fail
+        unique_resource
+        module
+    )
 else()
     set(ALL_TESTNAMES scope_success scope_exit scope_fail unique_resource)
 endif()
