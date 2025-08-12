@@ -9,11 +9,11 @@ SPDX-License-Identifier: CC0-1.0
 ![Lint Check (pre-commit)](https://github.com/bemanproject/scope/actions/workflows/pre-commit.yml/badge.svg)
 ![Target Standard](https://github.com/bemanproject/beman/blob/main/images/badges/cpp29.svg)
 
-`beman.scope` is a C++ library that provides `scope_guard` facilities. The library conforms to [The Beman Standard](https://github.com/bemanproject/beman/blob/main/docs/BEMAN_STANDARD.md).
+`beman.scope` is a C++ library that provides `scope_guard` facilities. The library conforms to [The Beman Standard](https://github.com/bemanproject/beman/blob/main/docs/beman_standard.md).
 
 **Implements**: [D3610R0 Scope Guard](./paper/scope.org) targeted at C++29.
 
-**Status**: [Under development and not yet ready for production use.](https://github.com/bemanproject/beman/blob/main/docs/BEMAN_LIBRARY_MATURITY_MODEL.md#under-development-and-not-yet-ready-for-production-use)
+**Status**: [Under development and not yet ready for production use.](https://github.com/bemanproject/beman/blob/main/docs/beman_library_maturity_model.md#under-development-and-not-yet-ready-for-production-use)
 
 # Overview
 
