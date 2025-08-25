@@ -224,7 +224,7 @@ class [[nodiscard]] scope_guard<ScopeExitFunc, InvokeChecker, ConstructionExcept
      * If the initialization of exit_function throws an exception, calls f().
      *
      * scope_success
-     *  [Note: If initialization of exit_function fails, f() wont be called. end note]
+     *  [Note: If initialization of exit_function fails, f() won't be called. end note]
      */
     template <typename EF, typename CHKR>
     constexpr scope_guard(EF&&   exit_func,
@@ -258,7 +258,7 @@ class [[nodiscard]] scope_guard<ScopeExitFunc, InvokeChecker, ConstructionExcept
                                                       std::is_nothrow_move_constructible_v<InvokeChecker>)
         requires(HasRelease<InvokeChecker> || HasStaticRelease<InvokeChecker>)
         : exit_func{std::move(rhs.exit_func)}, invoke_check_func{std::move(rhs.invoke_check_func)} {
-        // TODO: This does not work corectly for a shared invoke checker
+        // TODO: This does not work correctly for a shared invoke checker
         //       After a move will disable all.
 
         if constexpr (HasStaticRelease<InvokeChecker>) {
