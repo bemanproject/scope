@@ -1,13 +1,10 @@
+# beman.scope: Generic Scope Guard
+
 <!--
 SPDX-License-Identifier: CC0-1.0
 -->
 
-# beman.scope: Generic Scope Guard
-
-![Library Status](https://raw.githubusercontent.com/bemanproject/beman/refs/heads/main/images/badges/beman_badge-beman_library_under_development.svg)
-![Continuous Integration Tests](https://github.com/bemanproject/scope/actions/workflows/ci_tests.yml/badge.svg)
-![Lint Check (pre-commit)](https://github.com/bemanproject/scope/actions/workflows/pre-commit.yml/badge.svg)
-![Target Standard](https://github.com/bemanproject/beman/blob/main/images/badges/cpp29.svg)
+![Library Status](https://raw.githubusercontent.com/bemanproject/beman/refs/heads/main/images/badges/beman_badge-beman_library_under_development.svg) ![Continuous Integration Tests](https://github.com/bemanproject/scope/actions/workflows/ci_tests.yml/badge.svg) ![Lint Check (pre-commit)](https://github.com/bemanproject/scope/actions/workflows/pre-commit.yml/badge.svg) [![Coverage](https://coveralls.io/repos/github/bemanproject/scope/badge.svg?branch=main)](https://coveralls.io/github/bemanproject/scope?branch=main) ![Standard Target](https://github.com/bemanproject/beman/blob/main/images/badges/cpp29.svg) [![Compiler Explorer Example](https://img.shields.io/badge/Try%20it%20on%20Compiler%20Explorer-grey?logo=compilerexplorer&logoColor=67c52a)](https://godbolt.org/z/qMvrsPexd)
 
 `beman.scope` is a C++ library that provides `scope_guard` facilities. The library conforms to [The Beman Standard](https://github.com/bemanproject/beman/blob/main/docs/beman_standard.md).
 
@@ -137,7 +134,7 @@ cmake --install build/gcc-release --prefix /opt/beman.scope
 ```
 # License
 
-Source is licensed with the Apache 2.0 license with LLVM exceptions
+Source is licensed with the Apache License v2.0 with LLVM Exceptions.
 
 // SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
 
