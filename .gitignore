@@ -1,4 +1,3 @@
-# ignore temp build files
 /compile_commands.json
 /build
 
