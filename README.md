@@ -8,7 +8,7 @@ SPDX-License-Identifier: CC0-1.0
 
 `beman.scope` is a C++ library that provides `scope_guard` facilities. The library conforms to [The Beman Standard](https://github.com/bemanproject/beman/blob/main/docs/beman_standard.md).
 
-**Implements**: [D3610R0 Scope Guard](./paper/scope.org) targeted at C++29.
+**Implements**: [D3610R0 Scope Guard](./papers/scope.org) targeted at C++29.
 
 **Status**: [Under development and not yet ready for production use.](https://github.com/bemanproject/beman/blob/main/docs/beman_library_maturity_model.md#under-development-and-not-yet-ready-for-production-use)
 
