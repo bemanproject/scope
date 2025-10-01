@@ -99,7 +99,7 @@ the `include` directory available add add the following to your source.
 
 import beman.scope;
 ```
-With g++-15 modules is import needs to be after any includes to avoid compilation errors.
+Withmodules import needs to be after any includes to avoid compilation errors.
 
 ## Building beman.scope
 

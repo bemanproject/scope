@@ -28,9 +28,9 @@ project(
 
 # gersemi: off
 
-# Modules opt in only on compilers that support g++-15 and clang-19+
+# Modules opt in only on compilers that support g++-15 and clang-20+
 if(CMAKE_CXX_STANDARD GREATER_EQUAL 23)
-    if(CMAKE_CXX_COMPILER_ID STREQUAL "Clang" AND CMAKE_CXX_COMPILER_VERSION VERSION_GREATER_EQUAL 19)
+    if(CMAKE_CXX_COMPILER_ID STREQUAL "Clang" AND CMAKE_CXX_COMPILER_VERSION VERSION_GREATER_EQUAL 20)
         if(APPLE AND CMAKE_CXX_COMPILER_VERSION VERSION_EQUAL 20.1.5)
             execute_process(OUTPUT_VARIABLE LLVM_PREFIX COMMAND brew --prefix llvm@20 COMMAND_ECHO STDOUT)
             string(STRIP ${LLVM_PREFIX} LLVM_PREFIX)
