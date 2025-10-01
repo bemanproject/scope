@@ -16,8 +16,8 @@
 
 include_guard(GLOBAL)
 
-set(CMAKE_C_COMPILER clang)
-set(CMAKE_CXX_COMPILER clang++)
+set(CMAKE_C_COMPILER cc)
+set(CMAKE_CXX_COMPILER c++)
 
 if(BEMAN_BUILDSYS_SANITIZER STREQUAL "MaxSan")
     set(SANITIZER_FLAGS
