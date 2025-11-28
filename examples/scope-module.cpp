@@ -15,7 +15,12 @@
 // destroy noisy
 // scope exit: true success: true fail: false
 
+#ifdef HAS_MODULE_STD
 import std;
+#else
+#include <print>
+#endif
+
 import beman.scope;
 
 // clang-format off
