@@ -7,6 +7,7 @@ repos:
     -   id: trailing-whitespace
     -   id: end-of-file-fixer
     -   id: check-yaml
+        exclude: ^\.clang-(format|tidy)$
     -   id: check-added-large-files
 
     # Clang-format for C++
