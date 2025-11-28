@@ -16,7 +16,7 @@ repos:
     rev: v21.1.6
     hooks:
     - id: clang-format
-      types_or: [c++, c]
+      types_or: [c++, c, json]
 
     # CMake linting and formatting
   - repo: https://github.com/BlankSpruce/gersemi
@@ -30,7 +30,7 @@ repos:
     # Config file: .markdownlint.yaml
     # Commented out to disable this by default. Uncomment to enable markdown linting.
   # - repo: https://github.com/igorshubovych/markdownlint-cli
-  #   rev: v0.42.0
+  #   rev: v0.46.0
   #   hooks:
   #   - id: markdownlint
 
@@ -40,4 +40,4 @@ repos:
       - id: codespell
         args: ["--ignore-words-list=wil"]
 
-exclude: 'cookiecutter/'
+exclude: 'infra/'

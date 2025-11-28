@@ -106,11 +106,11 @@ IfMacros:
   - KJ_IF_MAYBE
 IncludeBlocks:   Preserve
 IncludeCategories:
-  - Regex:           '^"(llvm|llvm-c|clang|clang-c)/'
+  - Regex: '^"(beman|llvm|llvm-c|clang|clang-c)/'
     Priority:        2
     SortPriority:    0
     CaseSensitive:   false
-  - Regex:           '^(<|"(gtest|isl|json)/)'
+  - Regex: '^(<|"(catch2|gtest|gmock|isl|json)/)'
     Priority:        3
     SortPriority:    0
     CaseSensitive:   false
