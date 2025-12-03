@@ -3,7 +3,7 @@
 set(ALL_EXAMPLES scope_example unique_resource unique_resource-file)
 
 # module tests will only compile with gcc15 or clang20 and above
-if(CMAKE_CXX_SCAN_FOR_MODULES)
+if(CMAKE_CXX_SCAN_FOR_MODULES AND CMAKE_CXX_MODULE_STD)
     list(APPEND ALL_EXAMPLES scope-module)
 endif()
 
