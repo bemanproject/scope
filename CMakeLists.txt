@@ -1,6 +1,6 @@
 # SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
 
-cmake_minimum_required(VERSION 3.28...4.1)
+cmake_minimum_required(VERSION 3.28...4.2)
 
 project(
     beman.scope
@@ -91,6 +91,8 @@ install(
 
     FILE_SET CXX_MODULES
         DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
+    CXX_MODULES_BMI
+        DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/beman.scope/bmi-${CMAKE_CXX_COMPILER_ID}_$<CONFIG>
     FILE_SET HEADERS
 )
 
