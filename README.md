@@ -80,10 +80,17 @@ but with different checked conditions on exiting the scope.
 
 Full runnable examples can be found in `examples/`.
 
+
 ## Integrate beman.scope into your project
 
 Beman.scope is a header-only library that currently relies on TS implementations
-and is thus currently available only on g++-13 and up, or clang 19 and up -- in C++20 mode.
+for `unique_resource` and is thus currently available only on g++-13 and up, or
+clang 19 and up -- in C++20 mode.
+
+| C++ Version | Compilers        | Note              |
+|-------------|------------------|-------------------|
+| 20          | gcc13+, clang19+ | No modules        |
+| 23-26       | gcc15+, clang19+ | modules supported |
 
 Note that modules support is currently tested only on clang++-19 and above and g++-15.
 
