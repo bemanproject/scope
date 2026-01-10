@@ -50,15 +50,15 @@ template <class EF>
 using scope_success = std::experimental::scope_success<EF>;
 
 // todo temporary
-// template <class R, class D>
-// using unique_resource = std::experimental::unique_resource<R, D>;
+template <class R, class D>
+using unique_resource = std::experimental::fundamentals_v3::unique_resource<R, D>;
 
-// template <class R, class D, class S = std::decay_t<R>>
-// unique_resource<std::decay_t<R>, std::decay_t<D>>
-// make_unique_resource_checked(R&& r, const S& invalid, D&& d) noexcept(noexcept(
-//     std::experimental::make_unique_resource_checked(std::forward(r), std::forward(invalid), std::forward(d)))) {
-//     return std::experimental::make_unique_resource_checked(std::forward(r), std::forward(invalid), std::forward(d));
-//}
+template <class R, class D, class S = std::decay_t<R>>
+unique_resource<std::decay_t<R>, std::decay_t<D>>
+make_unique_resource_checked(R&& r, const S& invalid, D&& d) noexcept(noexcept(
+    std::experimental::make_unique_resource_checked(std::forward(r), std::forward(invalid), std::forward(d)))) {
+    return std::experimental::make_unique_resource_checked(std::forward(r), std::forward(invalid), std::forward(d));
+}
 
 } // namespace beman::scope
 
@@ -71,11 +71,11 @@ template <class R, class D>
 using unique_resource = std::unique_resource<R, D>;
 
 // todo temporary
-template <class R, class D, class S = std::decay_t<R> >
-unique_resource<std::decay_t<R>, std::decay_t<D> >
-make_unique_resource_checked(R&& r, const S& invalid, D&& d) noexcept(noexcept(
-    std::experimental::make_unique_resource_checked(std::forward(r), std::forward(invalid), std::forward(d)))) {
-    return std::experimental::make_unique_resource_checked(std::forward(r), std::forward(invalid), std::forward(d));
+template <class R, class D, class S = std::decay_t<R>>
+unique_resource<std::decay_t<R>, std::decay_t<D>>
+make_unique_resource_checked(R&& r, const S& invalid, D&& d) noexcept(
+    noexcept(std::make_unique_resource_checked(std::forward(r), std::forward(invalid), std::forward(d)))) {
+    return std::make_unique_resource_checked(std::forward(r), std::forward(invalid), std::forward(d));
 }
 
 //==================================================================================================
