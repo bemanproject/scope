@@ -17,7 +17,7 @@ if(CMAKE_CXX_STANDARD GREATER_EQUAL 23)
     set(CMAKE_CXX_STANDARD_REQUIRED OFF)
 endif()
 
-cmake_minimum_required(VERSION 4.0)
+cmake_minimum_required(VERSION 4.0...4.2)
 
 project(
     beman.scope
@@ -31,8 +31,8 @@ project(
 # Modules opt in only on compilers that support g++-15 and clang-20+
 if(CMAKE_CXX_STANDARD GREATER_EQUAL 23)
     if(CMAKE_CXX_COMPILER_ID STREQUAL "Clang" AND CMAKE_CXX_COMPILER_VERSION VERSION_GREATER_EQUAL 20)
-        if(APPLE AND CMAKE_CXX_COMPILER_VERSION VERSION_EQUAL 20.1.5)
-            execute_process(OUTPUT_VARIABLE LLVM_PREFIX COMMAND brew --prefix llvm@20 COMMAND_ECHO STDOUT)
+        if(APPLE AND CMAKE_CXX_COMPILER_VERSION VERSION_GREATER_EQUAL 21.1)
+            execute_process(OUTPUT_VARIABLE LLVM_PREFIX COMMAND brew --prefix llvm@21 COMMAND_ECHO STDOUT)
             string(STRIP ${LLVM_PREFIX} LLVM_PREFIX)
             file(REAL_PATH ${LLVM_PREFIX} LLVM_ROOT)
             set(LLVM_ROOT ${LLVM_ROOT} CACHE PATH "")
@@ -58,7 +58,7 @@ endif()
 set(CMAKE_EXPORT_COMPILE_COMMANDS OFF)
 if(CMAKE_EXPORT_COMPILE_COMMANDS)
     set(CMAKE_CXX_STANDARD_INCLUDE_DIRECTORIES ${CMAKE_CXX_IMPLICIT_INCLUDE_DIRECTORIES})
-    find_program(CLANG_TIDY_EXE NAMES clang-tidy clang-tidy-20 DOC "Path to clang-tidy executable")
+    find_program(CLANG_TIDY_EXE NAMES clang-tidy clang-tidy-20 clang-tidy-21 DOC "Path to clang-tidy executable")
 endif()
 
 include(CMakePrintHelpers)

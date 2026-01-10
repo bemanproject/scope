@@ -14,7 +14,7 @@ SPDX-License-Identifier: CC0-1.0
 
 **Status**: [Under development and not yet ready for production use.](https://github.com/bemanproject/beman/blob/main/docs/BEMAN_LIBRARY_MATURITY_MODEL.md#under-development-and-not-yet-ready-for-production-use)
 
-# Overview
+## Overview
 
 During the C++20 cycle [P0052 Generic Scope Guard and RAII Wrapper for the Standard Library](https://wg21.link/P0052)
 added 4 types: `scope_exit`, `scope_fail`, `scope_success`
@@ -99,6 +99,7 @@ the `include` directory available add add the following to your source.
 
 import beman.scope;
 ```
+
 Withmodules import needs to be after any includes to avoid compilation errors.
 
 ## Building beman.scope
@@ -130,11 +131,13 @@ ninja -j 5 -v; ctest
 ```
 
 or using cmake presets
+
 ```shell
 cmake --workflow --preset gcc-release
 cmake --install build/gcc-release --prefix /opt/beman.scope
 ```
-# License
+
+## License
 
 Source is licensed with the Apache 2.0 license with LLVM exceptions
 
@@ -150,6 +153,6 @@ The README itself is licensed with CC0 1.0 Universal. Copy the contents and inco
 
 // SPDX-License-Identifier: CC0-1.0
 
-# Contributing
+## Contributing
 
 Please do! Issues and pull requests are appreciated.
