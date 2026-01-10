@@ -5,6 +5,7 @@
 
 #include <concepts>
 #include <exception>
+#include <memory>
 #include <type_traits>
 #include <version>
 #include <limits>
@@ -67,7 +68,7 @@ namespace beman::scope {
 
 // todo temporary
 template <class R, class D>
-using unique_resource = std::experimental::unique_resource<R, D>;
+using unique_resource = std::unique_resource<R, D>;
 
 // todo temporary
 template <class R, class D, class S = std::decay_t<R> >
