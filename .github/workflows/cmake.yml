@@ -1,0 +1,68 @@
+---
+name: CMake
+
+on:
+  push:
+    branches: ["develop"]
+  pull_request:
+    branches: ["develop"]
+  # Allows you to run this workflow manually from the Actions tab
+  workflow_dispatch:
+  schedule:
+    # run at 15:30 on day-of-month 7.
+    - cron: '30 15 7 * *'
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  # Customize the CMake build type here (Release, Debug, RelWithDebInfo, etc.)
+  BUILD_TYPE: release
+  CTEST_OUTPUT_ON_FAILURE: 1
+
+jobs:
+  build:
+    strategy:
+      fail-fast: false
+
+      matrix:
+        os: [windows]
+
+    runs-on: ${{ matrix.os }}-latest
+
+    steps:
+      - uses: actions/checkout@v4
+      - name: Setup build environment
+        uses: lukka/get-cmake@latest
+        with:
+          cmakeVersion: "~4.2.1"
+          ninjaVersion: "^1.13.0"
+
+      - name: Setup MSVC
+        if: startsWith(matrix.os, 'windows')
+        uses: TheMrMilchmann/setup-msvc-dev@v3
+        with:
+          arch: x64
+
+      - name: Setup Cpp
+        if: matrix.os != 'windows'
+        uses: aminya/setup-cpp@v1
+        with:
+          compiler: llvm
+
+      - name: Configure CMake
+        run: cmake --preset msvc-${{env.BUILD_TYPE}} --log-level=VERBOSE
+
+      - name: Build
+        # Build your program with the given configuration
+        run: cmake --build --preset msvc-${{env.BUILD_TYPE}}
+
+      # - name: Install
+      #   # Install the project artefacts to CMAKE_INSTALL_PREFIX
+      #   run: cmake --install ${{github.workspace}}/build/${{env.BUILD_TYPE}} --config ${{env.BUILD_TYPE}}
+
+      - name: Test
+        working-directory: ${{github.workspace}}/build/${{env.BUILD_TYPE}}
+        # Execute tests defined by the CMake configuration, but needs to find_package(Boost)!
+        run: ctest -C msvc-${{env.BUILD_TYPE}}
