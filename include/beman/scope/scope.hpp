@@ -10,12 +10,30 @@
 #include <limits>
 
 // clang-format off
-#if __cplusplus < 202002L
+#include <version>
+
+#if defined(__cpp_concepts) && __cpp_concepts >= 201907L
+  // C++20 concepts supported
+#elif __cplusplus < 202002L
   #error "C++20 or later is required"
 #endif
-// clang-format on
 
-#include <experimental/scope> //todo unconditional for unique_resource
+// detect standard header first, then experimental, otherwise use local implementation
+#if defined(__has_include)
+#  if __has_include(<scope>)
+#    include <scope>
+#    define BEMAN_SCOPE_USE_STD
+#  elif __has_include(<experimental/scope>)
+#    include <experimental/scope>
+#    define BEMAN_SCOPE_USE_STD_EXPERIMENTAL
+#  else
+// no std scope header — fall through to local implementation below
+#  endif
+#elif defined(__cpp_lib_scope) && __cpp_lib_scope >= 2023xxxxL
+#  include <scope>
+#  define BEMAN_SCOPE_USE_STD
+#endif
+// clang-format on
 
 #ifdef BEMAN_SCOPE_USE_STD_EXPERIMENTAL
 
