@@ -33,6 +33,8 @@
 #elif defined(__cpp_lib_scope) && __cpp_lib_scope >= 2023xxxxL
 #  include <scope>
 #  define BEMAN_SCOPE_USE_STD
+#else
+#  warning "Missing feature __cpp_lib_scope"
 #endif
 // clang-format on
 
@@ -62,20 +64,20 @@ make_unique_resource_checked(R&& r, const S& invalid, D&& d) noexcept(noexcept(
 
 } // namespace beman::scope
 
-#else // ! BEMAN_SCOPE__USE_STD_EXPERIMENTAL
+#elif defined(BEMAN_SCOPE_USE_STD)
 
 namespace beman::scope {
 
 // todo temporary
 template <class R, class D>
-using unique_resource = std::unique_resource<R, D>;
+using unique_resource = std::experimental::unique_resource<R, D>;
 
 // todo temporary
 template <class R, class D, class S = std::decay_t<R>>
 unique_resource<std::decay_t<R>, std::decay_t<D>>
-make_unique_resource_checked(R&& r, const S& invalid, D&& d) noexcept(
-    noexcept(std::make_unique_resource_checked(std::forward(r), std::forward(invalid), std::forward(d)))) {
-    return std::make_unique_resource_checked(std::forward(r), std::forward(invalid), std::forward(d));
+make_unique_resource_checked(R&& r, const S& invalid, D&& d) noexcept(noexcept(
+    std::experimental::make_unique_resource_checked(std::forward(r), std::forward(invalid), std::forward(d)))) {
+    return std::experimental::make_unique_resource_checked(std::forward(r), std::forward(invalid), std::forward(d));
 }
 
 //==================================================================================================
@@ -440,6 +442,9 @@ using scope_fail = scope_guard<ExitFunc,
 
 } // namespace beman::scope
 
-#endif // BEMAN_SCOPE__USE_STD_EXPERIMENTAL
+#else
+#include "scope_impl.hpp"
+
+#endif // BEMAN_SCOPE_USE_STD_EXPERIMENTAL
 
 #endif // BEMAN_SCOPE_HPP
