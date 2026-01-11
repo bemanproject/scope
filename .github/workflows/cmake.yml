@@ -58,11 +58,10 @@ jobs:
         # Build your program with the given configuration
         run: cmake --build --preset msvc-${{env.BUILD_TYPE}}
 
+      - name: Test
+        # Execute tests defined by the CMake configuration
+        run: ctest --preset msvc-${{env.BUILD_TYPE}}
+
       # - name: Install
       #   # Install the project artefacts to CMAKE_INSTALL_PREFIX
-      #   run: cmake --install ${{github.workspace}}/build/${{env.BUILD_TYPE}} --config ${{env.BUILD_TYPE}}
-
-      - name: Test
-        working-directory: ${{github.workspace}}/build/${{env.BUILD_TYPE}}
-        # Execute tests defined by the CMake configuration, but needs to find_package(Boost)!
-        run: ctest -C msvc-${{env.BUILD_TYPE}}
+      #   run: cmake --build --preset msvc-${{env.BUILD_TYPE}} --target install
