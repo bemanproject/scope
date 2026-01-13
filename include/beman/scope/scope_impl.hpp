@@ -17,9 +17,11 @@
 #  if __has_include(<scope>)
 #    include <scope>
 #    define BEMAN_SCOPE_USE_STD
+// XXX #warning "Set BEMAN_SCOPE_USE_STD"
 #  elif __has_include(<experimental/scope>)
 #    include <experimental/scope>
 #    define BEMAN_SCOPE_USE_STD_EXPERIMENTAL
+// XXX #warning "Set BEMAN_SCOPE_USE_STD_EXPERIMENTAL"
 #  else
 #    define BEMAN_SCOPE_USE_FALLBACK
 #  endif
@@ -83,8 +85,9 @@ class [[nodiscard]] scope_exit {
 };
 
 // Factory helper
+// NOLINTNEXTLINE(misc-use-anonymous-namespace)
 template <class F>
-static auto make_scope_exit(F f) -> scope_exit<F> {
+auto make_scope_exit(F f) -> scope_exit<F> {
     return scope_exit<F>(std::move(f));
 }
 
@@ -134,6 +137,7 @@ class [[nodiscard]] scope_fail {
 };
 
 // Factory helper
+// NOLINTNEXTLINE(misc-use-anonymous-namespace)
 template <typename F>
 constexpr auto make_scope_fail(F&& f) -> scope_fail<std::decay_t<F>> {
     return scope_fail<std::decay_t<F>>(std::forward<F>(f));
@@ -185,6 +189,7 @@ class [[nodiscard]] scope_success {
 };
 
 // Factory helper
+// NOLINTNEXTLINE(misc-use-anonymous-namespace)
 template <typename F>
 constexpr auto make_scope_success(F&& f) -> scope_success<std::decay_t<F>> {
     return scope_success<std::decay_t<F>>(std::forward<F>(f));
@@ -203,8 +208,8 @@ class [[nodiscard]] unique_resource {
 
     // Move constructor
     constexpr unique_resource(unique_resource&& other) noexcept(std::is_nothrow_move_constructible_v<Deleter>)
-        : resource(std::move(other.resource)), deleter(std::move(other.deleter)), active(other.active) {
-        other.active = false;
+        : resource(std::move(other.resource)), deleter(std::move(other.deleter)) {
+        active = std::exchange(other.active, false);
     }
 
     // Move assignment
@@ -212,9 +217,8 @@ class [[nodiscard]] unique_resource {
         -> unique_resource& {
         if (this != &other) {
             reset(std::move(other.resource));
-            deleter      = std::move(other.deleter);
-            active       = other.active;
-            other.active = false;
+            deleter = std::move(other.deleter);
+            active  = std::exchange(other.active, false);
         }
         return *this;
     }
@@ -224,22 +228,20 @@ class [[nodiscard]] unique_resource {
     auto operator=(const unique_resource&) -> unique_resource& = delete;
 
     // Destructor
-    ~unique_resource() noexcept(noexcept(deleter(resource))) {
-        if (active) {
-            deleter(resource);
-        }
-    }
+    ~unique_resource() noexcept(noexcept(deleter(resource))) { reset(); }
 
     // Release ownership
-    constexpr void release() noexcept(noexcept(deleter(resource))) { active = false; }
+    constexpr void release() noexcept { active = false; }
 
     // Reset resource
     constexpr void reset() noexcept(noexcept(deleter(resource))) {
         if (active) {
+            active = false;
             deleter(resource);
         }
-        active = false;
     }
+
+    // Reset the resource and call deleter if engaged
     constexpr void reset(Resource new_resource) noexcept(noexcept(deleter(resource))) {
         if (active) {
             deleter(resource);
@@ -259,14 +261,17 @@ class [[nodiscard]] unique_resource {
         return *resource;
     }
 
-    // operator-> — only for pointer resources
+    // Optional pointer convenience
     constexpr auto operator->() const noexcept -> Resource
         requires std::is_pointer_v<Resource>
     {
         return resource;
     }
 
-    // Check if active
+    // TODO(CK): missing usecase?
+    constexpr auto get_deleter() const noexcept -> Deleter;
+
+    // NOTE: check if active; not required from LWG?
     constexpr explicit operator bool() const noexcept { return active; }
 };
 
@@ -274,8 +279,34 @@ class [[nodiscard]] unique_resource {
 template <typename Resource, typename Deleter>
 unique_resource(Resource&&, Deleter&&) -> unique_resource<std::decay_t<Resource>, std::decay_t<Deleter>>;
 
+// Factory: conditionally engaged
+// NOLINTNEXTLINE(misc-use-anonymous-namespace)
+template <class R, class Invalid, class D>
+constexpr auto make_unique_resource_checked(R&& r, const Invalid& invalid, D&& d) {
+    using resource_type = std::decay_t<R>;
+    using deleter_type  = std::decay_t<D>;
+
+    if (r == invalid) {
+        // Disengaged resource
+        unique_resource<resource_type, deleter_type> ur(resource_type{}, std::forward<D>(d));
+        ur.release(); // disengage immediately
+        return ur;
+    }
+
+    return unique_resource<resource_type, deleter_type>(std::forward<R>(r), std::forward<D>(d));
+}
+
 } // namespace beman::scope
 
+#elifdef BEMAN_SCOPE_USE_STD_EXPERIMENTAL
+
+namespace beman::scope {
+using std::experimental::scope_exit;
+using std::experimental::scope_fail;
+using std::experimental::scope_success;
+using std::experimental::unique_resource;
+} // namespace beman::scope
+  //
 #endif // BEMAN_SCOPE_USE_FALLBACK
 
 #endif // SCOPE_IMPL_HPP
