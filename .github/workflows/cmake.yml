@@ -27,7 +27,18 @@ jobs:
       fail-fast: false
 
       matrix:
-        os: [windows]
+        os: [windows, macos]
+        include:
+          - { os: macos, uname: appleclang }
+          # - { os: ubuntu, uname: gcc }
+          - { os: ubuntu, uname: llvm }
+          - { os: windows, uname: msvc }
+
+          # TODO(CK):
+          # type: [shared, static]
+          # include:
+          # - { type: shared, shared: YES }
+          # - { type: static, shared: NO }
 
     runs-on: ${{ matrix.os }}-latest
 
@@ -49,19 +60,20 @@ jobs:
         if: matrix.os != 'windows'
         uses: aminya/setup-cpp@v1
         with:
+          # compiler: ${{matrix.uname}}
           compiler: llvm
 
       - name: Configure CMake
-        run: cmake --preset msvc-${{env.BUILD_TYPE}} --log-level=VERBOSE
+        run: cmake --preset ${{matrix.uname}}-${{env.BUILD_TYPE}} --log-level=VERBOSE
 
       - name: Build
         # Build your program with the given configuration
-        run: cmake --build --preset msvc-${{env.BUILD_TYPE}}
+        run: cmake --build --preset ${{matrix.uname}}-${{env.BUILD_TYPE}}
 
       - name: Test
         # Execute tests defined by the CMake configuration
-        run: ctest --preset msvc-${{env.BUILD_TYPE}}
+        run: ctest --preset ${{matrix.uname}}-${{env.BUILD_TYPE}}
 
       # - name: Install
       #   # Install the project artefacts to CMAKE_INSTALL_PREFIX
-      #   run: cmake --build --preset msvc-${{env.BUILD_TYPE}} --target install
+      #   run: cmake --build --preset ${{matrix.uname}}-${{env.BUILD_TYPE}} --target install
