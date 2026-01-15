@@ -27,10 +27,10 @@ jobs:
       fail-fast: false
 
       matrix:
-        os: [windows, macos]
+        os: [windows]
         include:
           - { os: macos, uname: appleclang }
-          # - { os: ubuntu, uname: gcc }
+          # XXX - { os: ubuntu, uname: gcc }
           - { os: ubuntu, uname: llvm }
           - { os: windows, uname: msvc }
 
@@ -60,11 +60,11 @@ jobs:
         if: matrix.os != 'windows'
         uses: aminya/setup-cpp@v1
         with:
-          # compiler: ${{matrix.uname}}
+          # XXX compiler: ${{matrix.uname}}
           compiler: llvm
 
       - name: Configure CMake
-        run: cmake --preset ${{matrix.uname}}-${{env.BUILD_TYPE}} --log-level=VERBOSE
+        run: cmake --preset ${{matrix.uname}}-${{env.BUILD_TYPE}} --log-level=VERBOSE # XXX -Wdev
 
       - name: Build
         # Build your program with the given configuration

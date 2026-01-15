@@ -63,15 +63,10 @@ class [[nodiscard]] scope_exit {
     auto operator=(const scope_exit&) -> scope_exit& = delete;
     scope_exit(const scope_exit&)                    = delete;
 
-    // Move assignment
-    constexpr auto operator=(scope_exit&& other) noexcept(std::is_nothrow_move_assignable_v<F>) -> scope_exit& {
-        if (this != &other) {
-            f            = std::move(other.f);
-            active       = other.active;
-            other.active = false;
-        }
-        return *this;
-    }
+    // Deleted move assignment
+    // Does scope_exit need to be move-assignable? LEWG: NO!
+    constexpr auto operator=(scope_exit&& other) noexcept(std::is_nothrow_move_assignable_v<F>)
+        -> scope_exit& = delete;
 
     // Destructor: call only if scope is exiting normally
     ~scope_exit() noexcept(noexcept(f())) {
@@ -82,6 +77,9 @@ class [[nodiscard]] scope_exit {
 
     // Release to prevent execution
     constexpr auto release() -> void { active = false; }
+
+    // Helper to tests if active
+    constexpr auto is_active() -> bool { return active; }
 };
 
 // Factory helper
@@ -114,8 +112,12 @@ class [[nodiscard]] scope_fail {
     scope_fail(const scope_fail&)                    = delete;
     auto operator=(const scope_fail&) -> scope_fail& = delete;
 
+    // Deleted move assignment
     // Move assignment
-    constexpr auto operator=(scope_fail&& other) noexcept(std::is_nothrow_move_assignable_v<F>) -> scope_fail& {
+    constexpr auto operator=(scope_fail&& other) noexcept(std::is_nothrow_move_assignable_v<F>)
+        -> scope_fail& = delete;
+#if MOVE_ASSIGNMENT_NEEDED
+    G {
         if (this != &other) {
             f               = std::move(other.f);
             active          = other.active;
@@ -124,6 +126,7 @@ class [[nodiscard]] scope_fail {
         }
         return *this;
     }
+#endif
 
     // Destructor: call if scope is exiting due to an exception
     ~scope_fail() noexcept(noexcept(f())) {
@@ -134,6 +137,9 @@ class [[nodiscard]] scope_fail {
 
     // Release to prevent execution
     constexpr auto release() -> void { active = false; }
+
+    // Helper to tests if active
+    constexpr auto is_active() -> bool { return active; }
 };
 
 // Factory helper
@@ -166,8 +172,12 @@ class [[nodiscard]] scope_success {
     scope_success(const scope_success&)                    = delete;
     auto operator=(const scope_success&) -> scope_success& = delete;
 
+    // Deleted move assignment
     // Move assignment
-    constexpr auto operator=(scope_success&& other) noexcept(std::is_nothrow_move_assignable_v<F>) -> scope_success& {
+    constexpr auto operator=(scope_success&& other) noexcept(std::is_nothrow_move_assignable_v<F>)
+        -> scope_success& = delete;
+#if MOVE_ASSIGNMENT_NEEDED
+    {
         if (this != &other) {
             f               = std::move(other.f);
             active          = other.active;
@@ -176,6 +186,7 @@ class [[nodiscard]] scope_success {
         }
         return *this;
     }
+#endif
 
     // Destructor: call only if scope is exiting normally
     ~scope_success() noexcept(noexcept(f())) {
@@ -186,6 +197,9 @@ class [[nodiscard]] scope_success {
 
     // Release to prevent execution
     constexpr auto release() -> void { active = false; }
+
+    // Helper to tests if active
+    constexpr auto is_active() -> bool { return active; }
 };
 
 // Factory helper
@@ -271,6 +285,7 @@ class [[nodiscard]] unique_resource {
     // TODO(CK): missing usecase?
     constexpr auto get_deleter() const noexcept -> Deleter;
 
+    // Helper to tests is_active()
     // NOTE: check if active; not required from LWG?
     constexpr explicit operator bool() const noexcept { return active; }
 };

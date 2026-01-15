@@ -4,6 +4,7 @@
 
 #include <catch2/catch_test_macros.hpp>
 #include <cstdio>
+#include <functional>
 
 namespace {
 
@@ -199,7 +200,7 @@ TEST_CASE("unique_resource supports deduction guide", "[unique_resource]") {
 
     beman::scope::unique_resource r(123, CountingDeleter{&c});
 
-    static_assert(std::is_same_v<decltype(r), beman::scope::unique_resource<int, CountingDeleter> >);
+    static_assert(std::is_same_v<decltype(r), beman::scope::unique_resource<int, CountingDeleter>>);
 
     r.reset();
     REQUIRE(c.value == 1);
@@ -252,4 +253,25 @@ TEST_CASE("unique_resource operator* returns reference to resource", "[unique_re
     REQUIRE(cref == 100);
 
     // Modifying through cref would fail to compile (correct)
+}
+
+struct Foo {
+    int value = 0;
+};
+
+TEST_CASE("unique_resource operator-> works", "[unique_resource]") {
+    bool deleted = false;
+    Foo* raw     = new Foo{42};
+
+    // Use std::function for the deleter
+    beman::scope::unique_resource<Foo*, std::function<void(Foo*)>> r(raw, [&](Foo* p) {
+        deleted = true;
+        delete p;
+    });
+
+    REQUIRE(r->value == 42);
+    r->value = 100;
+    REQUIRE(r->value == 100);
+
+    REQUIRE_FALSE(deleted); // deleter not called yet
 }

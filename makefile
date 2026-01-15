@@ -54,11 +54,14 @@ distclean: clean
 	rm -rf build
 	find . -name '*~' -delete
 
+gclean: clean
+	find build -name '*.gc..' -delete
+
 build/coverage: test
 	mkdir -p $@
 
 coverage: build/coverage
-	gcovr # XXX -v
+	gcovr  --merge-mode-functions separate
 
 # Anything we don't know how to build will use this rule.
 % ::

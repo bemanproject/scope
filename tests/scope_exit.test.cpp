@@ -126,6 +126,25 @@ TEST_CASE("scope_exit handles nested guards in correct order", "[scope_exit][adv
 }
 
 // fails
+// #include <functional>
+//
+// TEST_CASE("scope_exit move assignment transfers ownership", "[scope_exit][advanced]") {
+//     bool cleanup_ran = false;
+//
+//     {
+//         scope_exit<std::function<void()>> guard1([&]{ cleanup_ran = true; });
+//         scope_exit<std::function<void()>> guard2([&]{});
+//
+//         guard2 = std::move(guard1);
+//
+//         REQUIRE_FALSE(guard1.is_active());
+//         REQUIRE(guard2.is_active());
+//     }
+//
+//     REQUIRE(cleanup_ran == false);
+// }
+
+// fails
 // TEST_CASE("scope_exit cleanup handles custom object with side effects", "[scope_exit][advanced]") {
 //     struct Tracer {
 //         std::string& output;
