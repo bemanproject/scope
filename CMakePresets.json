@@ -116,6 +116,7 @@
       ],
       "cacheVariables": {
         "CMAKE_CXX_STANDARD": "23",
+        "BUILD_SHARED_LIBS": true,
         "CMAKE_TOOLCHAIN_FILE": "infra/cmake/msvc-toolchain.cmake"
       }
     }
