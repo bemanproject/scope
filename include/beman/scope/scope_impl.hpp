@@ -37,6 +37,8 @@
 // clang-format on
 
 #ifdef BEMAN_SCOPE_USE_FALLBACK
+#include "beman/scope/modules_export.hpp"
+
 #include <exception>
 #include <type_traits>
 #include <utility>
@@ -46,7 +48,7 @@ namespace beman::scope {
 // TODO(CK): make a std::experimental::scope_exit<EF>::scope_exit conform
 // implementation
 template <class F>
-class [[nodiscard]] scope_exit {
+class [[nodiscard]] BEMAN_SCOPE_EXPORT scope_exit {
     F    f;
     bool active = true;
 
@@ -92,7 +94,7 @@ auto make_scope_exit(F f) -> scope_exit<F> {
 // TODO(CK): make a std::experimental::scope_fail<EF>::scope_fail conform
 // implementation
 template <typename F>
-class [[nodiscard]] scope_fail {
+class [[nodiscard]] BEMAN_SCOPE_EXPORT scope_fail {
     F    f;
     bool active = true;
     int  exception_count{};
@@ -152,7 +154,7 @@ constexpr auto make_scope_fail(F&& f) -> scope_fail<std::decay_t<F>> {
 // TODO(CK): make a std::experimental::scope_success<EF>::scope_success conform
 // implementation
 template <typename F>
-class [[nodiscard]] scope_success {
+class [[nodiscard]] BEMAN_SCOPE_EXPORT scope_success {
     F    f;
     bool active = true;
     int  exception_count{};
@@ -210,7 +212,7 @@ constexpr auto make_scope_success(F&& f) -> scope_success<std::decay_t<F>> {
 }
 
 template <typename Resource, typename Deleter>
-class [[nodiscard]] unique_resource {
+class [[nodiscard]] BEMAN_SCOPE_EXPORT unique_resource {
     Resource resource;
     Deleter  deleter;
     bool     active = true;

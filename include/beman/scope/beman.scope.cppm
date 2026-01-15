@@ -8,9 +8,6 @@ module;
 export module beman.scope;
 
 export namespace beman::scope {
-
-constexpr int get_version() { return 0; }
-
 using ::beman::scope::scope_exit;
 using ::beman::scope::scope_fail;
 using ::beman::scope::scope_success;

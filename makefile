@@ -32,7 +32,7 @@ else ifeq (${hostSystemName},Linux)
   export CXX=clang++-20
 endif
 
-.PHONY: all install coverage clean distclean
+.PHONY: all install coverage gclean distclean
 
 all: build/compile_commands.json
 	ln -sf $< .

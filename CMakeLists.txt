@@ -23,6 +23,8 @@ else()
 endif()
 
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
+set(CMAKE_CXX_VISIBILITY_PRESET hidden)
+set(CMAKE_VISIBILITY_INLINES_HIDDEN TRUE)
 
 # [CMAKE.SKIP_TESTS]
 option(
@@ -53,25 +55,40 @@ message(
 
 if(CMAKE_CXX_SCAN_FOR_MODULES)
     add_library(beman.scope)
+else()
+    add_library(beman.scope INTERFACE)
+endif()
+
+include(GenerateExportHeader)
+
+generate_export_header(
+    beman.scope
+    BASE_NAME beman.scope
+    EXPORT_FILE_NAME beman/scope/modules_export.hpp
+)
+
+if(CMAKE_CXX_SCAN_FOR_MODULES)
     target_sources(
         beman.scope
         PUBLIC
             FILE_SET HEADERS
-            BASE_DIRS include
+            BASE_DIRS include ${CMAKE_CURRENT_BINARY_DIR}
             FILES include/beman/scope/scope.hpp
+            ${CMAKE_CURRENT_BINARY_DIR}/beman/scope/modules_export.hpp
+
         PUBLIC
             FILE_SET CXX_MODULES
             BASE_DIRS include
             FILES include/beman/scope/beman.scope.cppm
     )
 else()
-    add_library(beman.scope INTERFACE)
     target_sources(
         beman.scope
         INTERFACE
             FILE_SET HEADERS
-            BASE_DIRS include
+            BASE_DIRS include ${CMAKE_CURRENT_BINARY_DIR}
             FILES include/beman/scope/scope.hpp
+            ${CMAKE_CURRENT_BINARY_DIR}/beman/scope/modules_export.hpp
     )
 endif()
 
