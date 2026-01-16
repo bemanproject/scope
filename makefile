@@ -50,8 +50,8 @@ build/compile_commands.json: CMakeLists.txt makefile
 install: build/cmake_install.cmake
 	cmake --install build
 
-distclean: clean
-	rm -rf build
+distclean: # XXX clean
+	rm -rf build compile_commands.json
 	find . -name '*~' -delete
 
 gclean: clean

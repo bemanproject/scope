@@ -34,10 +34,14 @@
 #    error "Standard <scope> present but __cpp_lib_scope_exit not defined"
 #  endif
 #endif
-// clang-format on
 
 #ifdef BEMAN_SCOPE_USE_FALLBACK
-#include "beman/scope/modules_export.hpp"
+#  if __has_include("beman/scope/modules_export.hpp")
+#    include "beman/scope/modules_export.hpp"
+#  else
+#    define BEMAN_SCOPE_EXPORT
+#  endif
+// clang-format on
 
 #include <exception>
 #include <type_traits>

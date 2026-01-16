@@ -55,17 +55,17 @@ message(
 
 if(CMAKE_CXX_SCAN_FOR_MODULES)
     add_library(beman.scope)
+
+    include(GenerateExportHeader)
+
+    generate_export_header(
+        beman.scope
+        BASE_NAME beman.scope
+        EXPORT_FILE_NAME beman/scope/modules_export.hpp
+    )
 else()
     add_library(beman.scope INTERFACE)
 endif()
-
-include(GenerateExportHeader)
-
-generate_export_header(
-    beman.scope
-    BASE_NAME beman.scope
-    EXPORT_FILE_NAME beman/scope/modules_export.hpp
-)
 
 if(CMAKE_CXX_SCAN_FOR_MODULES)
     target_sources(
@@ -88,7 +88,7 @@ else()
             FILE_SET HEADERS
             BASE_DIRS include ${CMAKE_CURRENT_BINARY_DIR}
             FILES include/beman/scope/scope.hpp
-            ${CMAKE_CURRENT_BINARY_DIR}/beman/scope/modules_export.hpp
+            # NO! ${CMAKE_CURRENT_BINARY_DIR}/beman/scope/modules_export.hpp
     )
 endif()
 
