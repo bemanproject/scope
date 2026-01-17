@@ -15,37 +15,50 @@
 // destroy noisy
 // scope exit: true success: true fail: false
 
+#include <cassert>
+
 // NOTE: this needs C++23! CK
 #ifdef HAS_MODULE_STD
 import std;
-#else
-#include <print>
 #endif
 
+// for g++-15 the order is important -- import after #includes
 import beman.scope;
 
-// clang-format off
-struct noisy_resource {
-    noisy_resource()  { std::print( "construct noisy\n" ); }
-    ~noisy_resource() { std::print( "destroy noisy\n"   ); }
+namespace {
+
+struct DummyResource {
+    bool& cleaned;
+
+    DummyResource(bool& flag) : cleaned(flag) { cleaned = false; }
+
+    [[nodiscard]] bool is_clean() const { return cleaned; }
 };
+
+} // namespace
 
 int main() {
 
     bool exit_ran{};
     bool success_ran{};
     bool fail_ran{};
+    bool cleaned{true};
     {
-        std::print("--> scope start\n");
+        // clang-format off
         beman::scope::scope_exit    _se([&exit_ran]    { exit_ran = true;    });
         beman::scope::scope_success _ss([&success_ran] { success_ran = true; });
         beman::scope::scope_fail    _sf([&fail_ran]    { fail_ran = true;    });
-        auto                        resource_ptr = beman::scope::unique_resource(new noisy_resource(),
-                                                          // Cleanup function
-                                                          [](noisy_resource* ptr) { delete ptr; });
-        std::print("--> scope end\n");
+        auto resource_ptr = beman::scope::unique_resource(new DummyResource(cleaned),
+                [](DummyResource* ptr) { ptr->cleaned = true; delete ptr; });
+        //  clang-format on
+
+        assert(cleaned == false);
+        assert(resource_ptr->is_clean() == false);
     } // Normal scope exit
 
-    std::print("scope exit: {} success: {} fail: {} \n", exit_ran, success_ran, fail_ran);
+    assert(exit_ran == true);
+    assert(success_ran == true);
+    assert(fail_ran == false);
+    assert(cleaned == true);
 }
 // clang-format on

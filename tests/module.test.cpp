@@ -3,8 +3,10 @@
 #define CATCH_CONFIG_MAIN
 #include <catch2/catch_all.hpp>
 
-// for g++-15 the order is important -- import after includes
+// for g++-15 the order is important -- import after #includes
 import beman.scope;
+
+namespace {
 
 struct DummyResource {
     bool& cleaned;
@@ -13,6 +15,8 @@ struct DummyResource {
 
     [[nodiscard]] bool is_clean() const { return cleaned; }
 };
+
+} // namespace
 
 TEST_CASE("module-test", "[scope_module_test]") {
     bool exit_ran{};
