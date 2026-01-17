@@ -443,7 +443,7 @@ using scope_fail = scope_guard<ExitFunc,
 } // namespace beman::scope
 
 #else
-#include "scope_impl.hpp"
+#include "beman/scope/scope_impl.hpp"
 
 #endif // BEMAN_SCOPE_USE_STD_EXPERIMENTAL
 

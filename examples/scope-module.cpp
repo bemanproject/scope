@@ -15,12 +15,12 @@
 // destroy noisy
 // scope exit: true success: true fail: false
 
-// #ifdef HAS_MODULE_STD
+// NOTE: this needs C++23! CK
+#ifdef HAS_MODULE_STD
 import std;
-// #else
-// NOTE: this needs C++23!
-// #include <print>
-// #endif
+#else
+#include <print>
+#endif
 
 import beman.scope;
 

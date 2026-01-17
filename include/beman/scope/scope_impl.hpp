@@ -307,14 +307,11 @@ constexpr auto make_unique_resource_checked(R&& r, const Invalid& invalid, D&& d
     using resource_type = std::decay_t<R>;
     using deleter_type  = std::decay_t<D>;
 
+    unique_resource<resource_type, deleter_type> ur(resource_type{}, std::forward<D>(d));
     if (r == invalid) {
-        // Disengaged resource
-        unique_resource<resource_type, deleter_type> ur(resource_type{}, std::forward<D>(d));
         ur.release(); // disengage immediately
-        return ur;
     }
-
-    return unique_resource<resource_type, deleter_type>(std::forward<R>(r), std::forward<D>(d));
+    return ur;
 }
 
 } // namespace beman::scope

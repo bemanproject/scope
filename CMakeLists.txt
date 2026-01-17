@@ -47,11 +47,13 @@ option(
 )
 
 message(
-    "Compiler is: ${CMAKE_CXX_COMPILER_ID} version:  ${CMAKE_CXX_COMPILER_VERSION}"
+    "Compiler is: ${CMAKE_CXX_COMPILER_ID} version: ${CMAKE_CXX_COMPILER_VERSION}"
 )
 message(
-    "cmake is: ${CMAKE_VERSION} modules scan :  ${CMAKE_CXX_SCAN_FOR_MODULES}"
+    "cmake is: ${CMAKE_VERSION} modules scan: ${CMAKE_CXX_SCAN_FOR_MODULES}"
 )
+
+# gersemi: on
 
 if(CMAKE_CXX_SCAN_FOR_MODULES)
     add_library(beman.scope)
@@ -72,50 +74,50 @@ if(CMAKE_CXX_SCAN_FOR_MODULES)
         beman.scope
         PUBLIC
             FILE_SET HEADERS
-            BASE_DIRS include ${CMAKE_CURRENT_BINARY_DIR}
-            FILES include/beman/scope/scope.hpp
-            ${CMAKE_CURRENT_BINARY_DIR}/beman/scope/modules_export.hpp
-
+                BASE_DIRS include ${CMAKE_CURRENT_BINARY_DIR}
+                FILES
+                    include/beman/scope/scope.hpp
+                    include/beman/scope/scope_impl.hpp
+                    ${CMAKE_CURRENT_BINARY_DIR}/beman/scope/modules_export.hpp
         PUBLIC
             FILE_SET CXX_MODULES
-            BASE_DIRS include
-            FILES include/beman/scope/beman.scope.cppm
+                BASE_DIRS include
+                FILES include/beman/scope/beman.scope.cppm
     )
 else()
     target_sources(
         beman.scope
         INTERFACE
             FILE_SET HEADERS
-            BASE_DIRS include ${CMAKE_CURRENT_BINARY_DIR}
-            FILES include/beman/scope/scope.hpp
-            # NO! ${CMAKE_CURRENT_BINARY_DIR}/beman/scope/modules_export.hpp
+                BASE_DIRS include ${CMAKE_CURRENT_BINARY_DIR}
+                FILES include/beman/scope/scope.hpp
+        # NO! ${CMAKE_CURRENT_BINARY_DIR}/beman/scope/modules_export.hpp
     )
 endif()
 
+target_compile_features(beman.scope PUBLIC cxx_std_20)
 add_library(beman::scope ALIAS beman.scope)
 
 set_target_properties(
     beman.scope
-    PROPERTIES
-        VERIFY_INTERFACE_HEADER_SETS ON
-        EXPORT_NAME scope
+    PROPERTIES VERIFY_INTERFACE_HEADER_SETS ON EXPORT_NAME scope
 )
 
 include(GNUInstallDirs)
 
+set(package_install_dir ${CMAKE_INSTALL_LIBDIR}/cmake/beman.scope)
+
+# TBD: always? CK
 install(
     TARGETS beman.scope
     COMPONENT beman.scope
     EXPORT beman.scope-targets
-
-    FILE_SET CXX_MODULES
-        DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
+    FILE_SET CXX_MODULES DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
     CXX_MODULES_BMI
-        DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/beman.scope/bmi-${CMAKE_CXX_COMPILER_ID}_$<CONFIG>
+        DESTINATION
+            ${package_install_dir}/bmi-${CMAKE_CXX_COMPILER_ID}_$<CONFIG>
     FILE_SET HEADERS
 )
-
-# gersemi: on
 
 if(BEMAN_SCOPE_INSTALL_CONFIG_FILE_PACKAGE)
     include(CMakePackageConfigHelpers)
@@ -129,13 +131,13 @@ if(BEMAN_SCOPE_INSTALL_CONFIG_FILE_PACKAGE)
         FILES
             cmake/beman.scope-config.cmake
             ${CMAKE_CURRENT_BINARY_DIR}/beman.scope-config-version.cmake
-        DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/beman.scope
+        DESTINATION ${package_install_dir}
         COMPONENT beman.scope
     )
 
     install(
         EXPORT beman.scope-targets
-        DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/beman.scope
+        DESTINATION ${package_install_dir}
         NAMESPACE beman::
         CXX_MODULES_DIRECTORY
         cxx-modules
@@ -143,8 +145,9 @@ if(BEMAN_SCOPE_INSTALL_CONFIG_FILE_PACKAGE)
     )
 endif()
 
+enable_testing()
+
 if(BEMAN_SCOPE_BUILD_TESTS)
-    enable_testing()
     add_subdirectory(tests)
 endif()
 

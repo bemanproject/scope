@@ -68,7 +68,7 @@ TEST_CASE("unique_resource does not clean up after release", "[unique_resource]"
             [](DummyResource r) { *(r.cleanedUp) = true; }
         );
 
-        res.release(); //no cleanup run
+        res.release(); // no cleanup run
     }
 
     REQUIRE(cleaned == false);
