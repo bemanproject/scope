@@ -84,18 +84,20 @@ if(CMAKE_CXX_SCAN_FOR_MODULES)
                 BASE_DIRS include
                 FILES include/beman/scope/beman.scope.cppm
     )
+    target_compile_features(beman.scope PUBLIC cxx_std_20)
 else()
     target_sources(
         beman.scope
         INTERFACE
             FILE_SET HEADERS
                 BASE_DIRS include ${CMAKE_CURRENT_BINARY_DIR}
-                FILES include/beman/scope/scope.hpp
+                FILES
+                    include/beman/scope/scope.hpp
+                    include/beman/scope/scope_impl.hpp
         # NO! ${CMAKE_CURRENT_BINARY_DIR}/beman/scope/modules_export.hpp
     )
 endif()
 
-target_compile_features(beman.scope PUBLIC cxx_std_20)
 add_library(beman::scope ALIAS beman.scope)
 
 set_target_properties(

@@ -319,10 +319,10 @@ constexpr auto make_unique_resource_checked(R&& r, const Invalid& invalid, D&& d
 #elifdef BEMAN_SCOPE_USE_STD_EXPERIMENTAL
 
 namespace beman::scope {
-using std::experimental::scope_exit;
-using std::experimental::scope_fail;
-using std::experimental::scope_success;
-using std::experimental::unique_resource;
+using ::std::experimental::scope_exit;
+using ::std::experimental::scope_fail;
+using ::std::experimental::scope_success;
+using ::std::experimental::unique_resource;
 } // namespace beman::scope
   //
 #endif // BEMAN_SCOPE_USE_FALLBACK

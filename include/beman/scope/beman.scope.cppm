@@ -3,7 +3,7 @@
 // g++-15 -std=c++26 -O2 -fmodules -fmodule-only -c ${scopetop}/include/beman/scope/beman.scope.cppm
 module;
 
-#include "beman/scope/scope.hpp"
+#include <beman/scope/scope.hpp>
 
 export module beman.scope;
 

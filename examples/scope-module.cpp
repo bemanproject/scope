@@ -32,12 +32,14 @@ struct noisy_resource {
 
 int main() {
 
-    bool exit_ran, success_ran, fail_ran = false;
+    bool exit_ran{};
+    bool success_ran{};
+    bool fail_ran{};
     {
         std::print("--> scope start\n");
-        beman::scope::scope_exit    _([&exit_ran]    { exit_ran = true;    });
-        beman::scope::scope_success _([&success_ran] { success_ran = true; });
-        beman::scope::scope_fail    _([&fail_ran]    { fail_ran = true;    });
+        beman::scope::scope_exit    _se([&exit_ran]    { exit_ran = true;    });
+        beman::scope::scope_success _ss([&success_ran] { success_ran = true; });
+        beman::scope::scope_fail    _sf([&fail_ran]    { fail_ran = true;    });
         auto                        resource_ptr = beman::scope::unique_resource(new noisy_resource(),
                                                           // Cleanup function
                                                           [](noisy_resource* ptr) { delete ptr; });
@@ -46,3 +48,4 @@ int main() {
 
     std::print("scope exit: {} success: {} fail: {} \n", exit_ran, success_ran, fail_ran);
 }
+// clang-format on

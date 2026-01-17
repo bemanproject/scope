@@ -7,9 +7,11 @@
       "generator": "Ninja",
       "binaryDir": "${sourceDir}/build/${presetName}",
       "cacheVariables": {
-        "CMAKE_CXX_STANDARD": "20",
-        "CMAKE_EXPORT_COMPILE_COMMANDS": "ON",
-        "CMAKE_PROJECT_TOP_LEVEL_INCLUDES": "./infra/cmake/use-fetch-content.cmake"
+        "CMAKE_CXX_EXTENSIONS": true,
+        "CMAKE_CXX_STANDARD": "23",
+        "CMAKE_CXX_STANDARD_REQUIRED": true,
+        "CMAKE_EXPORT_COMPILE_COMMANDS": true,
+        "CMAKE_PROJECT_TOP_LEVEL_INCLUDES": "infra/cmake/use-fetch-content.cmake"
       }
     },
     {
@@ -68,7 +70,7 @@
         "_release-base"
       ],
       "cacheVariables": {
-        "CMAKE_TOOLCHAIN_FILE": "infra/cmake/llvm-toolchain.cmake"
+        "CMAKE_TOOLCHAIN_FILE": "infra/cmake/llvm-libc++-toolchain.cmake"
       }
     },
     {
@@ -79,7 +81,6 @@
         "_debug-base"
       ],
       "cacheVariables": {
-        "CMAKE_CXX_STANDARD": "23",
         "CMAKE_TOOLCHAIN_FILE": "infra/cmake/appleclang-toolchain.cmake"
       }
     },
@@ -91,7 +92,6 @@
         "_release-base"
       ],
       "cacheVariables": {
-        "CMAKE_CXX_STANDARD": "23",
         "CMAKE_TOOLCHAIN_FILE": "infra/cmake/appleclang-toolchain.cmake"
       }
     },
@@ -103,7 +103,6 @@
         "_debug-base"
       ],
       "cacheVariables": {
-        "CMAKE_CXX_STANDARD": "23",
         "BUILD_SHARED_LIBS": false,
         "CMAKE_TOOLCHAIN_FILE": "infra/cmake/msvc-toolchain.cmake"
       }
@@ -116,7 +115,6 @@
         "_release-base"
       ],
       "cacheVariables": {
-        "CMAKE_CXX_STANDARD": "23",
         "BUILD_SHARED_LIBS": false,
         "CMAKE_TOOLCHAIN_FILE": "infra/cmake/msvc-toolchain.cmake"
       }
