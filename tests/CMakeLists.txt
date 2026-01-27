@@ -2,12 +2,18 @@
 
 include(FetchContent)
 
+if(APPLE AND CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
+    set(_FIND_PACKAGE_ARGS)
+else()
+    set(_FIND_PACKAGE_ARGS FIND_PACKAGE_ARGS 3.11)
+endif()
+
 FetchContent_Declare(
     Catch2
     GIT_REPOSITORY https://github.com/catchorg/Catch2.git
     GIT_TAG v3.11.0
     EXCLUDE_FROM_ALL
-    # NO! FIND_PACKAGE_ARGS 3.11
+    ${_FIND_PACKAGE_ARGS}
 )
 FetchContent_MakeAvailable(Catch2)
 

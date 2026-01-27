@@ -32,7 +32,7 @@ else ifeq (${hostSystemName},Linux)
   export CXX=clang++-20
 endif
 
-.PHONY: all install coverage gclean distclean
+.PHONY: all install coverage gclean distclean format
 
 all: build/compile_commands.json
 	ln -sf $< .
@@ -62,6 +62,10 @@ build/coverage: test
 
 coverage: build/coverage
 	gcovr  --merge-mode-functions separate
+
+format: distclean
+	pre-commit autoupdate
+	pre-commit run --all
 
 # Anything we don't know how to build will use this rule.
 % ::
