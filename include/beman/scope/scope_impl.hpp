@@ -3,49 +3,53 @@
 #ifndef SCOPE_IMPL_HPP
 #define SCOPE_IMPL_HPP
 
-// clang-format off
-#include <version>
+#define BEMAN_SCOPE_USE_FALLBACK
 
-#if defined(__cpp_concepts) && __cpp_concepts >= 201907L
-  // C++20 concepts supported
-#elif __cplusplus < 202002L
-#  error "C++20 or later is required"
-#endif
+#ifdef BEMAN_SCOPE_IMPORT_STD
+    #include <version>
 
-// detect standard header first, then experimental, otherwise use local implementation
-#ifdef __has_include
-#  if __has_include(<scope>)
-#    include <scope>
-#    define BEMAN_SCOPE_USE_STD
-// XXX #warning "Set BEMAN_SCOPE_USE_STD"
-#  elif __has_include(<experimental/scope>)
-#    include <experimental/scope>
-#    define BEMAN_SCOPE_USE_STD_EXPERIMENTAL
-// XXX #warning "Set BEMAN_SCOPE_USE_STD_EXPERIMENTAL"
-#  else
-#    define BEMAN_SCOPE_USE_FALLBACK
-#  endif
-#else
-#  define BEMAN_SCOPE_USE_FALLBACK
-#endif
+    #if defined(__cpp_concepts) && __cpp_concepts >= 201907L
+        // C++20 concepts supported
+    #elif __cplusplus < 202002L
+        #error "C++20 or later is required"
+    #endif
 
-#ifdef BEMAN_SCOPE_USE_STD
-#  if !defined(__cpp_lib_scope_exit)
-#    error "Standard <scope> present but __cpp_lib_scope_exit not defined"
-#  endif
+    // detect standard header first, then experimental, otherwise use local implementation
+    #ifndef BEMAN_SCOPE_USE_FALLBACK
+        #ifdef __has_include
+            #if __has_include(<scope>)
+                #include <scope>
+                #define BEMAN_SCOPE_USE_STD
+            // XXX #warning "Set BEMAN_SCOPE_USE_STD"
+            #elif __has_include(<experimental/scope>)
+                #include <experimental/scope>
+                #define BEMAN_SCOPE_USE_STD_EXPERIMENTAL
+            // XXX #warning "Set BEMAN_SCOPE_USE_STD_EXPERIMENTAL"
+            #else
+                #define BEMAN_SCOPE_USE_FALLBACK
+            #endif
+        #else
+            #define BEMAN_SCOPE_USE_FALLBACK
+        #endif
+    #endif
+
+    #ifdef BEMAN_SCOPE_USE_STD
+        #if !defined(__cpp_lib_scope_exit)
+            #error "Standard <scope> present but __cpp_lib_scope_exit not defined"
+        #endif
+    #endif
 #endif
 
 #ifdef BEMAN_SCOPE_USE_FALLBACK
-#  if __has_include("beman/scope/modules_export.hpp")
-#    include "beman/scope/modules_export.hpp"
-#  else
-#    define BEMAN_SCOPE_EXPORT
-#  endif
-// clang-format on
+    #if __has_include("beman/scope/modules_export.hpp")
+        #include "beman/scope/modules_export.hpp"
+    #else
+        #define BEMAN_SCOPE_EXPORT
+    #endif
 
-#include <exception>
-#include <type_traits>
-#include <utility>
+    #include <exception>
+    #include <type_traits>
+    #include <utility>
 
 namespace beman::scope {
 
@@ -122,7 +126,7 @@ class [[nodiscard]] BEMAN_SCOPE_EXPORT scope_fail {
     // Move assignment
     constexpr auto operator=(scope_fail&& other) noexcept(std::is_nothrow_move_assignable_v<F>)
         -> scope_fail& = delete;
-#if MOVE_ASSIGNMENT_NEEDED
+    #if MOVE_ASSIGNMENT_NEEDED
     G {
         if (this != &other) {
             f               = std::move(other.f);
@@ -132,7 +136,7 @@ class [[nodiscard]] BEMAN_SCOPE_EXPORT scope_fail {
         }
         return *this;
     }
-#endif
+    #endif
 
     // Destructor: call if scope is exiting due to an exception
     ~scope_fail() noexcept(noexcept(f())) {
@@ -182,7 +186,7 @@ class [[nodiscard]] BEMAN_SCOPE_EXPORT scope_success {
     // Move assignment
     constexpr auto operator=(scope_success&& other) noexcept(std::is_nothrow_move_assignable_v<F>)
         -> scope_success& = delete;
-#if MOVE_ASSIGNMENT_NEEDED
+    #if MOVE_ASSIGNMENT_NEEDED
     {
         if (this != &other) {
             f               = std::move(other.f);
@@ -192,7 +196,7 @@ class [[nodiscard]] BEMAN_SCOPE_EXPORT scope_success {
         }
         return *this;
     }
-#endif
+    #endif
 
     // Destructor: call only if scope is exiting normally
     ~scope_success() noexcept(noexcept(f())) {

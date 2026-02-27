@@ -5,13 +5,13 @@ include(FetchContent)
 if(APPLE AND CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
     set(_FIND_PACKAGE_ARGS)
 else()
-    set(_FIND_PACKAGE_ARGS FIND_PACKAGE_ARGS 3.11)
+    set(_FIND_PACKAGE_ARGS FIND_PACKAGE_ARGS 3.13)
 endif()
 
 FetchContent_Declare(
     Catch2
     GIT_REPOSITORY https://github.com/catchorg/Catch2.git
-    GIT_TAG v3.11.0
+    GIT_TAG v3.13.0
     EXCLUDE_FROM_ALL
     ${_FIND_PACKAGE_ARGS}
 )
@@ -60,12 +60,13 @@ if(BEMAN_SCOPE_INSTALL_CONFIG_FILE_PACKAGE)
             "${CMAKE_SOURCE_DIR}/examples"
             "${CMAKE_CURRENT_BINARY_DIR}/find-package-test" --build-generator
             ${CMAKE_GENERATOR} --build-makeprogram ${CMAKE_MAKE_PROGRAM}
-            --build-options "-DCMAKE_CXX_COMPILER=${CMAKE_CXX_COMPILER}"
-            "-DCMAKE_CXX_STANDARD=${CMAKE_CXX_STANDARD}"
-            "-DCMAKE_CXX_EXTENSIONS=${CMAKE_CXX_EXTENSIONS}"
-            "-DCMAKE_CXX_MODULE_STD=${CMAKE_CXX_MODULE_STD}"
-            "-DCMAKE_CXX_SCAN_FOR_MODULES=${CMAKE_CXX_SCAN_FOR_MODULES}"
-            "-DCMAKE_BUILD_TYPE=$<CONFIG>"
-            "-DCMAKE_PREFIX_PATH=${CMAKE_BINARY_DIR}/stagedir"
+            --build-options #
+            "-D BEMAN_SCOPE_IMPORT_STD=${BEMAN_SCOPE_IMPORT_STD}"
+            "-D CMAKE_CXX_COMPILER=${CMAKE_CXX_COMPILER}"
+            "-D CMAKE_CXX_STANDARD=${CMAKE_CXX_STANDARD}"
+            "-D CMAKE_CXX_EXTENSIONS=${CMAKE_CXX_EXTENSIONS}"
+            "-D CMAKE_CXX_SCAN_FOR_MODULES=${CMAKE_CXX_SCAN_FOR_MODULES}"
+            "-D CMAKE_BUILD_TYPE=$<CONFIG>"
+            "-D CMAKE_PREFIX_PATH=${CMAKE_BINARY_DIR}/stagedir"
     )
 endif()

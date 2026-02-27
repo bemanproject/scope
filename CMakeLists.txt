@@ -1,6 +1,6 @@
 # SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
 
-cmake_minimum_required(VERSION 3.28...4.2)
+cmake_minimum_required(VERSION 3.30...4.3)
 
 project(
     beman.scope
@@ -56,6 +56,13 @@ message(
 # gersemi: on
 
 if(CMAKE_CXX_SCAN_FOR_MODULES)
+    if(NOT DEFINED CMAKE_CXX_STANDARD)
+        set(CMAKE_CXX_STANDARD 23)
+    endif()
+
+    # TODO(CK): check if possible to enable
+    option(BEMAN_SCOPE_IMPORT_STD "use import std; if possible" OFF)
+
     add_library(beman.scope)
 
     include(GenerateExportHeader)
@@ -65,6 +72,10 @@ if(CMAKE_CXX_SCAN_FOR_MODULES)
         BASE_NAME beman.scope
         EXPORT_FILE_NAME beman/scope/modules_export.hpp
     )
+    if(BEMAN_SCOPE_IMPORT_STD)
+        set_target_properties(beman.scope PROPERTIES CXX_MODULE_STD ON)
+        target_compile_definitions(beman.scope PUBLIC BEMAN_SCOPE_IMPORT_STD)
+    endif()
 else()
     add_library(beman.scope INTERFACE)
 endif()
@@ -84,7 +95,7 @@ if(CMAKE_CXX_SCAN_FOR_MODULES)
                 BASE_DIRS include
                 FILES include/beman/scope/beman.scope.cppm
     )
-    target_compile_features(beman.scope PUBLIC cxx_std_20)
+    target_compile_features(beman.scope PUBLIC cxx_std_${CMAKE_CXX_STANDARD})
 else()
     target_sources(
         beman.scope

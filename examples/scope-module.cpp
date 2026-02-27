@@ -18,7 +18,7 @@
 #include <cassert>
 
 // NOTE: this needs C++23! CK
-#ifdef HAS_MODULE_STD
+#ifdef BEMAN_SCOPE_IMPORT_STD
 import std;
 #endif
 
