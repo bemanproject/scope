@@ -3,7 +3,7 @@
 .SUFFIXES:
 
 MAKEFLAGS+= --no-builtin-rules  # Disable the built-in implicit rules.
-# MAKEFLAGS+= --warn-undefined-variables        # Warn when an undefined variable is referenced.
+MAKEFLAGS+= --warn-undefined-variables  # Warn when an undefined variable is referenced.
 
 export hostSystemName=$(shell uname)
 
@@ -33,7 +33,7 @@ else ifeq (${hostSystemName},Linux)
   export CXX:=clang++-20
 endif
 
-.PHONY: all ctest install coverage gclean distclean format
+.PHONY: all ctest cinstall coverage gclean distclean format
 
 all: build/compile_commands.json
 	ln -sf $< .
@@ -44,7 +44,7 @@ ctest:
 	ctest --test-dir build --verbose --rerun-failed --output-on-failure
 
 build/compile_commands.json: CMakeLists.txt makefile
-	cmake -S . -B build -G Ninja --log-level=DEBUG -D CMAKE_BUILD_TYPE=Release \
+	cmake -S . -B build -G Ninja --log-level=VERBOSE -D CMAKE_BUILD_TYPE=Release \
 	 -D CMAKE_CXX_STDLIB_MODULES_JSON=${CMAKE_CXX_STDLIB_MODULES_JSON} \
 	 -D CMAKE_CXX_STANDARD=26 -D CMAKE_CXX_EXTENSIONS=YES -D CMAKE_CXX_STANDARD_REQUIRED=YES \
 	 -D CMAKE_INSTALL_MESSAGE=LAZY \
@@ -55,7 +55,7 @@ build/compile_commands.json: CMakeLists.txt makefile
 	# XXX -D CMAKE_CXX_FLAGS='-fno-inline --coverage' \
 	# XXX -D CMAKE_SKIP_INSTALL_RULES=YES # --fresh
 
-install: build/cmake_install.cmake
+cinstall: build/cmake_install.cmake
 	cmake --install build
 
 distclean: # XXX clean

@@ -4,6 +4,9 @@
 #include <catch2/catch_all.hpp>
 
 // for g++-15 the order is important -- import after #includes
+#ifdef BEMAN_SCOPE_IMPORT_STD
+import std;
+#endif
 import beman.scope;
 
 namespace {

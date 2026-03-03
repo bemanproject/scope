@@ -22,6 +22,7 @@ if(BEMAN_USE_MODULES)
     set(CMAKE_CXX_VISIBILITY_PRESET hidden)
     set(CMAKE_VISIBILITY_INLINES_HIDDEN ON)
 endif()
+#===============================================================================
 
 # gersemi: off
 
@@ -56,15 +57,51 @@ if(BEMAN_USE_MODULES)
     option(BEMAN_SCOPE_IMPORT_STD "Use import std;" ${BEMAN_HAS_IMPORT_STD})
 
     add_library(beman.scope)
-
     include(GenerateExportHeader)
-
     generate_export_header(
         beman.scope
         BASE_NAME beman.scope
         EXPORT_FILE_NAME beman/scope/modules_export.hpp
     )
+
+    if(CMAKE_CXX_COMPILER_ID MATCHES "Clang")
+        # ---------------------------------------------------------------------------
+        # TODO(daniela): I do mean C++20
+        # ---------------------------------------------------------------------------
+        target_compile_options(
+            beman.scope
+            PUBLIC
+                -fsized-deallocation
+                -faligned-allocation
+                -Wno-include-angled-in-module-purview
+        )
+    endif()
+
     if(BEMAN_SCOPE_IMPORT_STD)
+        # ---------------------------------------------------------------------------
+        # Ensure binaries find the correct libstdc++ at runtime when using a
+        # non-system GCC (e.g. /opt/gcc-16). Without this, CTest fails because the
+        # dynamic linker finds the system's older libstdc++ which lacks required
+        # GLIBCXX symbols.
+        # ---------------------------------------------------------------------------
+        if(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
+            set(_suffix .so)
+            if(APPLE)
+                set(_suffix .dylib)
+            endif()
+            execute_process(
+                COMMAND
+                    ${CMAKE_CXX_COMPILER} -print-file-name=libstdc++${_suffix}
+                OUTPUT_VARIABLE _gcc_stdcxx_path
+                OUTPUT_STRIP_TRAILING_WHITESPACE
+            )
+            if(_gcc_stdcxx_path)
+                cmake_path(GET _gcc_stdcxx_path PARENT_PATH _gcc_lib_dir)
+                get_filename_component(_gcc_lib_dir "${_gcc_lib_dir}" REALPATH)
+                list(APPEND CMAKE_BUILD_RPATH "${_gcc_lib_dir}")
+                message(STATUS "GCC libstdc++ rpath: ${_gcc_lib_dir}")
+            endif()
+        endif()
         set_target_properties(beman.scope PROPERTIES CXX_MODULE_STD ON)
         target_compile_definitions(beman.scope PUBLIC BEMAN_SCOPE_IMPORT_STD)
     endif()
@@ -91,17 +128,24 @@ if(BEMAN_USE_MODULES)
                 FILES include/beman/scope/beman.scope.cppm
     )
 
+    # ---------------------------------------------------------------------------
     # CMake requires the language standard to be specified as compile feature
     # when a target provides C++23 modules and the target will be installed
+    # ---------------------------------------------------------------------------
     target_compile_features(beman.scope PUBLIC cxx_std_${CMAKE_CXX_STANDARD})
 
-    # FIXME: Quickfix only to prevent linker problems on windows dll? CK
+    # ---------------------------------------------------------------------------
+    # FIXME: Quickfix only to prevent linker problems on windows with dll
+    #        it should not needed and it does not help? CK
+    # We have NO exported symbols and so NO generated .lib on windows!
+    # ---------------------------------------------------------------------------
     if(WIN32 AND BUILD_SHARED_LIBS)
         set_target_properties(
             beman.scope
             PROPERTIES WINDOWS_EXPORT_ALL_SYMBOLS ON
         )
     endif()
+
     set_target_properties(beman.scope PROPERTIES EXPORT_NAME scope)
     list(APPEND BEMAN_SCOPE_TARGETS beman.scope)
 endif()
@@ -130,7 +174,9 @@ include(GNUInstallDirs)
 
 set(package_install_dir ${CMAKE_INSTALL_LIBDIR}/cmake/beman.scope)
 
-# TBD: always? CK
+# ---------------------------------------------------------------------------
+# TBD: install targets always? CK
+# ---------------------------------------------------------------------------
 install(
     TARGETS ${BEMAN_SCOPE_TARGETS}
     COMPONENT beman.scope
@@ -168,6 +214,9 @@ if(BEMAN_SCOPE_INSTALL_CONFIG_FILE_PACKAGE)
     )
 endif()
 
+# ---------------------------------------------------------------------------
+# NOTE: we use ctest in examples too! CK
+# ---------------------------------------------------------------------------
 enable_testing()
 
 if(BEMAN_SCOPE_BUILD_TESTS)

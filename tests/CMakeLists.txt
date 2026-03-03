@@ -2,11 +2,11 @@
 
 include(FetchContent)
 
-# if(APPLE AND CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
-#     set(_FIND_PACKAGE_ARGS)
-# else()
-set(_FIND_PACKAGE_ARGS FIND_PACKAGE_ARGS 3.13)
-# endif()
+if(APPLE AND CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
+    set(_FIND_PACKAGE_ARGS)
+else()
+    set(_FIND_PACKAGE_ARGS FIND_PACKAGE_ARGS 3.13)
+endif()
 
 FetchContent_Declare(
     Catch2
@@ -34,6 +34,10 @@ if(BEMAN_USE_MODULES)
         test.module
         PRIVATE Catch2::Catch2WithMain beman::scope
     )
+    if(BEMAN_SCOPE_IMPORT_STD)
+        set_target_properties(test.module PROPERTIES CXX_MODULE_STD ON)
+    endif()
+    # NO! add_test(NAME test.module COMMAND test.module)
     catch_discover_tests(test.module)
 endif()
 

@@ -15,14 +15,15 @@
 // destroy noisy
 // scope exit: true success: true fail: false
 
+// NOTE: not included in gcc-15 libstdc++ std module? CK
 #include <cassert>
 
-// NOTE: this needs C++23! CK
+// for g++-15 the order is important -- import after #includes
 #ifdef BEMAN_SCOPE_IMPORT_STD
+// NOTE: this needs C++23! CK
 import std;
 #endif
 
-// for g++-15 the order is important -- import after #includes
 import beman.scope;
 
 namespace {
