@@ -13,37 +13,45 @@ ifeq (${hostSystemName},Darwin)
   export PATH:=${LLVM_DIR}/bin:${PATH}
 
   export CMAKE_CXX_STDLIB_MODULES_JSON:=${LLVM_DIR}/lib/c++/libc++.modules.json
-  export CXX=clang++
-  export LDFLAGS=-L$(LLVM_DIR)/lib/c++ -lc++abi # XXX -lc++
-  # FIXME: export GCOV:="llvm-cov gcov"
+  export CXXFLAGS:=-stdlib=libc++
+  export LDFLAGS:=-L$(LLVM_DIR)/lib/c++ -lc++abi # XXX -lc++
+  export CXX:=clang++
+  export GCOV:="llvm-cov gcov"
 
   ### TODO: to test g++-15:
   export GCC_PREFIX:=$(shell brew --prefix gcc)
   export GCC_DIR:=$(shell realpath ${GCC_PREFIX})
 
   # export CMAKE_CXX_STDLIB_MODULES_JSON:=${GCC_DIR}/lib/gcc/current/libstdc++.modules.json
-  # export CXX:=g++-15
   # export CXXFLAGS:=-stdlib=libstdc++
+  # export LDFLAGS:=-L$(GCC_DIR)/lib/gcc/current # XXX -lstdc++ -lstdc++exp
+  # export CXX:=g++-15
   # export GCOV:="gcov"
 else ifeq (${hostSystemName},Linux)
-	export LLVM_DIR:=/usr/lib/llvm-20
+  export LLVM_DIR:=/usr/lib/llvm-20
   export PATH:=${LLVM_DIR}/bin:${PATH}
   export CXX:=clang++-20
 endif
 
-.PHONY: all install coverage gclean distclean format
+.PHONY: all ctest install coverage gclean distclean format
 
 all: build/compile_commands.json
 	ln -sf $< .
-	ninja -C build
+	ninja -C build all all_verify_interface_header_sets
+	ninja -C build test
+
+ctest:
+	ctest --test-dir build --verbose --rerun-failed --output-on-failure
 
 build/compile_commands.json: CMakeLists.txt makefile
 	cmake -S . -B build -G Ninja --log-level=DEBUG -D CMAKE_BUILD_TYPE=Release \
-	 -D CMAKE_EXPERIMENTAL_CXX_IMPORT_STD="d0edc3af-4c50-42ea-a356-e2862fe7a444" \
 	 -D CMAKE_CXX_STDLIB_MODULES_JSON=${CMAKE_CXX_STDLIB_MODULES_JSON} \
-	 -D CMAKE_CXX_STANDARD=23 -D CMAKE_CXX_EXTENSIONS=YES -D CMAKE_CXX_STANDARD_REQUIRED=YES \
-	 -D BEMAN_SCOPE_IMPORT_STD=NO \
+	 -D CMAKE_CXX_STANDARD=26 -D CMAKE_CXX_EXTENSIONS=YES -D CMAKE_CXX_STANDARD_REQUIRED=YES \
 	 -D CMAKE_INSTALL_MESSAGE=LAZY \
+	 -D BEMAN_USE_MODULES=YES \
+	 -D BEMAN_USE_STD_MODULE=YES \
+	 -D BEMAN_SCOPE_USE_DANIELA_ADVICE=YES \
+	 -D CMAKE_SKIP_TEST_ALL_DEPENDENCY=NO \
 	# XXX -D CMAKE_CXX_FLAGS='-fno-inline --coverage' \
 	# XXX -D CMAKE_SKIP_INSTALL_RULES=YES # --fresh
 

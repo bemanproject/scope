@@ -13,10 +13,10 @@ on:
 
 jobs:
   beman-submodule-check:
-    uses: bemanproject/infra-workflows/.github/workflows/reusable-beman-submodule-check.yml@1.2.1
+    uses: bemanproject/infra-workflows/.github/workflows/reusable-beman-submodule-check.yml@1.3.0
 
   preset-test:
-    uses: bemanproject/infra-workflows/.github/workflows/reusable-beman-preset-test.yml@1.2.1
+    uses: bemanproject/infra-workflows/.github/workflows/reusable-beman-preset-test.yml@1.3.0
     with:
       matrix_config: >
         [
@@ -31,7 +31,7 @@ jobs:
         ]
 
   build-and-test:
-    uses: bemanproject/infra-workflows/.github/workflows/reusable-beman-build-and-test.yml@1.2.1
+    uses: bemanproject/infra-workflows/.github/workflows/reusable-beman-build-and-test.yml@1.3.0
     with:
       matrix_config: >
         {
@@ -42,9 +42,9 @@ jobs:
                   "tests": [
                     { "stdlibs": ["libstdc++"],
                       "tests": [
-                        "Debug.Default", "Release.Default", "Release.TSan",
-                        "Release.MaxSan", "Debug.Werror", "Debug.Dynamic",
-                        "Debug.Coverage"
+                        "Debug.Default", "Release.Default", "Release.MaxSan",
+                        "Debug.Coverage", "Debug.Werror",
+                        "Debug.Dynamic", "Release.Dynamic"
                       ]
                     }
                   ]
@@ -69,8 +69,8 @@ jobs:
                   "tests": [
                     { "stdlibs": ["libc++"],
                       "tests": [
-                        "Debug.Default", "Release.Default", "Release.TSan",
-                        "Release.MaxSan", "Debug.Werror", "Debug.Dynamic"
+                        "Debug.Default", "Release.Default", "Release.MaxSan",
+                        "Debug.Dynamic", "Release.Dynamic"
                       ]
                     }
                   ]
@@ -107,7 +107,9 @@ jobs:
                 { "cxxversions": ["c++23"],
                   "tests": [
                     { "stdlibs": ["stl"],
-                      "tests": ["Debug.Default", "Release.Default", "Release.MaxSan"]
+                      "tests": ["Debug.Default", "Release.Default", "Release.MaxSan",
+                        "Debug.Dynamic", "Release.Dynamic"
+                      ]
                     }
                   ]
                 }
@@ -119,4 +121,4 @@ jobs:
   create-issue-when-fault:
     needs: [preset-test, build-and-test]
     if: failure() && github.event_name == 'schedule'
-    uses: bemanproject/infra-workflows/.github/workflows/reusable-beman-create-issue-when-fault.yml@1.2.1
+    uses: bemanproject/infra-workflows/.github/workflows/reusable-beman-create-issue-when-fault.yml@1.3.0

@@ -19,7 +19,6 @@ import std;
 // TODO(CK): #include <filename>
 #endif
 
-#define BEMAN_SCOPE_USE_DANIELA_ADVICE
 #ifndef BEMAN_SCOPE_USE_DANIELA_ADVICE
     #include <beman/scope/scope_impl.hpp>
 #endif

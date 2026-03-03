@@ -16,12 +16,14 @@ void print_exit_status(std::string_view name, bool exit_status, bool did_throw) 
 
 // Randomly throw an exception (50% chance)
 void maybe_throw() {
-    if (std::rand() >= RAND_MAX / 2)
+    if (std::rand() >= RAND_MAX / 2) {
         throw std::exception{};
+    }
 }
 
 int main() {
-    bool exit_status{false}, did_throw{false};
+    bool exit_status{false};
+    bool did_throw{false};
 
     // Manual handling at "end of scope"
     try {

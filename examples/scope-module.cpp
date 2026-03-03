@@ -45,9 +45,9 @@ int main() {
     bool cleaned{true};
     {
         // clang-format off
-        beman::scope::scope_exit    _se([&exit_ran]    { exit_ran = true;    });
-        beman::scope::scope_success _ss([&success_ran] { success_ran = true; });
-        beman::scope::scope_fail    _sf([&fail_ran]    { fail_ran = true;    });
+        beman::scope::scope_exit    const _se([&exit_ran]    { exit_ran = true;    });
+        beman::scope::scope_success const _ss([&success_ran] { success_ran = true; });
+        beman::scope::scope_fail    const _sf([&fail_ran]    { fail_ran = true;    });
         auto resource_ptr = beman::scope::unique_resource(new DummyResource(cleaned),
                 [](DummyResource* ptr) { ptr->cleaned = true; delete ptr; });
         //  clang-format on

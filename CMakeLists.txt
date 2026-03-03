@@ -2,29 +2,28 @@
 
 cmake_minimum_required(VERSION 3.30...4.3)
 
+include(./cmake/prelude.cmake)
+
 project(
     beman.scope
     DESCRIPTION "Generic Scope Guard"
     LANGUAGES CXX
-    VERSION 0.0.1
+    VERSION 0.1.0
 )
 
-# gersemi: off
-
 # Modules opt in only on compilers that support it: msvc, g++-15 and clang-20+
-if(CMAKE_CXX_COMPILER_ID STREQUAL "Clang" AND CMAKE_CXX_COMPILER_VERSION VERSION_GREATER_EQUAL 20)
-    set(CMAKE_CXX_SCAN_FOR_MODULES 1)
-elseif(CMAKE_CXX_COMPILER_ID STREQUAL "GNU" AND CMAKE_CXX_COMPILER_VERSION VERSION_GREATER_EQUAL 15)
-    set(CMAKE_CXX_SCAN_FOR_MODULES 1)
-elseif(MSVC)
-    set(CMAKE_CXX_SCAN_FOR_MODULES 1)
-else()
-    set(CMAKE_CXX_SCAN_FOR_MODULES 0)
+include(./cmake/cxx-modules-rules.cmake)
+
+#===============================================================================
+if(BEMAN_USE_MODULES)
+    option(BUILD_SHARED_LIBS "Build using shared libraries" OFF)
+
+    set(CMAKE_CXX_SCAN_FOR_MODULES ON)
+    set(CMAKE_CXX_VISIBILITY_PRESET hidden)
+    set(CMAKE_VISIBILITY_INLINES_HIDDEN ON)
 endif()
 
-set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
-set(CMAKE_CXX_VISIBILITY_PRESET hidden)
-set(CMAKE_VISIBILITY_INLINES_HIDDEN TRUE)
+# gersemi: off
 
 # [CMAKE.SKIP_TESTS]
 option(
@@ -46,22 +45,15 @@ option(
     ${PROJECT_IS_TOP_LEVEL}
 )
 
-message(
-    "Compiler is: ${CMAKE_CXX_COMPILER_ID} version: ${CMAKE_CXX_COMPILER_VERSION}"
-)
-message(
-    "cmake is: ${CMAKE_VERSION} modules scan: ${CMAKE_CXX_SCAN_FOR_MODULES}"
-)
+message(STATUS "Compiler is: ${CMAKE_CXX_COMPILER_ID} version: ${CMAKE_CXX_COMPILER_VERSION}")
+message(STATUS "Cmake is: ${CMAKE_VERSION} modules scan: ${CMAKE_CXX_SCAN_FOR_MODULES}")
 
 # gersemi: on
 
-if(CMAKE_CXX_SCAN_FOR_MODULES)
-    if(NOT DEFINED CMAKE_CXX_STANDARD)
-        set(CMAKE_CXX_STANDARD 23)
-    endif()
+set(BEMAN_SCOPE_TARGETS beman.scope_headers)
 
-    # TODO(CK): check if possible to enable
-    option(BEMAN_SCOPE_IMPORT_STD "use import std; if possible" OFF)
+if(BEMAN_USE_MODULES)
+    option(BEMAN_SCOPE_IMPORT_STD "Use import std;" ${BEMAN_HAS_IMPORT_STD})
 
     add_library(beman.scope)
 
@@ -76,11 +68,14 @@ if(CMAKE_CXX_SCAN_FOR_MODULES)
         set_target_properties(beman.scope PROPERTIES CXX_MODULE_STD ON)
         target_compile_definitions(beman.scope PUBLIC BEMAN_SCOPE_IMPORT_STD)
     endif()
-else()
-    add_library(beman.scope INTERFACE)
-endif()
+    if(BEMAN_SCOPE_USE_DANIELA_ADVICE)
+        target_compile_definitions(
+            beman.scope
+            PUBLIC BEMAN_SCOPE_USE_DANIELA_ADVICE
+        )
+    endif()
+    add_library(beman::scope ALIAS beman.scope)
 
-if(CMAKE_CXX_SCAN_FOR_MODULES)
     target_sources(
         beman.scope
         PUBLIC
@@ -95,25 +90,40 @@ if(CMAKE_CXX_SCAN_FOR_MODULES)
                 BASE_DIRS include
                 FILES include/beman/scope/beman.scope.cppm
     )
+
+    # CMake requires the language standard to be specified as compile feature
+    # when a target provides C++23 modules and the target will be installed
     target_compile_features(beman.scope PUBLIC cxx_std_${CMAKE_CXX_STANDARD})
-else()
-    target_sources(
-        beman.scope
-        INTERFACE
-            FILE_SET HEADERS
-                BASE_DIRS include ${CMAKE_CURRENT_BINARY_DIR}
-                FILES
-                    include/beman/scope/scope.hpp
-                    include/beman/scope/scope_impl.hpp
-        # NO! ${CMAKE_CURRENT_BINARY_DIR}/beman/scope/modules_export.hpp
-    )
+
+    # FIXME: Quickfix only to prevent linker problems on windows dll? CK
+    if(WIN32 AND BUILD_SHARED_LIBS)
+        set_target_properties(
+            beman.scope
+            PROPERTIES WINDOWS_EXPORT_ALL_SYMBOLS ON
+        )
+    endif()
+    set_target_properties(beman.scope PROPERTIES EXPORT_NAME scope)
+    list(APPEND BEMAN_SCOPE_TARGETS beman.scope)
 endif()
 
-add_library(beman::scope ALIAS beman.scope)
+add_library(beman.scope_headers INTERFACE)
+target_sources(
+    beman.scope_headers
+    INTERFACE
+        FILE_SET HEADERS
+            BASE_DIRS include ${CMAKE_CURRENT_BINARY_DIR}
+            FILES
+                include/beman/scope/scope.hpp
+                include/beman/scope/scope_impl.hpp
+)
+
+add_library(beman::scope_headers ALIAS beman.scope_headers)
 
 set_target_properties(
-    beman.scope
-    PROPERTIES VERIFY_INTERFACE_HEADER_SETS ON EXPORT_NAME scope
+    beman.scope_headers
+    PROPERTIES
+        VERIFY_INTERFACE_HEADER_SETS ${PROJECT_IS_TOP_LEVEL}
+        EXPORT_NAME scope_headers
 )
 
 include(GNUInstallDirs)
@@ -122,7 +132,7 @@ set(package_install_dir ${CMAKE_INSTALL_LIBDIR}/cmake/beman.scope)
 
 # TBD: always? CK
 install(
-    TARGETS beman.scope
+    TARGETS ${BEMAN_SCOPE_TARGETS}
     COMPONENT beman.scope
     EXPORT beman.scope-targets
     FILE_SET CXX_MODULES DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}

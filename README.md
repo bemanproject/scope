@@ -12,7 +12,7 @@ SPDX-License-Identifier: CC0-1.0
 
 **Status**: [Under development and not yet ready for production use.](https://github.com/bemanproject/beman/blob/main/docs/beman_library_maturity_model.md#under-development-and-not-yet-ready-for-production-use)
 
-# Overview
+## Overview
 
 During the C++20 cycle [P0052 Generic Scope Guard and RAII Wrapper for the Standard Library](https://wg21.link/P0052)
 added 4 types: `scope_exit`, `scope_fail`, `scope_success`
@@ -80,22 +80,21 @@ but with different checked conditions on exiting the scope.
 
 Full runnable examples can be found in `examples/`.
 
-
 ## Integrate beman.scope into your project
 
-Beman.scope is a header-only library that currently relies on TS implementations
-for `unique_resource` and is thus currently available only on g++-13 and up, or
-clang 19 and up -- in C++20 mode.
+`Beman.scope_headers` is a header-only library that builds with modern compilers
+in C++20 mode.
 
-| C++ Version | Compilers        | Note              |
-|-------------|------------------|-------------------|
-| 20          | gcc13+, clang19+ | No modules        |
-| 23-26       | gcc15+, clang19+ | modules supported |
+| C++ Version | Compilers                          | Note              |
+|-------------|------------------------------------|-------------------|
+| 20          | gcc13+, clang19+, msvc, appleclang | No modules        |
+| 23-26       | gcc15+, clang19+, msvc             | modules supported |
 
-Note that modules support is currently tested only on clang++-19 and above and g++-15.
+Note that `CXX_MODULES` support is currently tested only on msvc, clang++-19,
+and above and g++-15.
 
-As a header only library no building is required to use in a project -- simply make
-the `include` directory available add add the following to your source.
+As a header only library no building is required to use in a project -- simply
+make the `include` directory available add add the following to your source.
 
 ```cpp
 #include <beman/scope/scope.hpp>
@@ -104,6 +103,7 @@ the `include` directory available add add the following to your source.
 
 import beman.scope;
 ```
+
 With modules import needs to be after any includes to avoid compilation errors.
 
 ## Building beman.scope
@@ -129,17 +129,18 @@ Build-time dependencies:
 from root of repo:
 
 ```shell
-mkdir build; cd build;
-cmake .. -DCMAKE_CXX_COMPILER=g++-15 -DCMAKE_CXX_STANDARD=26 -G=Ninja
-ninja -j 5 -v; ctest
+cmake -S . -B build -G Ninja -DCMAKE_CXX_COMPILER=g++-15 -DCMAKE_CXX_STANDARD=26
+ninja -v -C build all
 ```
 
 or using cmake presets
+
 ```shell
 cmake --workflow --preset gcc-release
 cmake --install build/gcc-release --prefix /opt/beman.scope
 ```
-# License
+
+## License
 
 Source is licensed with the Apache License v2.0 with LLVM Exceptions.
 
@@ -151,10 +152,11 @@ Documentation and associated papers are licensed with the Creative Commons Attri
 
 The intent is that the source and documentation are available for use by people how they wish.
 
-The README itself is licensed with CC0 1.0 Universal. Copy the contents and incorporate in your own work as you see fit.
+The README itself is licensed with CC0 1.0 Universal. Copy the contents and incorporate in your own work as you see
+fit.
 
 // SPDX-License-Identifier: CC0-1.0
 
-# Contributing
+## Contributing
 
 Please do! Issues and pull requests are appreciated.

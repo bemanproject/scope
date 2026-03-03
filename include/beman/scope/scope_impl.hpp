@@ -5,7 +5,7 @@
 
 #define BEMAN_SCOPE_USE_FALLBACK
 
-#ifdef BEMAN_SCOPE_IMPORT_STD
+#ifndef BEMAN_SCOPE_IMPORT_STD
     #include <version>
 
     #if defined(__cpp_concepts) && __cpp_concepts >= 201907L
@@ -47,9 +47,11 @@
         #define BEMAN_SCOPE_EXPORT
     #endif
 
-    #include <exception>
-    #include <type_traits>
-    #include <utility>
+    #ifndef BEMAN_SCOPE_IMPORT_STD
+        #include <exception>
+        #include <type_traits>
+        #include <utility>
+    #endif
 
 namespace beman::scope {
 
@@ -320,7 +322,7 @@ constexpr auto make_unique_resource_checked(R&& r, const Invalid& invalid, D&& d
 
 } // namespace beman::scope
 
-#elifdef BEMAN_SCOPE_USE_STD_EXPERIMENTAL
+#elif defined(BEMAN_SCOPE_USE_STD_EXPERIMENTAL)
 
 namespace beman::scope {
 using ::std::experimental::scope_exit;
@@ -328,7 +330,7 @@ using ::std::experimental::scope_fail;
 using ::std::experimental::scope_success;
 using ::std::experimental::unique_resource;
 } // namespace beman::scope
-  //
+
 #endif // BEMAN_SCOPE_USE_FALLBACK
 
 #endif // SCOPE_IMPL_HPP
