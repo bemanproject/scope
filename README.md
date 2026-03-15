@@ -87,12 +87,8 @@ Beman.scope is a header-only library that currently relies on TS implementations
 for `unique_resource` and is thus currently available only on g++-13 and up, or
 clang 19 and up -- in C++20 mode.
 
-| C++ Version | Compilers        | Note              |
-|-------------|------------------|-------------------|
-| 20          | gcc13+, clang19+ | No modules        |
-| 23-26       | gcc15+, clang19+ | modules supported |
-
-Note that modules support is currently tested only on clang++-19 and above and g++-15.
+Note that modules support is currently tested only on clang++-19 and above and g++-15, and
+is not supported if the C++ standard is below C++23.
 
 As a header only library no building is required to use in a project -- simply make
 the `include` directory available add add the following to your source.
@@ -123,6 +119,13 @@ Build-time dependencies:
 - `ninja`, `make`, or another CMake-supported build system
   - CMake defaults to "Unix Makefiles" on POSIX systems
 - `catch2` for building tests
+
+### Supported Platforms
+
+| Compiler | Version | C++ Standards | Standard Library |
+|----------|---------|---------------|------------------|
+| GCC      | 15-13   | C++26-C++20   | libstdc++        |
+| Clang    | 20-19   | C++26-C++20   | libstdc++        |
 
 ### How to build beman.scope tests and examples
 
