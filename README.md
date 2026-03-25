@@ -93,6 +93,7 @@ in C++20 mode.
 Note that `CXX_MODULES` support is currently tested only on msvc, clang++-19,
 and above and g++-15.
 
+
 As a header only library no building is required to use in a project -- simply
 make the `include` directory available add add the following to your source.
 
@@ -123,6 +124,13 @@ Build-time dependencies:
 - `ninja`, `make`, or another CMake-supported build system
   - CMake defaults to "Unix Makefiles" on POSIX systems
 - `catch2` for building tests
+
+### Supported Platforms
+
+| Compiler | Version | C++ Standards | Standard Library |
+|----------|---------|---------------|------------------|
+| GCC      | 15-13   | C++26-C++20   | libstdc++        |
+| Clang    | 20-19   | C++26-C++20   | libstdc++        |
 
 ### How to build beman.scope tests and examples
 
