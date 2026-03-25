@@ -17,20 +17,29 @@ endif()
 
 list(APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_LIST_DIR})
 
-# ---------------------------------------------------------------------------
-if(NOT BEMAN_USE_STD_MODULE)
-    return()
-endif()
-# ---------------------------------------------------------------------------
-
-if(PROJECT_NAME)
-    message(
-        WARNING
-        "This CMake file has to be included before first project() command call!"
-    )
-endif()
-
 # gersemi: off
+# ---------------------------------------------------------------------------
+# The CMAKE_EXPERIMENTAL_CXX_IMPORT_STD is not longer needed except for OSX
+# ---------------------------------------------------------------------------
+if(NOT BEMAN_USE_STD_MODULE OR CMAKE_VERSION VERSION_GREATER_EQUAL 4.4)
+    if(NOT APPLE)
+        return()
+    endif()
+endif()
+# ---------------------------------------------------------------------------
+
+# ---------------------------------------------------------------------------
+# check if import std; is supported by CMAKE_CXX_COMPILER
+# ---------------------------------------------------------------------------
+if(CMAKE_VERSION VERSION_GREATER_EQUAL 4.2 AND CMAKE_VERSION VERSION_LESS 4.4)
+    if(PROJECT_NAME)
+        message(
+            WARNING
+            "This CMake file has to be included before first project() command call!"
+        )
+    endif()
+endif()
+
 # ---------------------------------------------------------------------------
 # check if import std; is supported by CMAKE_CXX_COMPILER
 # ---------------------------------------------------------------------------

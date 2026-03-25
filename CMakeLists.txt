@@ -170,49 +170,11 @@ set_target_properties(
         EXPORT_NAME scope_headers
 )
 
-include(GNUInstallDirs)
-
-set(package_install_dir ${CMAKE_INSTALL_LIBDIR}/cmake/beman.scope)
-
-# ---------------------------------------------------------------------------
-# TBD: install targets always? CK
-# ---------------------------------------------------------------------------
-install(
-    TARGETS ${BEMAN_SCOPE_TARGETS}
-    COMPONENT beman.scope
-    EXPORT beman.scope-targets
-    FILE_SET CXX_MODULES DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
-    CXX_MODULES_BMI
-        DESTINATION
-            ${package_install_dir}/bmi-${CMAKE_CXX_COMPILER_ID}_$<CONFIG>
-    FILE_SET HEADERS
-)
-
-if(BEMAN_SCOPE_INSTALL_CONFIG_FILE_PACKAGE)
-    include(CMakePackageConfigHelpers)
-
-    write_basic_package_version_file(
-        ${CMAKE_CURRENT_BINARY_DIR}/beman.scope-config-version.cmake
-        COMPATIBILITY ExactVersion
-    )
-
-    install(
-        FILES
-            cmake/beman.scope-config.cmake
-            ${CMAKE_CURRENT_BINARY_DIR}/beman.scope-config-version.cmake
-        DESTINATION ${package_install_dir}
-        COMPONENT beman.scope
-    )
-
-    install(
-        EXPORT beman.scope-targets
-        DESTINATION ${package_install_dir}
-        NAMESPACE beman::
-        CXX_MODULES_DIRECTORY
-        cxx-modules
-        COMPONENT beman.scope
-    )
-endif()
+#
+# Install the libraries and its FILE_SET's.
+#
+include(cmake/beman-install-library.cmake)
+beman_install_library(beman.scope TARGETS beman.scope beman.scope_headers)
 
 # ---------------------------------------------------------------------------
 # NOTE: we use ctest in examples too! CK
