@@ -5,17 +5,38 @@
 
 #include <concepts>
 #include <exception>
+#include <memory>
 #include <type_traits>
 #include <version>
 #include <limits>
 
 // clang-format off
-#if __cplusplus < 202002L
+#include <version>
+
+#if defined(__cpp_concepts) && __cpp_concepts >= 201907L
+  // C++20 concepts supported
+#elif __cplusplus < 202002L
   #error "C++20 or later is required"
 #endif
-// clang-format on
 
-#include <experimental/scope> //todo unconditional for unique_resource
+// detect standard header first, then experimental, otherwise use local implementation
+#if defined(__has_include)
+#  if __has_include(<scope>)
+#    include <scope>
+#    define BEMAN_SCOPE_USE_STD
+#  elif __has_include(<experimental/scope>)
+#    include <experimental/scope>
+#    define BEMAN_SCOPE_USE_STD_EXPERIMENTAL
+#  else
+// no std scope header — fall through to local implementation below
+#  endif
+#elif defined(__cpp_lib_scope) && __cpp_lib_scope >= 2023xxxxL
+#  include <scope>
+#  define BEMAN_SCOPE_USE_STD
+#else
+#  warning "Missing feature __cpp_lib_scope"
+#endif
+// clang-format on
 
 #ifdef BEMAN_SCOPE_USE_STD_EXPERIMENTAL
 
@@ -31,19 +52,19 @@ template <class EF>
 using scope_success = std::experimental::scope_success<EF>;
 
 // todo temporary
-// template <class R, class D>
-// using unique_resource = std::experimental::unique_resource<R, D>;
+template <class R, class D>
+using unique_resource = std::experimental::fundamentals_v3::unique_resource<R, D>;
 
-// template <class R, class D, class S = std::decay_t<R>>
-// unique_resource<std::decay_t<R>, std::decay_t<D>>
-// make_unique_resource_checked(R&& r, const S& invalid, D&& d) noexcept(noexcept(
-//     std::experimental::make_unique_resource_checked(std::forward(r), std::forward(invalid), std::forward(d)))) {
-//     return std::experimental::make_unique_resource_checked(std::forward(r), std::forward(invalid), std::forward(d));
-//}
+template <class R, class D, class S = std::decay_t<R>>
+unique_resource<std::decay_t<R>, std::decay_t<D>>
+make_unique_resource_checked(R&& r, const S& invalid, D&& d) noexcept(noexcept(
+    std::experimental::make_unique_resource_checked(std::forward(r), std::forward(invalid), std::forward(d)))) {
+    return std::experimental::make_unique_resource_checked(std::forward(r), std::forward(invalid), std::forward(d));
+}
 
 } // namespace beman::scope
 
-#else // ! BEMAN_SCOPE__USE_STD_EXPERIMENTAL
+#elif defined(BEMAN_SCOPE_USE_STD)
 
 namespace beman::scope {
 
@@ -52,8 +73,8 @@ template <class R, class D>
 using unique_resource = std::experimental::unique_resource<R, D>;
 
 // todo temporary
-template <class R, class D, class S = std::decay_t<R> >
-unique_resource<std::decay_t<R>, std::decay_t<D> >
+template <class R, class D, class S = std::decay_t<R>>
+unique_resource<std::decay_t<R>, std::decay_t<D>>
 make_unique_resource_checked(R&& r, const S& invalid, D&& d) noexcept(noexcept(
     std::experimental::make_unique_resource_checked(std::forward(r), std::forward(invalid), std::forward(d)))) {
     return std::experimental::make_unique_resource_checked(std::forward(r), std::forward(invalid), std::forward(d));
@@ -421,6 +442,9 @@ using scope_fail = scope_guard<ExitFunc,
 
 } // namespace beman::scope
 
-#endif // BEMAN_SCOPE__USE_STD_EXPERIMENTAL
+#else
+    #include <beman/scope/scope_impl.hpp>
+
+#endif // BEMAN_SCOPE_USE_STD_EXPERIMENTAL
 
 #endif // BEMAN_SCOPE_HPP

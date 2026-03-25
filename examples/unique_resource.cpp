@@ -14,7 +14,7 @@ int main() {
     (
        new int[arr_size], // acquire array resource
        // Cleanup function
-       [](int* ptr) { delete[] ptr;
+       [](const int* ptr) { delete[] ptr;
                       std::cout << "Array deleted.\n"; }
     );
 

@@ -1,6 +1,11 @@
-.cache
+# SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
+
 /compile_commands.json
+/CMakeUserPresets.json
 /build
+**/_deps/
+**/CMakeFiles/
+/cmake/presets
 
 # ignore emacs temp files
 *~
@@ -8,3 +13,4 @@
 
 # ignore vscode settings
 .vscode
+.cache

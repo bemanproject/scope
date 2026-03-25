@@ -19,7 +19,7 @@ int main() {
         }
     );
 
-    if (!file.get()) {
+    if (file.get() == nullptr) {
         std::cerr << "Failed to open file.\n";
         return 1;
     }
