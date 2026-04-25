@@ -41,4 +41,10 @@ repos:
       - id: codespell
         args: ["--ignore-words-list=wil"]
 
+  # Beman Standard checking via beman-tidy
+  - repo: https://github.com/bemanproject/beman-tidy
+    rev: v0.4.0
+    hooks:
+    - id: beman-tidy
+
 exclude: 'infra/'
