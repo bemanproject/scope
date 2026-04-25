@@ -26,7 +26,7 @@ The paper will re-examine the five year old design and any learning from deploym
 For discussions of this library and related work see:
 
 - [Discourse for discussion of scope](https://discourse.bemanproject.org/t/scope-library/315)
-- [Prior art, papers, related libraries, videos](https://github.com/bemanproject/scope/blob/main/resources.md)
+- [Prior art, papers, related libraries, videos](https://github.com/bemanproject/scope/blob/main/docs/resources.md)
 
 ## Usage
 
