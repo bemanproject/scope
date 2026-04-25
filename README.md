@@ -80,6 +80,9 @@ but with different checked conditions on exiting the scope.
 
 Full runnable examples can be found in `examples/`.
 
+## License
+
+beman.scope is licensed under the Apache License v2.0 with LLVM Exceptions.
 
 ## Integrate beman.scope into your project
 
