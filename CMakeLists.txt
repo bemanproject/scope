@@ -126,7 +126,7 @@ endif()
 
 if(BEMAN_SCOPE_BUILD_TESTS)
     enable_testing()
-    add_subdirectory(tests)
+    add_subdirectory(tests/beman/scope)
 endif()
 
 if(BEMAN_SCOPE_BUILD_EXAMPLES)
