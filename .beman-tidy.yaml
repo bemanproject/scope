@@ -7,4 +7,5 @@
 disabled_rules:
     - readme.implements # P3610 is not yet published on WG21; local draft is in papers/scope.org
 
-ignored_paths: []
+ignored_paths:
+    - infra/
