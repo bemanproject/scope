@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
 - id: beman-tidy
   name: "beman-tidy: bemanification your repo"
   entry: ./tools/beman-tidy/beman-tidy
