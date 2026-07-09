@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
 include(${CMAKE_CURRENT_LIST_DIR}/beman.scope-targets.cmake)
 
 foreach(comp IN LISTS beman.scope_FIND_COMPONENTS)
