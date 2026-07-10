@@ -6,7 +6,7 @@
 // first line generates gcm.cache file for standard headers - one time only
 // g++-15 -std=c++26 -O2 -fmodules -fsearch-include-path -fmodule-only -c bits/std.cc
 // g++-15 -std=c++26 -O2 -fmodules -fmodule-only -c ${scope_top}/include/beman/scope/beman.scope.cppm
-// g++-15 -std=c++26 -fmodules scope-module.cpp
+// g++-15 -std=c++26 -fmodules scope_module.cpp
 //
 // prints:
 // --> scope start
