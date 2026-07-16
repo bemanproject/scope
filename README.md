@@ -105,23 +105,27 @@ import beman.scope;
 ```
 With modules import needs to be after any includes to avoid compilation errors.
 
+## Dependencies
+
+### Build Environment
+
+This project requires at least the following to build:
+
+* A C++ compiler that conforms to the C++20 standard or greater
+* CMake 3.30 or later
+* (Test Only) Catch2
+
+You can disable building tests by setting CMake option `BEMAN_SCOPE_BUILD_TESTS` to
+`OFF` when configuring the project.
+
+You can disable building examples by setting CMake option `BEMAN_SCOPE_BUILD_EXAMPLES` to
+`OFF` when configuring the project.
+
 ## Building beman.scope
 
 Building is only required to run tests and examples. All compilers build and
 run `include` based tests. Compilers known to support modules are automatically
 detected added to tests.
-
-### Build Dependencies
-
-The library itself has no build dependencies other than Catch2 for testing.
-And for building cmake and ninja.  Makefiles are supported in non-modular builds.
-
-Build-time dependencies:
-
-- `cmake`
-- `ninja`, `make`, or another CMake-supported build system
-  - CMake defaults to "Unix Makefiles" on POSIX systems
-- `catch2` for building tests
 
 ### Supported Platforms
 
