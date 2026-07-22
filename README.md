@@ -127,6 +127,18 @@ Building is only required to run tests and examples. All compilers build and
 run `include` based tests. Compilers known to support modules are automatically
 detected added to tests.
 
+### Build Dependencies
+
+The library itself has no build dependencies other than Catch2 for testing.
+And for building cmake and ninja.  Makefiles are supported in non-modular builds.
+
+Build-time dependencies:
+
+- `cmake`
+- `ninja`, `make`, or another CMake-supported build system
+  - CMake defaults to "Unix Makefiles" on POSIX systems
+- `catch2` for building tests
+
 ### Supported Platforms
 
 | Compiler | Version | C++ Standards | Standard Library |
