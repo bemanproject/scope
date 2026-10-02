@@ -21,12 +21,15 @@
 
 namespace beman::scope {
 
+/// Invokes the supplied callable when the enclosing scope is exited.
 template <class EF>
 using scope_exit = std::experimental::scope_exit<EF>;
 
+/// Invokes the supplied callable when the enclosing scope is exited because of an exception.
 template <class EF>
 using scope_fail = std::experimental::scope_fail<EF>;
 
+/// Invokes the supplied callable when the enclosing scope is exited normally.
 template <class EF>
 using scope_success = std::experimental::scope_success<EF>;
 
@@ -47,11 +50,11 @@ using scope_success = std::experimental::scope_success<EF>;
 
 namespace beman::scope {
 
-// todo temporary
+/// Owns a resource and releases it with a callable when the guard is destroyed.
 template <class R, class D>
 using unique_resource = std::experimental::unique_resource<R, D>;
 
-// todo temporary
+/// Creates a `unique_resource` that is active only when `r` is not equal to `invalid`.
 template <class R, class D, class S = std::decay_t<R> >
 unique_resource<std::decay_t<R>, std::decay_t<D> >
 make_unique_resource_checked(R&& r, const S& invalid, D&& d) noexcept(noexcept(
@@ -163,21 +166,27 @@ make_unique_resource_checked(R&& r, const S& invalid, D&& d) noexcept(noexcept(
 //==================================================================================================
 
 // --- Concepts ---
+
+/// Checks whether invoking `F` with `Args...` produces a value convertible to `R`.
 template <typename F, typename R, typename... Args>
 concept invocable_return = std::invocable<F, Args...> && std::convertible_to<std::invoke_result_t<F, Args...>, R>;
 
+/// Describes a callable that can be stored and invoked by a scope guard.
 template <typename F>
 concept scope_exit_function =
     invocable_return<F, void> && (std::is_nothrow_move_constructible_v<F> || std::is_copy_constructible_v<F>);
 
+/// Checks whether a callable can decide whether a scope guard should invoke its exit function.
 template <typename T>
 concept scope_function_invoke_check = invocable_return<T, bool>;
 
+/// Checks whether `T` provides an instance `release()` member function.
 template <typename T>
 concept HasRelease = requires(T t) {
     { t.release() } -> std::same_as<void>;
 };
 
+/// Checks whether `T` provides a static `release()` member function.
 template <typename T>
 concept HasStaticRelease = requires {
     { T::release() } -> std::same_as<void>;
@@ -185,12 +194,17 @@ concept HasStaticRelease = requires {
 
 // --- Enum ---
 
-enum class exception_during_construction_behaviour { dont_invoke_exit_func, invoke_exit_func };
+/// Controls whether the exit function runs if a scope guard constructor throws.
+enum class exception_during_construction_behaviour {
+    /// Do not invoke the exit function when construction fails.
+    dont_invoke_exit_func,
+    /// Invoke the exit function when construction fails.
+    invoke_exit_func
+};
 
 //==================================================================================================
 
-//  --- `scope_guard` - primary template ---
-
+/// Generalized scope guard that conditionally invokes a callable at scope exit.
 template <scope_exit_function ScopeExitFunc,
           typename InvokeChecker = void,
           exception_during_construction_behaviour ConstructionExceptionBehavior =
@@ -199,12 +213,10 @@ class [[nodiscard]] scope_guard;
 
 //==================================================================================================
 
-/**  Generalized scope guard template
- * This template provides the general behaviors required for more concrete instances of scope types.
- * @tparam ScopeExitFunction callable function that is conditionally invoked at the end of the scope.
- * @tparam InvokeChecker callable function that handles checking if callback should be called on scope exit.
- * @tparam ConstructionExceptionBehavior callable function that defines the behavior if an exception occurs
- *         on the construction.
+/** Generalized scope guard template
+ * @tparam ScopeExitFunc callable invoked when the guard is active at scope exit.
+ * @tparam InvokeChecker callable that decides whether `ScopeExitFunc` is invoked.
+ * @tparam ConstructionExceptionBehavior behavior when construction of the guard fails.
  */
 template <scope_exit_function                     ScopeExitFunc,
           scope_function_invoke_check             InvokeChecker,
@@ -226,6 +238,7 @@ class [[nodiscard]] scope_guard<ScopeExitFunc, InvokeChecker, ConstructionExcept
      * scope_success
      *  [Note: If initialization of exit_function fails, f() won't be called. end note]
      */
+    /// Constructs a guard from an exit function and an invocation checker.
     template <typename EF, typename CHKR>
     constexpr scope_guard(EF&&   exit_func,
                           CHKR&& invoke_checker) noexcept(std::is_nothrow_constructible_v<ScopeExitFunc> &&
@@ -240,6 +253,7 @@ class [[nodiscard]] scope_guard<ScopeExitFunc, InvokeChecker, ConstructionExcept
         }
     }
 
+    /// Constructs a guard from an exit function and a default-constructed checker.
     template <typename EF>
     explicit constexpr scope_guard(EF&& exit_func) noexcept(std::is_nothrow_constructible_v<ScopeExitFunc> &&
                                                             std::is_nothrow_constructible_v<InvokeChecker>)
@@ -254,6 +268,7 @@ class [[nodiscard]] scope_guard<ScopeExitFunc, InvokeChecker, ConstructionExcept
         }
     }
 
+    /// Moves a guard and releases the moved-from guard's invocation checker.
     constexpr scope_guard(scope_guard&& rhs) noexcept(std::is_nothrow_move_constructible_v<ScopeExitFunc> &&
                                                       std::is_nothrow_move_constructible_v<InvokeChecker>)
         requires(HasRelease<InvokeChecker> || HasStaticRelease<InvokeChecker>)
@@ -272,14 +287,17 @@ class [[nodiscard]] scope_guard<ScopeExitFunc, InvokeChecker, ConstructionExcept
     scope_guard& operator=(const scope_guard&) = delete;
     scope_guard& operator=(scope_guard&& rhs)  = delete;
 
+    /// Invokes the exit function when the checker says the guard is still active.
     constexpr ~scope_guard() noexcept(noexcept(exit_func()) && noexcept(invoke_check_func())) {
         if (invoke_check_func()) {
             exit_func();
         }
     }
 
+    /// Returns the invocation checker stored by this guard.
     InvokeChecker& invoke_checker() & noexcept { return invoke_checker; }
 
+    /// Disables invocation of the exit function for this guard.
     constexpr void release() noexcept
         // Shouldn't this "noexcept" be dependent on the noexcept of the release function? how??
         requires(HasRelease<InvokeChecker> || HasStaticRelease<InvokeChecker>)
@@ -300,11 +318,13 @@ class [[nodiscard]] scope_guard<ScopeExitFunc, InvokeChecker, ConstructionExcept
 
 // --- Specializations for no releaser
 
+/// Scope guard specialization that invokes its exit function when construction fails.
 template <scope_exit_function ScopeExitFunc>
 class [[nodiscard]] scope_guard<ScopeExitFunc, void, exception_during_construction_behaviour::invoke_exit_func> {
     ScopeExitFunc exit_func;
 
   public:
+    /// Constructs a guard from an exit function.
     template <typename T>
     explicit constexpr scope_guard(T&& exit_func) noexcept(std::is_nothrow_constructible_v<ScopeExitFunc>)
         requires(!std::is_same_v<std::remove_cvref<T>, scope_guard>)
@@ -320,16 +340,19 @@ class [[nodiscard]] scope_guard<ScopeExitFunc, void, exception_during_constructi
     scope_guard& operator=(const scope_guard&) = delete;
     scope_guard& operator=(scope_guard&&)      = delete;
 
+    /// Invokes the exit function on destruction.
     constexpr ~scope_guard() noexcept(noexcept(exit_func())) { exit_func(); }
 };
 
 //======
 
+/// Scope guard specialization that does not invoke its exit function when construction fails.
 template <scope_exit_function ScopeExitFunc>
 class [[nodiscard]] scope_guard<ScopeExitFunc, void, exception_during_construction_behaviour::dont_invoke_exit_func> {
     ScopeExitFunc exit_func;
 
   public:
+    /// Constructs a guard from an exit function.
     template <typename T>
     explicit constexpr scope_guard(T&& exit_func) noexcept(std::is_nothrow_constructible_v<ScopeExitFunc>)
         requires(!std::is_same_v<std::remove_cvref<T>, scope_guard>)
@@ -340,6 +363,7 @@ class [[nodiscard]] scope_guard<ScopeExitFunc, void, exception_during_constructi
     scope_guard& operator=(const scope_guard&) = delete;
     scope_guard& operator=(scope_guard&&)      = delete;
 
+    /// Invokes the exit function on destruction.
     constexpr ~scope_guard() noexcept(noexcept(exit_func())) { exit_func(); }
 };
 
@@ -347,12 +371,14 @@ class [[nodiscard]] scope_guard<ScopeExitFunc, void, exception_during_constructi
 
 // --- Deduction guides ---
 
+/// Deduction guide for a guard with an explicit invocation checker.
 template <typename ExitFunc,
           typename InvokeChecker,
           exception_during_construction_behaviour ecdb = exception_during_construction_behaviour::invoke_exit_func>
     requires(scope_exit_function<ExitFunc> && (scope_function_invoke_check<InvokeChecker>))
 scope_guard(ExitFunc&&, InvokeChecker&&) -> scope_guard<std::decay_t<ExitFunc>, std::decay_t<InvokeChecker>, ecdb>;
 
+/// Deduction guide for a guard with a default invocation checker.
 template <typename ExitFunc,
           typename InvokeChecker                       = void,
           exception_during_construction_behaviour ecdb = exception_during_construction_behaviour::invoke_exit_func>
@@ -362,10 +388,13 @@ scope_guard(ExitFunc&&) -> scope_guard<std::decay_t<ExitFunc>, InvokeChecker, ec
 
 //==================================================================================================
 
+/// Invocation checker used by `scope_exit`.
 class releaser {
   public:
+    /// Returns whether the exit function is still enabled.
     bool operator()() const { return can_invoke; }
 
+    /// Disables the exit function.
     void release() { can_invoke = false; }
 
   private:
@@ -374,14 +403,18 @@ class releaser {
 
 //======
 
+/// Invocation checker that enables execution only when no exception is active.
 class releaseable_execute_when_no_exception {
   public:
+    /// Marker used to select the construction behavior for `scope_success`.
     using DontInvokeOnCreationException = void;
 
+    /// Returns whether destruction is occurring without a new exception.
     [[nodiscard]] bool operator()() const noexcept(noexcept(std::uncaught_exceptions())) {
         return uncaught_on_creation >= std::uncaught_exceptions();
     }
 
+    /// Disables the exit function.
     void release() { uncaught_on_creation = std::numeric_limits<int>::min(); }
 
   private:
@@ -390,12 +423,15 @@ class releaseable_execute_when_no_exception {
 
 //======
 
+/// Invocation checker that enables execution only while unwinding an exception.
 class releaseable_execute_only_when_exception {
   public:
+    /// Returns whether destruction is occurring during exception unwinding.
     [[nodiscard]] bool operator()() const noexcept(noexcept(std::uncaught_exceptions())) {
         return uncaught_on_creation < std::uncaught_exceptions();
     }
 
+    /// Disables the exit function.
     void release() { uncaught_on_creation = std::numeric_limits<int>::max(); }
 
   private:
@@ -406,14 +442,17 @@ class releaseable_execute_only_when_exception {
 
 // --- type aliases ---
 
+/// Executes a callable on every scope exit unless released.
 template <class ExitFunc>
 using scope_exit = scope_guard<ExitFunc, releaser, exception_during_construction_behaviour::invoke_exit_func>;
 
+/// Executes a callable only when the scope exits without an exception.
 template <class ExitFunc>
 using scope_success = scope_guard<ExitFunc,
                                   releaseable_execute_when_no_exception,
                                   exception_during_construction_behaviour::dont_invoke_exit_func>;
 
+/// Executes a callable only when the scope exits during exception unwinding.
 template <class ExitFunc>
 using scope_fail = scope_guard<ExitFunc,
                                releaseable_execute_only_when_exception,
