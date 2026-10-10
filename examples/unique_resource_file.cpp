@@ -3,7 +3,7 @@
 #include <iostream>
 #include <memory>
 #include <cstdio>
-#include <beman/scope/scope.hpp>
+#include <beman/scope.hpp>
 
 // clang-format off
 int main() {
