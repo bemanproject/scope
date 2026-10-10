@@ -13,20 +13,6 @@
 #error "C++20 or later is required"
 #endif
 
-#ifdef BEMAN_SCOPE_USE_STD_EXPERIMENTAL
-#include <experimental/scope>
-
-namespace beman::scope {
-template <class EF>
-using scope_exit = std::experimental::scope_exit<EF>;
-template <class EF>
-using scope_fail = std::experimental::scope_fail<EF>;
-template <class EF>
-using scope_success = std::experimental::scope_success<EF>;
-} // namespace beman::scope
-
-#else
-
 namespace beman::scope {
 
 // Template argument `ScopeExitFunc` shall be
@@ -333,7 +319,5 @@ using scope_fail = scope_guard<ExitFunc,
                                exception_during_construction_behaviour::invoke_exit_func>;
 
 } // namespace beman::scope
-
-#endif // BEMAN_SCOPE_USE_STD_EXPERIMENTAL
 
 #endif // BEMAN_SCOPE_SCOPE_GUARD_HPP

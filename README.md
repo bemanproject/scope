@@ -132,6 +132,11 @@ You can disable building tests by setting CMake option `BEMAN_SCOPE_BUILD_TESTS`
 You can disable building examples by setting CMake option `BEMAN_SCOPE_BUILD_EXAMPLES` to
 `OFF` when configuring the project.
 
+Set `BEMAN_SCOPE_COMPARE_TS=ON` to enable optional tests comparing shared behavior
+with the standard library's `<experimental/scope>` implementation. These tests are
+skipped if the facilities are unavailable and supplement the specification-based
+tests; the library itself always uses its own implementations.
+
 ## Building beman.scope
 
 Building is only required to run tests and examples. All compilers build and

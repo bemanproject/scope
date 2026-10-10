@@ -13,6 +13,28 @@ FetchContent_MakeAvailable(Catch2)
 
 set(ALL_TESTNAMES scope_success scope_exit scope_fail unique_resource unique_resource_semantics)
 
+option(BEMAN_SCOPE_COMPARE_TS "Build optional comparisons with <experimental/scope>." OFF)
+
+if(BEMAN_SCOPE_COMPARE_TS)
+    include(CheckCXXSourceCompiles)
+    check_cxx_source_compiles(
+        "#include <experimental/scope>
+         int main() {
+             std::experimental::scope_exit guard([] {});
+             std::experimental::scope_fail failure([] {});
+             std::experimental::scope_success success([] {});
+             auto resource = std::experimental::make_unique_resource_checked(
+                 1, -1, [](int) noexcept {});
+         }"
+        BEMAN_SCOPE_HAS_EXPERIMENTAL_SCOPE
+    )
+    if(BEMAN_SCOPE_HAS_EXPERIMENTAL_SCOPE)
+        list(APPEND ALL_TESTNAMES ts_comparison)
+    else()
+        message(STATUS "Skipping TS comparisons: <experimental/scope> facilities are unavailable.")
+    endif()
+endif()
+
 # module tests will only compile with gcc15 or clang20 and above
 if(CMAKE_CXX_SCAN_FOR_MODULES)
     list(APPEND ALL_TESTNAMES module)
