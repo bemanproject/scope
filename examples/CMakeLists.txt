@@ -1,6 +1,10 @@
 # SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
 
-set(ALL_EXAMPLES scope_example unique_resource unique_resource_file)
+set(ALL_EXAMPLES scope_example scope_exit_stream_flags unique_resource unique_resource_file)
+
+if(UNIX)
+    list(APPEND ALL_EXAMPLES unique_resource_fd)
+endif()
 
 # module tests will only compile with gcc15 or clang20 and above
 if(CMAKE_CXX_SCAN_FOR_MODULES AND CMAKE_CXX_MODULE_STD)

@@ -35,3 +35,18 @@ TEST_CASE("module-test", "[scope_module_test]") {
     REQUIRE(cleaned == true);
 
 }
+
+TEST_CASE("module exports the checked resource factory", "[scope_module_test]") {
+    int cleaned = 0;
+    {
+        auto valid = beman::scope::make_unique_resource_checked(3, -1, [&cleaned](int value) noexcept {
+            cleaned += value;
+        });
+        auto invalid = beman::scope::make_unique_resource_checked(-1, -1, [&cleaned](int value) noexcept {
+            cleaned += value;
+        });
+        REQUIRE(valid.get() == 3);
+        REQUIRE(invalid.get() == -1);
+    }
+    REQUIRE(cleaned == 3);
+}
