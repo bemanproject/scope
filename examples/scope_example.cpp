@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
 
-#include <beman/scope/scope.hpp>
+#include <beman/scope.hpp>
 
 #include <cstdlib>
 #include <iostream>

@@ -2,7 +2,7 @@
 
 // clang-format off
 
-#include <beman/scope/scope.hpp>
+#include <beman/scope.hpp>
 #include <stdexcept>
 #include <string>
 

@@ -2,7 +2,7 @@
 
 #include <iostream>
 #include <memory>
-#include <beman/scope/scope.hpp>
+#include <beman/scope.hpp>
 
 constexpr size_t arr_size = 10;
 // clang-format off

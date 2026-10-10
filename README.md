@@ -37,7 +37,7 @@ is exited with an exception.  `scope_success` and `scope_exit` provide similar c
 but with different checked conditions on exiting the scope.
 
 ```c++
-#include <beman/scope/scope.hpp>
+#include <beman/scope.hpp>
 
 
     bool triggered = false;
@@ -59,7 +59,7 @@ but with different checked conditions on exiting the scope.
 `unique_resource` is a cutomizeable RAII type similar to `unique_ptr`.
 
 ```c++
-#include <beman/scope/scope.hpp>
+#include <beman/scope.hpp>
 
   {
     auto file = beman::scope::unique_resource(
@@ -97,7 +97,7 @@ As a header only library no building is required to use in a project -- simply m
 the `include` directory available add add the following to your source.
 
 ```cpp
-#include <beman/scope/scope.hpp>
+#include <beman/scope.hpp>
 
 //modular version
 
