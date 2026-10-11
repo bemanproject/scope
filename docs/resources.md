@@ -10,6 +10,8 @@ This file contains a variety of links to prior art in this area including relate
 - TS adoption paper [p1411 - Please reconsider <scope> for C++20](https://wg21.link/p1411)
 - [N3677 A Proposal to Add additional RAII Wrappers to the Standard Library](https://www.open-std.org/jtc1/sc22/wg21/docs/papers/2013/n3677.html)
 - [N4152 uncaught_exceptions - Sutter](https://www.open-std.org/jtc1/sc22/wg21/docs/papers/2014/n4152.pdf)
+- [P1132R8 out_ptr - a scalable output pointer abstraction](https://www.open-std.org/jtc1/sc22/wg21/docs/papers/2021/p1132r8.html) - `out_ptr` and `inout_ptr` adapters for C APIs and smart pointers.
+- [P3019R13 Indirect and polymorphic vocabulary types](https://www.open-std.org/jtc1/sc22/wg21/docs/papers/2025/p3019r13.html) - allocator-managed objects with value semantics.
 
 ## Implementations
 
@@ -17,6 +19,7 @@ This file contains a variety of links to prior art in this area including relate
 - [GSL final_action](https://github.com/microsoft/GSL/blob/main/include/gsl/util) - part of core guidelines
 - [gsl-lite `finally`, `on_return`, `on_error`](https://github.com/gsl-lite/gsl-lite/blob/master/doc/Reference.md#ad-hoc-resource-management-c11-and-higher)
 - [Boost.scope](https://www.boost.org/doc/libs/1_87_0/libs/scope/doc/html/index.html)
+- [Boost.Scope unique_resource design and TS comparison](https://www.boost.org/doc/libs/latest/libs/scope/doc/html/scope/unique_resource.html) - resource traits, ownership queries, and exception guarantees.
 - [scope_guard based on Andrei Alexandrescu and Petru Marginean article](https://ricab.github.io/scope_guard)
 - [Windows Implementation Libraries (WIL) - scope_exit](https://github.com/microsoft/wil/blob/182e6521140174e1d2ed1920f88d005fc4c546e2/include/wil/resource.h#L660)
 - [GCC libstdc++-v3 experimental/scope implementation](https://gcc.gnu.org/git/?p=gcc.git;a=blob;f=libstdc%2B%2B-v3/include/experimental/scope;h=6e1d342e1b6486b0d1f32166c7eb91d29ed79f4d;hb=refs/heads/master)
@@ -28,4 +31,5 @@ This file contains a variety of links to prior art in this area including relate
 ## Videos
 
 - [Peter Sommerlad - Woes of Scope Guards and Unique_Resource - 5+ years in the making](https://www.youtube.com/watch?v=O1sK__G5Nrg)
-- [Andrei Alexandrescu - Declarative Control Flow](https://www.youtube.com/watch?v=WjTrfoiB0MQ)
+- [Andrei Alexandrescu - Systematic Error Handling in C++](https://isocpp.org/blog/2012/12/systematic-error-handling-in-c-andrei-alexandrescu) - C++ and Beyond 2012; video announcement and original recording link.
+- [Andrei Alexandrescu - Declarative Control Flow](https://www.youtube.com/watch?v=WjTrfoiB0MQ) - CppCon 2015.
