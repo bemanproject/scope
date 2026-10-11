@@ -56,7 +56,11 @@ if(CMAKE_CXX_SCAN_FOR_MODULES)
         PUBLIC
             FILE_SET HEADERS
             BASE_DIRS include
-            FILES include/beman/scope/scope.hpp
+            FILES
+                include/beman/scope.hpp
+                include/beman/scope/scope.hpp
+                include/beman/scope/scope_guard.hpp
+                include/beman/scope/unique_resource.hpp
         PUBLIC
             FILE_SET CXX_MODULES
             BASE_DIRS include
@@ -69,7 +73,11 @@ else()
         INTERFACE
             FILE_SET HEADERS
             BASE_DIRS include
-            FILES include/beman/scope/scope.hpp
+            FILES
+                include/beman/scope.hpp
+                include/beman/scope/scope.hpp
+                include/beman/scope/scope_guard.hpp
+                include/beman/scope/unique_resource.hpp
     )
 endif()
 

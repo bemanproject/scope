@@ -3,6 +3,7 @@
 #include <beman/scope.hpp>
 #include <memory>
 #include <cstdio>
+#include <functional>
 #include <stdexcept>
 
 // clang-format off
@@ -35,10 +36,10 @@ TEST_CASE("Construct file unique_resource", "[unique_resource]") {
 }
 
 struct DummyResource {
-    bool* cleanedUp;
+    bool& cleanedUp;
 
-    DummyResource(bool* flag) : cleanedUp(flag) {
-        *cleanedUp = false;
+    DummyResource(bool& flag) : cleanedUp(flag) {
+        cleanedUp = false;
     }
 
     void do_something() const {}
@@ -49,8 +50,8 @@ TEST_CASE("unique_resource calls cleanup on destruction", "[unique_resource]") {
 
     {
         auto res = unique_resource(
-            DummyResource(&cleaned),
-            [](DummyResource r) { *(r.cleanedUp) = true; }
+            DummyResource(cleaned),
+            [](DummyResource r) { r.cleanedUp = true; }
         );
 
         res.get().do_something();
@@ -64,8 +65,8 @@ TEST_CASE("unique_resource does not clean up after release", "[unique_resource]"
 
     {
         auto res = unique_resource(
-            DummyResource(&cleaned),
-            [](DummyResource r) { *(r.cleanedUp) = true; }
+            DummyResource(cleaned),
+            [](DummyResource r) { r.cleanedUp = true; }
         );
 
         res.release(); //no cleanup run
@@ -78,8 +79,8 @@ TEST_CASE("unique_resource moves properly", "[unique_resource]") {
     bool cleaned = false;
 
     unique_resource<DummyResource, void(*)(DummyResource)> res1(
-        DummyResource(&cleaned),
-        [](DummyResource r) { *(r.cleanedUp) = true; }
+        DummyResource(cleaned),
+        [](DummyResource r) { r.cleanedUp = true; }
     );
 
     {
@@ -94,25 +95,25 @@ TEST_CASE("unique_resource reset cleans up old resource", "[unique_resource]") {
     bool cleaned1 = false;
     bool cleaned2 = false;
 
-    DummyResource res1(&cleaned1);
-    DummyResource res2(&cleaned2);
+    DummyResource res1(cleaned1);
+    DummyResource res2(cleaned2);
 
     auto ur = unique_resource(
-        res1,
-        [](DummyResource r) { *(r.cleanedUp) = true; }
+        std::ref(res1),
+        [](DummyResource& r) { r.cleanedUp = true; }
     );
 
-    ur.reset(res2); // should clean up res1 and now manage res2
+    ur.reset(std::ref(res2)); // should clean up res1 and now manage res2
 
     REQUIRE(cleaned1 == true);
     REQUIRE(cleaned2 == false);
 }
 
 // Simulates throwing in the middle of a function using unique_resource
-void simulate_exception(bool* cleanup_flag) {
+void simulate_exception(bool& cleanup_flag) {
     auto res = unique_resource(
         DummyResource(cleanup_flag),
-        [](DummyResource r) { *(r.cleanedUp) = true; }
+        [](DummyResource r) { r.cleanedUp = true; }
     );
 
     throw std::runtime_error("Something went wrong");
@@ -122,7 +123,7 @@ TEST_CASE("unique_resource cleans up on exception", "[unique_resource][exception
     bool cleaned = false;
 
     try {
-        simulate_exception(&cleaned);
+        simulate_exception(cleaned);
     } catch (const std::exception& e) {
         // Expected
     }
@@ -135,8 +136,8 @@ TEST_CASE("unique_resource does not clean up if reset before exception", "[uniqu
 
     try {
         auto res = unique_resource(
-            DummyResource(&cleaned),
-            [](DummyResource r) { *(r.cleanedUp) = true; }
+            DummyResource(cleaned),
+            [](DummyResource r) { r.cleanedUp = true; }
         );
 
         res.reset(); // disables cleanup, sets cleaned true
@@ -152,20 +153,20 @@ TEST_CASE("unique_resource does not clean up if reset before exception", "[uniqu
     REQUIRE(cleaned == false);
 }
 
-TEST_CASE("unique_resource handles exception during reset", "[unique_resource][exception]") {
+TEST_CASE("unique_resource retains replacement after a caught exception", "[unique_resource][exception]") {
     bool cleaned1 = false;
     bool cleaned2 = false;
 
-    DummyResource res1(&cleaned1);
-    DummyResource res2(&cleaned2);
+    DummyResource res1(cleaned1);
+    DummyResource res2(cleaned2);
 
     auto ur = unique_resource(
-        res1,
-        [](DummyResource r) { *(r.cleanedUp) = true; }
+        std::ref(res1),
+        [](DummyResource& r) { r.cleanedUp = true; }
     );
 
     try {
-        ur.reset(res2);
+        ur.reset(std::ref(res2));
         throw std::runtime_error("Exception after reset");
     } catch (...) {
         // expected

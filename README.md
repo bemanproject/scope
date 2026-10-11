@@ -56,29 +56,39 @@ but with different checked conditions on exiting the scope.
     // triggered == true
 ```
 
-`unique_resource` is a cutomizeable RAII type similar to `unique_ptr`.
+`unique_resource` is a customizable RAII type that can own nonpointer resources,
+such as integer file descriptors. It closes the descriptor on scope exit,
+including early returns and exception unwinding.
 
 ```c++
 #include <beman/scope.hpp>
+#include <cstdio>
+#include <fcntl.h>
+#include <sys/stat.h>
+#include <unistd.h>
 
-  {
-    auto file = beman::scope::unique_resource(
-        fopen("example.txt", "w"), // function to acquire the FILE*
-        [](FILE* f) {              // function to cleanup on destruction
-            if (f) {
-                fclose(f); // Release (cleanup) the resource
-            }
-        }
-    );
+int main() {
+    auto file = beman::scope::make_unique_resource_checked(
+        ::open("example.txt", O_RDONLY), -1,
+        [](int fd) noexcept { ::close(fd); });
 
-    // use file via f->
-  }
+    if (file.get() == -1) {
+        std::perror("open");
+        return 1; // No cleanup is attempted for the invalid descriptor.
+    }
 
-  // Resource is automatically released when `file` goes out of scope
-  std::cout << "File has been closed \n";
+    struct stat info {};
+    if (::fstat(file.get(), &info) == -1) {
+        std::perror("fstat");
+        return 1; // The descriptor is still closed on this early return.
+    }
+
+    // Use info; the descriptor is automatically closed when file leaves scope.
+}
 ```
 
-Full runnable examples can be found in `examples/`.
+See the [runnable file-descriptor example](examples/unique_resource_fd.cpp)
+and the [examples index](examples/examples.md).
 
 ## License
 
@@ -86,9 +96,10 @@ beman.scope is licensed under the Apache License v2.0 with LLVM Exceptions.
 
 ## Integrate beman.scope into your project
 
-Beman.scope is a header-only library that currently relies on TS implementations
-for `unique_resource` and is thus currently available only on g++-13 and up, or
-clang 19 and up -- in C++20 mode.
+Beman.scope is a header-only library with its own scope guard and `unique_resource` implementations. The implementation requires C++20 or later.
+
+Include `<beman/scope.hpp>` for all facilities, or include
+`<beman/scope/scope_guard.hpp>` or `<beman/scope/unique_resource.hpp>` individually.
 
 Note that modules support is currently tested only on clang++-19 and above and g++-15, and
 is not supported if the C++ standard is below C++23.
@@ -120,6 +131,11 @@ You can disable building tests by setting CMake option `BEMAN_SCOPE_BUILD_TESTS`
 
 You can disable building examples by setting CMake option `BEMAN_SCOPE_BUILD_EXAMPLES` to
 `OFF` when configuring the project.
+
+Set `BEMAN_SCOPE_COMPARE_TS=ON` to enable optional tests comparing shared behavior
+with the standard library's `<experimental/scope>` implementation. These tests are
+skipped if the facilities are unavailable and supplement the specification-based
+tests; the library itself always uses its own implementations.
 
 ## Building beman.scope
 

@@ -3,6 +3,8 @@
 // clang-format off
 
 #include <beman/scope.hpp>
+#include <iomanip>
+#include <sstream>
 #include <stdexcept>
 #include <string>
 
@@ -11,6 +13,35 @@
 
 
 using beman::scope::scope_exit;
+
+TEST_CASE("scope_exit restores stream formatting flags", "[scope_exit]") {
+    std::ostringstream output;
+    output << std::dec << std::noshowbase << std::boolalpha;
+    const auto original_flags = output.flags();
+
+    auto print_hex = [&](bool throw_after_output) {
+        scope_exit restore_flags([&output, flags = output.flags()]() noexcept {
+            output.flags(flags);
+        });
+
+        output << std::hex << std::showbase << 42;
+        if (throw_after_output) {
+            throw std::runtime_error("Formatting interrupted");
+        }
+    };
+
+    SECTION("normal return") {
+        print_hex(false);
+    }
+
+    SECTION("exception unwinding") {
+        REQUIRE_THROWS_AS(print_hex(true), std::runtime_error);
+    }
+
+    REQUIRE(output.flags() == original_flags);
+    output << ' ' << 42;
+    REQUIRE(output.str() == "0x2a 42");
+}
 
 
 TEST_CASE("scope_exit runs handler on normal scope exit", "[scope_exit]") {
